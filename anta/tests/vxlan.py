@@ -91,7 +91,7 @@ def verify_vxlan_config_sanity(device: InventoryDevice) -> TestResult:
             if category in ["localVtep", "mlag"] and content["allCheckPass"] is not True
         }
 
-        if len(failed_categories) > 0:
+        if failed_categories:
             result.is_failure(
                 f"Vxlan config sanity check is not passing: {failed_categories}"
             )

@@ -53,7 +53,7 @@ def verify_transceivers_manufacturers(
             for interface, value in response[0]["xcvrSlots"].items()
             if value["mfgName"] not in manufacturers
         }
-        if len(wrong_manufacturers) == 0:
+        if not wrong_manufacturers:
             result.is_success()
         else:
             result.is_failure(
@@ -154,7 +154,7 @@ def verify_transceiver_temperature(device: InventoryDevice) -> TestResult:
             for sensor in sensors
             if sensor["hwStatus"] != "ok" or sensor["alertCount"] != 0
         }
-        if len(wrong_sensors) == 0:
+        if not wrong_sensors:
             result.is_success()
         else:
             result.is_failure(
@@ -166,8 +166,8 @@ def verify_transceiver_temperature(device: InventoryDevice) -> TestResult:
         logger.error(
             f"exception raised for {inspect.stack()[0][3]} -  {device.host}: {str(e)}"
         )
-        result.is_error(str(e))
 
+        result.is_error(str(e))
     return result
 
 
@@ -244,7 +244,7 @@ def verify_environment_power(device: InventoryDevice) -> TestResult:
             for powersupply, value in response[0]["powerSupplies"].items()
             if value["state"] != "ok"
         }
-        if len(wrong_power_supplies) == 0:
+        if not wrong_power_supplies:
             result.is_success()
         else:
             result.is_failure("The following power suppliers are not ok:")
@@ -254,8 +254,8 @@ def verify_environment_power(device: InventoryDevice) -> TestResult:
         logger.error(
             f"exception raised for {inspect.stack()[0][3]} -  {device.host}: {str(e)}"
         )
-        result.is_error(str(e))
 
+        result.is_error(str(e))
     return result
 
 

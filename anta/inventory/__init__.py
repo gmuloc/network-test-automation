@@ -163,7 +163,7 @@ class AntaInventory():
             bool: True if device is in our inventory, False if not
         """
         logger.debug(f'Checking if device {ip} is in our inventory')
-        return len([str(dev.host) for dev in self._inventory if str(ip) == str(dev.host)]) == 1
+        return len([str(dev.host) for dev in self._inventory if ip == str(dev.host)]) == 1
 
     def _is_device_online(self, device: InventoryDevice, timeout: float = 5) -> bool:
         """
@@ -407,7 +407,7 @@ class AntaInventory():
 
         if format_out == 'list':
             # pylint: disable=R1721
-            return [dev for dev in inventory]
+            return list(inventory)
 
         if format_out == 'json':
             return inventory.json()
@@ -424,7 +424,7 @@ class AntaInventory():
             InventoryDevice: Device information
         """
         if self._is_ip_exist(host_ip):
-            return [dev for dev in self._inventory if str(dev.host) == str(host_ip)][0]
+            return [dev for dev in self._inventory if str(dev.host) == host_ip][0]
         return None
 
     def get_device_session(self, host_ip: str) -> Server:
@@ -472,9 +472,9 @@ class AntaInventory():
         """
         logger.debug(
             f'Searching for device {host_ip} in {[str(dev.host) for dev in self._inventory]}')
-        if len([dev for dev in self._inventory if str(dev.host) == str(host_ip)]) > 0:
-            device = [dev for dev in self._inventory if str(
-                dev.host) == str(host_ip)][0]
+        if [dev for dev in self._inventory if str(dev.host) == host_ip]:
+            device = [dev for dev in self._inventory if str(dev.host) == host_ip][0]
+
             logger.debug(f'Search result is: {device}')
             if device.is_online and not device.established and self._is_ip_exist(host_ip):
                 logger.debug(f'Trying to connect to device {str(device.host)}')

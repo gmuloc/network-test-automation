@@ -105,6 +105,7 @@ def verify_terminattr_version(
 
 
 def verify_eos_extensions(device: InventoryDevice) -> TestResult:
+    # sourcery skip: extract-method, list-comprehension, move-assign-in-block, remove-pass-body
     """
     Verifies all EOS extensions installed on the device are enabled for boot persistence.
 
@@ -128,11 +129,14 @@ def verify_eos_extensions(device: InventoryDevice) -> TestResult:
         )
         logger.debug(f"query result is: {response}")
 
-        installed_extensions = []
+        installed_extensions: List[str] = []
         boot_extensions = []
-        for extension in response[0]["extensions"]:
-            if response[0]["extensions"][extension]["status"] == "installed":
-                installed_extensions.append(extension)
+        installed_extensions.extend(
+            extension
+            for extension in response[0]["extensions"]
+            if response[0]["extensions"][extension]["status"] == "installed"
+        )
+
         for extension in response[1]["extensions"]:
             extension = extension.strip("\n")
             if extension == "":
