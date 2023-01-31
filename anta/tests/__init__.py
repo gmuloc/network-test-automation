@@ -1,11 +1,11 @@
 """
 Test decorator from which tests can derive
 """
-
+from abc import ABC, abstractmethod
 import logging
 import traceback
 from functools import wraps
-from typing import Any, Callable, Coroutine, Dict, List
+from typing import Any, Callable, Coroutine, Dict, List, Optional
 
 from aioeapi import EapiCommandError
 from httpx import ConnectError, HTTPError
@@ -16,7 +16,9 @@ from anta.result_manager.models import TestResult
 logger = logging.getLogger(__name__)
 
 
-def anta_test(function: Callable[..., Coroutine[Any, Any, TestResult]]) -> Callable[..., Coroutine[Any, Any, Coroutine[Any, Any, TestResult]]]:
+def anta_test(
+    function: Callable[..., Coroutine[Any, Any, TestResult]]
+) -> Callable[..., Coroutine[Any, Any, Coroutine[Any, Any, TestResult]]]:
     """
     Decorator to generate the structure for a test
     * func (Callable): the test to be decorated
@@ -45,17 +47,62 @@ def anta_test(function: Callable[..., Coroutine[Any, Any, TestResult]]) -> Calla
             return await function(device, result, *args, **kwargs)
         except EapiCommandError as e:
             logger.error(f"Command failed on {device.name}: {e.errmsg}")
-            result.is_error(f"{type(e).__name__}{'' if not str(e) else f' ({str(e)})'}")
+            result.is_error(f"{type(e).__name__}{f' ({str(e)})' if str(e) else ''}")
         except (HTTPError, ConnectError) as e:
-            logger.warning(f"Cannot connect to device {device.name}: {type(e).__name__}{'' if not str(e) else f' ({str(e)})'}")
-            result.is_error(f"{type(e).__name__}{'' if not str(e) else f' ({str(e)})'}")
-        # In this case we want to catch all exceptions
+            logger.warning(
+                f"Cannot connect to device {device.name}: {type(e).__name__}{f' ({str(e)})' if str(e) else ''}"
+            )
+
+            result.is_error(f"{type(e).__name__}{f' ({str(e)})' if str(e) else ''}")
         except Exception as e:  # pylint: disable=broad-except
             logger.error(
-                f"Exception raised for test {function.__name__} (on device {device.host}) - {type(e).__name__}{'' if not str(e) else f' ({str(e)})'}"
+                f"Exception raised for test {function.__name__} (on device {device.host}) - {type(e).__name__}{f' ({str(e)})' if str(e) else ''}"
             )
+
             logger.debug(traceback.format_exc())
-            result.is_error(f"{type(e).__name__}{'' if not str(e) else f' ({str(e)})'}")
+            result.is_error(f"{type(e).__name__}{f' ({str(e)})' if str(e) else ''}")
         return result
 
     return wrapper
+
+
+class AntaTest(ABC):
+    """
+    Abstract class for an AntaTest
+    """
+
+    def test(
+        self, function: Callable[..., Coroutine[Any, Any, TestResult]]
+    ) -> Callable[..., Coroutine[Any, Any, Coroutine[Any, Any, TestResult]]]:
+        """
+        decorator to run the test
+        """
+        return anta_test(function)
+
+    @abstractmethod
+    async def run(
+        self,
+        device: InventoryDevice,
+        *args: List[Any],
+        data: Optional[Dict[str, Any]] = None,
+        **kwargs: Dict[str, Any],
+    ):
+        """
+        Must be implemented as follow
+
+        @AntaTest.test
+        def run(
+            self,
+            device: InventoryDevice,
+            *args: List[Any],
+            data: Optional[Dict[str, Any]] = None,
+            **kwargs: Dict[str, Any],
+            )
+        """
+
+    @abstractmethod
+    async def collect_data(self) -> dict:
+        """
+        Must be implemented
+        """
+        pass
