@@ -64,16 +64,15 @@ class VerifyRunningConfigDiffs(AntaTest):
     Verifies there is no difference between the running-config and the startup-config.
     """
 
-    name = 'verify_running_config_diffs'
-    description = ''
-    categories = ['configuration']
+    name = "verify_running_config_diffs"
+    description = ""
+    categories = ["configuration"]
     commands = [AntaTestCommand(command="show running-config diffs")]
 
     @AntaTest.anta_test
     def test(self) -> None:
-        self.logger.setLevel(level='DEBUG')
         response = self.eos_data[0]
-        self.logger.debug(f'response is {response}')
+        self.logger.debug(f"response is {response}")
         if response is None:
             self.result.is_success()
 
@@ -81,4 +80,4 @@ class VerifyRunningConfigDiffs(AntaTest):
             self.result.is_failure()
             for line in response.splitlines():
                 self.result.is_failure(line)
-        self.logger.debug(f'result is {self.result}')
+        self.logger.debug(f"result is {self.result}")

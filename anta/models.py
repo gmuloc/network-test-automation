@@ -5,9 +5,9 @@ from __future__ import annotations
 
 import logging
 import traceback
-from abc import ABC, abstractclassmethod, abstractmethod
+from abc import ABC, abstractmethod
 from functools import wraps
-from typing import Any
+from typing import Any, Callable, ClassVar, TypeVar, cast
 
 from aioeapi import EapiCommandError
 from httpx import ConnectError, HTTPError
@@ -16,6 +16,8 @@ from pydantic import BaseModel
 from anta.inventory.models import InventoryDevice
 from anta.result_manager.models import TestResult
 from anta.tools import exc_to_str
+
+F = TypeVar("F", bound=Callable[..., Any])
 
 
 class AntaTestCommand(BaseModel):
@@ -63,38 +65,14 @@ class AntaTest(ABC):
     """
 
     # Mandatory class attributes
-    # ignoring mypy issue
-    # https://github.com/python/mypy/issues/1362
-    @property  # type: ignore
-    @abstractclassmethod
-    def name(cls) -> str:  # sourcery skip: instance-method-first-arg-name
-        """Test Name"""
+    # TODO - find a way to tell mypy these are mandatory for child classes - maybe Protocol
+    name: ClassVar[str]
+    description: ClassVar[str]
+    categories: ClassVar[list[str]]
+    commands: ClassVar[list[AntaTestCommand]]
 
-    @property  # type: ignore
-    @abstractclassmethod
-    def description(cls) -> str:  # sourcery skip: instance-method-first-arg-name
-        """Test Description"""
-
-    @property  # type: ignore
-    @abstractclassmethod
-    def categories(cls) -> list[str]:  # sourcery skip: instance-method-first-arg-name
-        """Test Categories"""
-
-    @property  # type: ignore
-    @abstractclassmethod
-    def commands(
-        cls,
-    ) -> list[AntaTestCommand]:  # sourcery skip: instance-method-first-arg-name
-        """Test Commands"""
-
-    # TODO test_filters optional
-    @property  # type: ignore
-    @classmethod
-    def test_filters(cls) -> list[str]:  # sourcery skip: instance-method-first-arg-name
-        """Test Filters
-
-        for instance - supported platforms, ...
-        """
+    # Optional class attributes
+    test_filters: ClassVar[list[AntaTestFilter]]
 
     def __init__(
         self,
@@ -103,12 +81,24 @@ class AntaTest(ABC):
         labels: list[str] | None = None,
     ):
         self.logger = logging.getLogger(__name__).getChild(self.__class__.__name__)
+        self.logger.setLevel(level="INFO")
         self.device = device
         self.result = TestResult(name=device.name, test=self.name)
         self.labels = labels or []
         self.eos_data = eos_data or []
         # TODO - check if we do this
         # self.id = ?
+
+    def __init_subclass__(cls) -> None:
+        """
+        Verify that the mandatory class attributes are defined
+        """
+        mandatory_attributes = ["name", "description", "categories", "commands"]
+        for attr in mandatory_attributes:
+            if not hasattr(cls, attr):
+                raise NotImplementedError(
+                    f"Class {cls} is missing required class attribute {attr}"
+                )
 
     async def collect(self) -> None:
         """
@@ -154,10 +144,14 @@ class AntaTest(ABC):
             self.result.is_error(exc_to_str(e))
 
     @staticmethod
-    def anta_test(function):
+    def anta_test(function: F) -> F:
+        """
+        Decorator for anta_test that handles injecting test data if given and collecting it using asyncio if missing
+        """
+
         @wraps(function)
-        async def run(
-            self,
+        async def wrapper(
+            self: AntaTest,
             eos_data: list[dict[Any, Any]] | None = None,
             **kwargs: dict[str, Any],
         ) -> None:
@@ -192,7 +186,7 @@ class AntaTest(ABC):
                 self.result.is_error(exc_to_str(e))
             return
 
-        return run
+        return cast(F, wrapper)
 
     @abstractmethod
     def test(self) -> None:
