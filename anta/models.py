@@ -140,6 +140,10 @@ class AntaTest(ABC):
                     commands=[enable_cmd, command.command],
                     ofmt=command.ofmt,
                 )
+                # remove first dict related to enable command
+                # only applicable to json output
+                if command.ofmt == 'json':
+                    response.pop(0)
                 command.output = response
 
             self.logger.debug(
