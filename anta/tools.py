@@ -28,3 +28,12 @@ def pydantic_to_dict(pydantic_list: Union[InventoryDevices, ListResult]) -> Any:
         dev_dict = {k: str(v) for k, v in device}
         result.append(dev_dict)
     return result
+
+
+def exc_to_str(exception: Exception) -> str:
+    """
+    Helper function to parse Exceptions
+    """
+    return (
+        f"{type(exception).__name__}{f' ({str(exception)})' if str(exception) else ''}"
+    )

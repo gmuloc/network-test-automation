@@ -4,38 +4,67 @@ Test functions related to the device configuration
 import logging
 
 from anta.inventory.models import InventoryDevice
+from anta.models import AntaTest, AntaTestCommand
 from anta.result_manager.models import TestResult
 from anta.tests import anta_test
 
 logger = logging.getLogger(__name__)
 
 
-@anta_test
-async def verify_zerotouch(device: InventoryDevice, result: TestResult) -> TestResult:
+# @anta_test
+# async def verify_zerotouch(device: InventoryDevice, result: TestResult) -> TestResult:
+#
+#    """
+#    Verifies ZeroTouch is disabled.
+#
+#    Args:
+#        device (InventoryDevice): InventoryDevice instance containing all devices information.
+#
+#    Returns:
+#        TestResult instance with
+#        * result = "unset" if the test has not been executed
+#        * result = "success" if ZTP is disabled
+#        * result = "failure" if ZTP is enabled
+#        * result = "error" if any exception is caught
+#
+#    """
+#    response = await device.session.cli(command="show zerotouch", ofmt="json")
+#    logger.debug(f"query result is: {response}")
+#
+#    if response["mode"] == "disabled":
+#        result.is_success()
+#    else:
+#        result.is_failure("ZTP is NOT disabled")
+#
+#    return result
 
+
+class VerifyZeroTouch(AntaTest):
     """
     Verifies ZeroTouch is disabled.
-
-    Args:
-        device (InventoryDevice): InventoryDevice instance containing all devices information.
-
-    Returns:
-        TestResult instance with
-        * result = "unset" if the test has not been executed
-        * result = "success" if ZTP is disabled
-        * result = "failure" if ZTP is enabled
-        * result = "error" if any exception is caught
-
     """
-    response = await device.session.cli(command="show zerotouch", ofmt="json")
-    logger.debug(f"query result is: {response}")
 
-    if response["mode"] == "disabled":
-        result.is_success()
-    else:
-        result.is_failure("ZTP is NOT disabled")
+    name = "verify_zerotouch"
+    description = "Verifies ZeroTouch is disabled."
+    categories = ["configuration"]
+    commands = [AntaTestCommand(command="show zerotouch")]
 
-    return result
+    async def collect(self) -> None:
+        # TODO check if we can select ofmt
+        # TODO looks like this is generic code - could probably be abstracted
+        for command in VerifyZeroTouch.commands:
+            data = await self.device.session.cli(
+                command=command.command, ofmt=command.ofmt
+            )
+            self.eos_data.append(data)
+
+    def asserts(self) -> None:
+        # TODO - maybe eos_data should be index by commands ?
+        response = self.eos_data[0]
+        if response["mode"] == "disabled":
+            self.result.is_success()
+        else:
+            self.result.is_failure("ZTP is NOT disabled")
 
 
 @anta_test
