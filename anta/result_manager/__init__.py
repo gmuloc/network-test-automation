@@ -91,7 +91,7 @@ class ResultManager:
         Args:
             entries (List[TestResult]): list of TestResult data to add to the report
         """
-        logger.info(f'add new list of results to manager: {[str(r) for r in entries]}')
+        logger.info(f'add new list of results to manager: {[r.result for r in entries]}')
         self._result_entries.extend(entries)
 
     def get_results(self, output_format: str = "native") -> Any:

@@ -29,11 +29,13 @@ async def main(manager: ResultManager, inventory: AntaInventory, tests: List[Tup
             any: List of results.
     """
     await inventory.connect_inventory()
+
     # asyncio.gather takes an iterator of the function to run concurrently.
     # we get the cross product of the devices and tests to build that iterator.
-    res = await asyncio.gather(*(test[0](device, **test[1]) for device, test in
+    res = await asyncio.gather(*(test[0](device=device).test(eos_data=None, **test[1]) for device, test in
                                itertools.product(inventory.get_inventory(established_only=established_only, tags=tags), tests)), return_exceptions=True)
     for r in res:
         if isinstance(r, Exception):
             logger.error(f"Error when running tests: {r.__class__.__name__}: {r}")
+    logger.info(f'List of test result is: {res}')
     manager.add_test_results(res)

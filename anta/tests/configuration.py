@@ -22,14 +22,14 @@ class VerifyZeroTouch(AntaTest):
 
     @AntaTest.anta_test
     def test(self) -> None:
-        # TODO - easier way to access output ?
-        command_output = self.instance_commands[0].output
+        # TODO - easier way to access output ? / We need to make output[1] since we inject enable
+        command_output = self.instance_commands[0].output[1]
+        self.logger.info(f'dataset is: {command_output}')
         assert isinstance(command_output, dict)
         if command_output["mode"] == "disabled":
             self.result.is_success()
         else:
             self.result.is_failure("ZTP is NOT disabled")
-
 
 class VerifyRunningConfigDiffs(AntaTest):
     """

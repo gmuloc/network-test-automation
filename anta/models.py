@@ -202,7 +202,7 @@ class AntaTest(ABC):
                 )
                 self.logger.debug(traceback.format_exc())
                 self.result.is_error(exc_to_str(e))
-            return
+            return self.result
 
         return cast(F, wrapper)
 
