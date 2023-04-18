@@ -14,8 +14,6 @@ from httpx import HTTPError
 from anta.tests.configuration import VerifyRunningConfigDiffs, VerifyZeroTouch
 
 
-[{"output":[{"mode": "disabled"}]}]
-
 @pytest.mark.parametrize(
     "eos_data, side_effect, expected_result, expected_messages",
     [
