@@ -6,8 +6,9 @@ from __future__ import annotations
 import logging
 import traceback
 from abc import ABC, abstractmethod
+from copy import deepcopy
 from functools import wraps
-from typing import Any, Callable, ClassVar, TypeVar, cast
+from typing import Any, Callable, ClassVar, Dict, Optional, TypeVar, Union, cast
 
 from aioeapi import EapiCommandError
 from httpx import ConnectError, HTTPError
@@ -27,11 +28,13 @@ class AntaTestCommand(BaseModel):
         command(str): Test command
         version(str): eAPI version - default is latest
         ofmt(str):  eAPI output - json or text - default is json
+        output: collected output either dict for json or str for text
     """
 
     command: str
     version: str = "latest"
     ofmt: str = "json"
+    output: Optional[Union[Dict[Any, Any], str]]
 
 
 class AntaTestFilter(ABC):
@@ -77,7 +80,7 @@ class AntaTest(ABC):
     def __init__(
         self,
         device: InventoryDevice,
-        eos_data: list[dict[Any, Any]] | None = None,
+        eos_data: list[dict[Any, Any] | str] | None = None,
         labels: list[str] | None = None,
     ):
         self.logger = logging.getLogger(__name__).getChild(self.__class__.__name__)
@@ -85,9 +88,23 @@ class AntaTest(ABC):
         self.device = device
         self.result = TestResult(name=device.name, test=self.name)
         self.labels = labels or []
-        self.eos_data = eos_data or []
+        # TODO - check optimization
+        self.instance_commands = deepcopy(self.__class__.commands)
+        if eos_data is not None:
+            self.logger.debug("Test initialized with input data")
+            self.save_commands_data(eos_data)
+
         # TODO - check if we do this
         # self.id = ?
+
+    def save_commands_data(self, eos_data: list[dict[Any, Any] | str]) -> None:
+        """Called at init or at test execution time"""
+        for index, data in enumerate(eos_data or []):
+            self.instance_commands[index].output = data
+
+    def all_data_collected(self) -> bool:
+        """returns True if output is populated for every command"""
+        return all(command.output is not None for command in self.instance_commands)
 
     def __init_subclass__(cls) -> None:
         """
@@ -118,12 +135,12 @@ class AntaTest(ABC):
             else:
                 enable_cmd = {"cmd": "enable"}
             # accessing class attribute via self
-            for command in self.__class__.commands:
+            for command in self.instance_commands:
                 response = await self.device.session.cli(
                     commands=[enable_cmd, command.command],
                     ofmt=command.ofmt,
                 )
-                self.eos_data.append(response)
+                command.output = response
 
             self.logger.debug(
                 f"Data collected for test {self.name} for device {self.device.name}!"
@@ -152,7 +169,7 @@ class AntaTest(ABC):
         @wraps(function)
         async def wrapper(
             self: AntaTest,
-            eos_data: list[dict[Any, Any]] | None = None,
+            eos_data: list[dict[Any, Any] | str] | None = None,
             **kwargs: dict[str, Any],
         ) -> None:
             """
@@ -164,11 +181,12 @@ class AntaTest(ABC):
             # TODO maybe_skip ?
 
             # Data
-            if eos_data:
-                self.eos_data = eos_data
+            if eos_data is not None:
+                self.logger.debug("Test initialized with input data")
+                self.save_commands_data(eos_data)
 
             # No test data is present, try to collect
-            if not self.eos_data:
+            if not self.all_data_collected():
                 await self.collect()
                 if self.result.result != "unset":
                     return

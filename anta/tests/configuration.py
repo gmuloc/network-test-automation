@@ -1,42 +1,13 @@
 """
 Test functions related to the device configuration
 """
+from __future__ import annotations
+
 import logging
 
-from anta.inventory.models import InventoryDevice
 from anta.models import AntaTest, AntaTestCommand
-from anta.result_manager.models import TestResult
-from anta.tests import anta_test
 
 logger = logging.getLogger(__name__)
-
-
-# @anta_test
-# async def verify_zerotouch(device: InventoryDevice, result: TestResult) -> TestResult:
-#
-#    """
-#    Verifies ZeroTouch is disabled.
-#
-#    Args:
-#        device (InventoryDevice): InventoryDevice instance containing all devices information.
-#
-#    Returns:
-#        TestResult instance with
-#        * result = "unset" if the test has not been executed
-#        * result = "success" if ZTP is disabled
-#        * result = "failure" if ZTP is enabled
-#        * result = "error" if any exception is caught
-#
-#    """
-#    response = await device.session.cli(command="show zerotouch", ofmt="json")
-#    logger.debug(f"query result is: {response}")
-#
-#    if response["mode"] == "disabled":
-#        result.is_success()
-#    else:
-#        result.is_failure("ZTP is NOT disabled")
-#
-#    return result
 
 
 class VerifyZeroTouch(AntaTest):
@@ -51,9 +22,10 @@ class VerifyZeroTouch(AntaTest):
 
     @AntaTest.anta_test
     def test(self) -> None:
-        # TODO - maybe eos_data should be index by commands ?
-        response = self.eos_data[0]
-        if response["mode"] == "disabled":
+        # TODO - easier way to access output ?
+        command_output = self.instance_commands[0].output
+        assert isinstance(command_output, dict)
+        if command_output["mode"] == "disabled":
             self.result.is_success()
         else:
             self.result.is_failure("ZTP is NOT disabled")
@@ -67,17 +39,18 @@ class VerifyRunningConfigDiffs(AntaTest):
     name = "verify_running_config_diffs"
     description = ""
     categories = ["configuration"]
-    commands = [AntaTestCommand(command="show running-config diffs")]
+    commands = [AntaTestCommand(command="show running-config diffs", ofmt="text")]
 
     @AntaTest.anta_test
     def test(self) -> None:
-        response = self.eos_data[0]
-        self.logger.debug(f"response is {response}")
-        if response is None:
+        command_output = self.instance_commands[0].output
+        assert command_output is None or isinstance(command_output, str)
+        self.logger.debug(f"command_output is {command_output}")
+        if command_output is None:
             self.result.is_success()
 
         else:
             self.result.is_failure()
-            for line in response.splitlines():
+            for line in command_output.splitlines():
                 self.result.is_failure(line)
         self.logger.debug(f"result is {self.result}")

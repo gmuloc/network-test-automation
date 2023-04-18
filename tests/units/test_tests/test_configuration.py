@@ -2,6 +2,8 @@
 """
 Tests for anta.tests.configuration.py
 """
+from __future__ import annotations
+
 import asyncio
 from typing import Any, Dict, List
 from unittest.mock import MagicMock
@@ -9,7 +11,7 @@ from unittest.mock import MagicMock
 import pytest
 from httpx import HTTPError
 
-from anta.tests.configuration import VerifyZeroTouch, VerifyRunningConfigDiffs
+from anta.tests.configuration import VerifyRunningConfigDiffs, VerifyZeroTouch
 
 
 @pytest.mark.parametrize(
@@ -46,6 +48,7 @@ def test_VerifyZeroTouch(
     mocked_device.session.cli.side_effect = side_effect
     # TODO technically could avoid mocking to only test the assert part
     test = VerifyZeroTouch(mocked_device)
+    test.logger.setLevel(level="DEBUG")
     asyncio.run(test.test())
 
     assert test.name == "verify_zerotouch"
@@ -54,6 +57,7 @@ def test_VerifyZeroTouch(
     assert str(test.result.name) == mocked_device.name
     assert test.result.result == expected_result
     assert test.result.messages == expected_messages
+
 
 @pytest.mark.parametrize(
     "eos_data, side_effect, expected_result, expected_messages",
@@ -71,14 +75,14 @@ def test_VerifyZeroTouch(
             None,
             # False,
             "failure",
-            ['blah', 'blah'],
+            ["blah", "blah"],
             id="failure",
         ),
     ],
 )
 def test_VerifyRunningConfigDiffs(
     mocked_device: MagicMock,
-    eos_data: List[Dict[str, str]],
+    eos_data: List[str],
     side_effect: Any,
     expected_result: str,
     expected_messages: List[str],
