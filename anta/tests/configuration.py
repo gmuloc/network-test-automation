@@ -59,43 +59,67 @@ class VerifyZeroTouch(AntaTest):
             self.result.is_failure("ZTP is NOT disabled")
 
 
-@anta_test
-async def verify_running_config_diffs(
-    device: InventoryDevice, result: TestResult
-) -> TestResult:
-
+class VerifyRunningConfigDiffs(AntaTest):
     """
     Verifies there is no difference between the running-config and the startup-config.
-
-    Args:
-        device (InventoryDevice): InventoryDevice instance containing all devices information.
-
-    Returns:
-        TestResult instance with
-        * result = "unset" if the test has not been executed
-        * result = "success" if there is no difference between the running-config and the startup-config
-        * result = "failure" if there are differences
-        * result = "error" if any exception is caught
-
     """
-    if device.enable_password is not None:
-        enable_cmd = {"cmd": "enable", "input": str(device.enable_password)}
-    else:
-        enable_cmd = {"cmd": "enable"}
-    commands = [enable_cmd, "show running-config diffs"]
-    response = await device.session.cli(
-        commands=commands,
-        ofmt="text",
-    )
 
-    logger.debug(f"query result is: {response}")
+    name = 'verify_running_config_diffs'
+    description = ''
+    categories = ['configuration']
+    commands = [AntaTestCommand(command="show running-config diffs")]
 
-    if len(response[1]) == 0:
-        result.is_success()
+    @AntaTest.anta_test
+    def test(self) -> None:
+        self.logger.setLevel(level='DEBUG')
+        response = self.eos_data[0]
+        self.logger.debug(f'response is {response}')
+        if response is None:
+            self.result.is_success()
 
-    else:
-        result.is_failure()
-        for line in response[1].splitlines():
-            result.is_failure(line)
+        else:
+            self.result.is_failure()
+            for line in response.splitlines():
+                self.result.is_failure(line)
+        self.logger.debug(f'result is {self.result}')
 
-    return result
+# @anta_test
+# async def verify_running_config_diffs(
+#     device: InventoryDevice, result: TestResult
+# ) -> TestResult:
+
+#     """
+#     Verifies there is no difference between the running-config and the startup-config.
+
+#     Args:
+#         device (InventoryDevice): InventoryDevice instance containing all devices information.
+
+#     Returns:
+#         TestResult instance with
+#         * result = "unset" if the test has not been executed
+#         * result = "success" if there is no difference between the running-config and the startup-config
+#         * result = "failure" if there are differences
+#         * result = "error" if any exception is caught
+
+#     """
+#     if device.enable_password is not None:
+#         enable_cmd = {"cmd": "enable", "input": str(device.enable_password)}
+#     else:
+#         enable_cmd = {"cmd": "enable"}
+#     commands = [enable_cmd, "show running-config diffs"]
+#     response = await device.session.cli(
+#         commands=commands,
+#         ofmt="text",
+#     )
+
+#     logger.debug(f"query result is: {response}")
+
+#     if len(response[1]) == 0:
+#         result.is_success()
+
+#     else:
+#         result.is_failure()
+#         for line in response[1].splitlines():
+#             result.is_failure(line)
+
+#     return result

@@ -9,7 +9,7 @@ from unittest.mock import MagicMock
 import pytest
 from httpx import HTTPError
 
-from anta.tests.configuration import VerifyZeroTouch, verify_running_config_diffs
+from anta.tests.configuration import VerifyZeroTouch, VerifyRunningConfigDiffs
 
 
 @pytest.mark.parametrize(
@@ -55,68 +55,45 @@ def test_VerifyZeroTouch(
     assert test.result.result == expected_result
     assert test.result.messages == expected_messages
 
-
 @pytest.mark.parametrize(
-    "return_value, side_effect, remove_enable_password, expected_result, expected_messages",
+    "eos_data, side_effect, expected_result, expected_messages",
     [
         pytest.param(
-            [None, []],
+            [None],
             None,
-            False,
+            # False,
             "success",
             [],
             id="success",
         ),
         pytest.param(
-            [None, "blah\nblah"],
+            ["blah\nblah"],
             None,
-            False,
+            # False,
             "failure",
-            ["blah", "blah"],
+            ['blah', 'blah'],
             id="failure",
-        ),
-        # Hmmmm both errors do not return the same string ...
-        pytest.param(
-            None,
-            HTTPError("dummy"),
-            False,
-            "error",
-            ["HTTPError (dummy)"],
-            id="HTTP error",
-        ),
-        pytest.param(
-            None,
-            KeyError("dummy"),
-            False,
-            "error",
-            ["KeyError ('dummy')"],
-            id="Key error",
-        ),
-        pytest.param(
-            [None, []],
-            None,
-            False,
-            "success",
-            [],
-            id="success",
         ),
     ],
 )
-def test_verify_running_config_diffs(
+def test_VerifyRunningConfigDiffs(
     mocked_device: MagicMock,
-    return_value: List[Any],
+    eos_data: List[Dict[str, str]],
     side_effect: Any,
-    remove_enable_password: str,
     expected_result: str,
     expected_messages: List[str],
 ) -> None:
-    if remove_enable_password:
-        mocked_device.enable_password = None
-    mocked_device.session.cli.return_value = return_value
+    # TODO mock per command probably ..
+    if eos_data:
+        mocked_device.session.cli.return_value = eos_data[0]
     mocked_device.session.cli.side_effect = side_effect
-    result = asyncio.run(verify_running_config_diffs(mocked_device))
+    # TODO technically could avoid mocking to only test the assert part
+    test = VerifyRunningConfigDiffs(mocked_device)
+    asyncio.run(test.test())
 
-    assert result.test == "verify_running_config_diffs"
-    assert str(result.name) == mocked_device.name
-    assert result.result == expected_result
-    assert result.messages == expected_messages
+    assert test.name == "verify_running_config_diffs"
+    assert test.categories == ["configuration"]
+    assert test.result.test == "verify_running_config_diffs"
+    assert str(test.result.name) == mocked_device.name
+    assert test.result.result == expected_result
+    assert test.result.messages == expected_messages
