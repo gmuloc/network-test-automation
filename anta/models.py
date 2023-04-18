@@ -6,6 +6,7 @@ from __future__ import annotations
 import logging
 import traceback
 from abc import ABC, abstractclassmethod, abstractmethod
+from functools import wraps
 from typing import Any
 
 from aioeapi import EapiCommandError
@@ -109,7 +110,7 @@ class AntaTest(ABC):
         # TODO - check if we do this
         # self.id = ?
 
-    async def _collect(self) -> None:
+    async def collect(self) -> None:
         """
         Private collection methids used in anta_assert to handle collection failures
 
@@ -119,7 +120,21 @@ class AntaTest(ABC):
             f"No data for test {self.name} for device {self.device.name}: running collect"
         )
         try:
-            await self.collect()
+            if self.device.enable_password is not None:
+                enable_cmd = {
+                    "cmd": "enable",
+                    "input": str(self.device.enable_password),
+                }
+            else:
+                enable_cmd = {"cmd": "enable"}
+            # accessing class attribute via self
+            for command in self.__class__.commands:
+                response = await self.device.session.cli(
+                    commands=[enable_cmd, command.command],
+                    ofmt=command.ofmt,
+                )
+                self.eos_data.append(response)
+
             self.logger.debug(
                 f"Data collected for test {self.name} for device {self.device.name}!"
             )
@@ -138,55 +153,49 @@ class AntaTest(ABC):
             self.logger.debug(traceback.format_exc())
             self.result.is_error(exc_to_str(e))
 
-    @abstractmethod
-    async def collect(self) -> None:
-        """
-        This method MUST be implemented for an AntaTest
-        The expectation is that it is an asyncio method
+    @staticmethod
+    def anta_test(function):
+        @wraps(function)
+        async def run(
+            self,
+            eos_data: list[dict[Any, Any]] | None = None,
+            **kwargs: dict[str, Any],
+        ) -> None:
+            """
+            This method will call assert
 
-        TODO
+            Returns:
+                TestResult: self.result, populated with the correct exit status
+            """
+            # TODO maybe_skip ?
 
-        Raises if anything fail
-        """
+            # Data
+            if eos_data:
+                self.eos_data = eos_data
 
-    async def anta_assert(
-        self,
-        eos_data: list[dict[Any, Any]] | None = None,
-        **kwargs: dict[str, Any],
-    ) -> TestResult:
-        """
-        This method will call assert
+            # No test data is present, try to collect
+            if not self.eos_data:
+                await self.collect()
+                if self.result.result != "unset":
+                    return
 
-        Returns:
-            TestResult: self.result, populated with the correct exit status
-        """
-        # TODO maybe_skip ?
-
-        # Data
-        if eos_data:
-            self.eos_data = eos_data
-
-        # No test data is present, try to collect
-        if not self.eos_data:
-            await self._collect()
-            if self.result.result != "unset":
-                return self.result
-
-        self.logger.debug(
-            f"Running asserts for test {self.name} for device {self.device.name}: running collect"
-        )
-        try:
-            self.asserts(**kwargs)
-        except Exception as e:  # pylint: disable=broad-exception-caught
-            self.logger.error(
-                f"Exception raised during 'assert' for test {self.name} (on device {self.device.name}) - {exc_to_str(e)}"
+            self.logger.debug(
+                f"Running asserts for test {self.name} for device {self.device.name}: running collect"
             )
-            self.logger.debug(traceback.format_exc())
-            self.result.is_error(exc_to_str(e))
-        return self.result
+            try:
+                function(self, **kwargs)
+            except Exception as e:  # pylint: disable=broad-exception-caught
+                self.logger.error(
+                    f"Exception raised during 'assert' for test {self.name} (on device {self.device.name}) - {exc_to_str(e)}"
+                )
+                self.logger.debug(traceback.format_exc())
+                self.result.is_error(exc_to_str(e))
+            return
+
+        return run
 
     @abstractmethod
-    def asserts(self) -> None:
+    def test(self) -> None:
         """
         This abstract method is the core of the test.
         It MUST set the correct status of self.result with the appropriate error messages

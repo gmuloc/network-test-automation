@@ -49,16 +49,8 @@ class VerifyZeroTouch(AntaTest):
     categories = ["configuration"]
     commands = [AntaTestCommand(command="show zerotouch")]
 
-    async def collect(self) -> None:
-        # TODO check if we can select ofmt
-        # TODO looks like this is generic code - could probably be abstracted
-        for command in VerifyZeroTouch.commands:
-            data = await self.device.session.cli(
-                command=command.command, ofmt=command.ofmt
-            )
-            self.eos_data.append(data)
-
-    def asserts(self) -> None:
+    @AntaTest.anta_test
+    def test(self) -> None:
         # TODO - maybe eos_data should be index by commands ?
         response = self.eos_data[0]
         if response["mode"] == "disabled":

@@ -46,7 +46,7 @@ def test_VerifyZeroTouch(
     mocked_device.session.cli.side_effect = side_effect
     # TODO technically could avoid mocking to only test the assert part
     test = VerifyZeroTouch(mocked_device)
-    asyncio.run(test.anta_assert())
+    asyncio.run(test.test())
 
     assert test.name == "verify_zerotouch"
     assert test.categories == ["configuration"]
