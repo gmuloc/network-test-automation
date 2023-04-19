@@ -18,6 +18,8 @@ from rich import print_json
 from rich.console import Console
 
 from anta.cli.utils import setup_logging
+from anta.models import AntaTestCommand
+from anta.cli.debug.utils import RunArbitraryCommand
 from anta.inventory import AntaInventory
 from anta.tools import exc_to_str
 
@@ -58,23 +60,8 @@ def run_cmd(ctx: click.Context, command: str, ofmt: str, api_version: str, devic
 
     console.print(f'run command [green]{command}[/green] on [red]{device}[/red]')
 
-    try:
-        result = asyncio.run(device_anta.session.cli(commands=[enable_cmd, command], ofmt=ofmt))
-        if ofmt == 'json':
-            result.pop(0)
-    except EapiCommandError as e:
-        logger.error(f"Command failed on {device_anta.name}: {e.errmsg}")
-    except (HTTPError, ConnectError) as e:
-        logger.error(
-            f"Cannot connect to device {device.name}: {type(e).__name__}{exc_to_str(e)}"
-        )
-    except Exception as e:  # pylint: disable=broad-exception-caught
-        logger.error(
-            f"Exception raised while collecting data for command {command} (on device {device_anta.name}) - {exc_to_str(e)}"
-        )
-        logger.debug(traceback.format_exc())
-    else:
-        if ofmt == json:
-            print_json(json.dumps(result))
-        else:
-            console.print(result)
+    run_command = RunArbitraryCommand(device=device_anta)
+    run_command.instance_commands = [AntaTestCommand(command=command, ofmt=ofmt, version=api_version)]
+    asyncio.run(run_command.collect())
+    result = run_command.instance_commands[0].output
+    console.print(result)
