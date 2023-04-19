@@ -12,6 +12,7 @@ from anta import __version__
 from anta.cli.check import commands as check_commands
 from anta.cli.exec import commands as exec_commands
 from anta.cli.get import commands as get_commands
+from anta.cli.debug import commands as debug_commands
 
 # Top level entrypoint
 
@@ -51,6 +52,10 @@ def _exec() -> None:
 def get() -> None:
     """Get data from/to ANTA"""
 
+@anta.group("debug")
+def debug() -> None:
+    """Debug commands for building ANTA"""
+
 
 # ANTA CLI Execution
 def cli() -> None:
@@ -63,6 +68,8 @@ def cli() -> None:
     get.add_command(get_commands.from_cvp)
     get.add_command(get_commands.inventory)
     get.add_command(get_commands.tags)
+
+    debug.add_command(debug_commands.run_cmd)
 
     nrfu.add_command(check_commands.table)
     nrfu.add_command(check_commands.json)
