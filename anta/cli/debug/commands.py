@@ -50,14 +50,6 @@ def run_cmd(ctx: click.Context, command: str, ofmt: str, api_version: str, devic
 
     logger.info(f'receive device from inventory: {device_anta}')
 
-    if device_anta.enable_password is not None:
-        enable_cmd = {
-            "cmd": "enable",
-            "input": str(device_anta.enable_password),
-        }
-    else:
-        enable_cmd = {"cmd": "enable"}
-
     console.print(f'run command [green]{command}[/green] on [red]{device}[/red]')
 
     run_command = RunArbitraryCommand(device=device_anta)
