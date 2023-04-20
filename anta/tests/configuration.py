@@ -1,11 +1,13 @@
 """
 Test functions related to the device configuration
 """
+
+# pylint: disable = too-few-public-methods
+
 from __future__ import annotations
 
 import logging
-
-from anta.models_split_demo import AntaTest, AntaTestCommand
+from anta.models import AntaTest, AntaTestCommand
 
 logger = logging.getLogger(__name__)
 
@@ -22,6 +24,7 @@ class VerifyZeroTouch(AntaTest):
 
     @AntaTest.anta_test
     def test(self) -> None:
+        """Run VerifyZeroTouch validation"""
         self.logger.setLevel(logging.DEBUG)
         # TODO - easier way to access output ?
         self.logger.debug(f'self.instance_commands is: {self.instance_commands}')
@@ -32,6 +35,7 @@ class VerifyZeroTouch(AntaTest):
             self.result.is_success()
         else:
             self.result.is_failure("ZTP is NOT disabled")
+
 
 class VerifyRunningConfigDiffs(AntaTest):
     """
@@ -45,6 +49,7 @@ class VerifyRunningConfigDiffs(AntaTest):
 
     @AntaTest.anta_test
     def test(self) -> None:
+        """Run VerifyRunningConfigDiffs validation"""
         self.logger.debug(f"self.instance_commands is {self.instance_commands}")
         command_output = self.instance_commands[0].output
         self.logger.debug(f"command_output is {command_output}")

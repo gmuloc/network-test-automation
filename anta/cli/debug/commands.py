@@ -8,20 +8,14 @@ Commands for Anta CLI to run debug commands.
 
 import asyncio
 import logging
-import traceback
-import json
 
 import click
-from aioeapi import EapiCommandError
-from httpx import ConnectError, HTTPError
-from rich import print_json
 from rich.console import Console
 
 from anta.cli.utils import setup_logging
 from anta.models import AntaTestCommand
 from anta.cli.debug.utils import RunArbitraryCommand
 from anta.inventory import AntaInventory
-from anta.tools.misc import exc_to_str
 
 logger = logging.getLogger(__name__)
 

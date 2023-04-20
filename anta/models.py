@@ -40,8 +40,8 @@ class AntaTestCommand(BaseModel):
     def __init__(self, **kwargs: Dict[str, Any]):
         """Class constructor"""
         super().__init__(**kwargs)
-        if not hasattr(object, '_commands_run'):
-            object.__setattr__(self, '_commands_run', [self.command])
+        if not hasattr(object, 'command_exc'):
+            object.__setattr__(self, 'command_exc', [self.command])
 
 
 class AntaTestDynamiCommand(AntaTestCommand):
@@ -66,7 +66,7 @@ class AntaTestDynamiCommand(AntaTestCommand):
     def __init__(self, **kwargs: Dict[str, Any]):
         """Class constructor"""
         super().__init__(**kwargs)
-        object.__setattr__(self, '_commands_run', [str(self.command).format(**param) for param in self.parameters])
+        object.__setattr__(self, 'command_exc', [str(self.command).format(**param) for param in self.parameters])
 
 
 class AntaTestFilter(ABC):
@@ -162,7 +162,6 @@ class AntaTest(ABC):
         for command in self.instance_commands:
             command = await(self.device.collect(command=command))
 
-
     @staticmethod
     def anta_test(function: F) -> F:
         """
@@ -174,7 +173,7 @@ class AntaTest(ABC):
             self: AntaTest,
             eos_data: list[dict[Any, Any] | str] | None = None,
             **kwargs: dict[str, Any],
-        ) -> None:
+        ) -> TestResult:
             """
             This method will call assert
 
@@ -192,7 +191,7 @@ class AntaTest(ABC):
             if not self.all_data_collected():
                 await self.collect()
                 if self.result.result != "unset":
-                    return
+                    return self.result
 
             self.logger.debug(
                 f"Running asserts for test {self.name} for device {self.device.name}: running collect"

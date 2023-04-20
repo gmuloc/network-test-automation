@@ -52,6 +52,7 @@ def _exec() -> None:
 def get() -> None:
     """Get data from/to ANTA"""
 
+
 @anta.group("debug")
 def debug() -> None:
     """Debug commands for building ANTA"""

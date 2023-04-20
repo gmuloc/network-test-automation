@@ -122,7 +122,6 @@ class InventoryDevice(BaseModel):
     timeout: float = 10.0
     logger = logging.getLogger(__name__)
 
-
     def __init__(self, **kwargs: Dict[str, Any]):
         """Class constructor
         - configure an object logger
@@ -209,14 +208,14 @@ class InventoryDevice(BaseModel):
                 enable_cmd = {"cmd": "enable"}
             # accessing class attribute via self
             response = await self.session.cli(
-                commands=[enable_cmd]+list(command._commands_run),
-                ofmt=command.ofmt,
+                commands=[enable_cmd]+list(command.command_exc),  # mypy: attr-defined
+                ofmt=command.ofmt,  # mypy: attr-defined
             )
             # remove first dict related to enable command
             # only applicable to json output
-            if command.ofmt == 'json':
+            if command.ofmt == 'json':  # mypy: attr-defined
                 response.pop(0)
-            command.output = response
+            command.output = response  # mypy: attr-defined
 
         except EapiCommandError as e:
             self.logger.error(f"Command failed on {self.name}: {e.errmsg}")
@@ -231,6 +230,7 @@ class InventoryDevice(BaseModel):
             )
             self.logger.debug(traceback.format_exc())
         return command
+
 
 class InventoryDevices(BaseModel):
     """
