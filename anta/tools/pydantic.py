@@ -1,12 +1,16 @@
 """
-Toolkit for ANTA.
+Toolkit for ANTA to play with Pydantic.
 """
+
+from __future__ import annotations
 
 import logging
 from typing import Any, Union
 
-from .inventory.models import InventoryDevices
-from .result_manager.models import ListResult
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from anta.inventory.models import InventoryDevices
+    from anta.result_manager.models import ListResult
 
 logger = logging.getLogger(__name__)
 
@@ -28,12 +32,3 @@ def pydantic_to_dict(pydantic_list: Union[InventoryDevices, ListResult]) -> Any:
         dev_dict = {k: str(v) for k, v in device}
         result.append(dev_dict)
     return result
-
-
-def exc_to_str(exception: Exception) -> str:
-    """
-    Helper function to parse Exceptions
-    """
-    return (
-        f"{type(exception).__name__}{f' ({str(exception)})' if str(exception) else ''}"
-    )

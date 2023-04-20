@@ -21,7 +21,7 @@ from anta.cli.utils import setup_logging
 from anta.models import AntaTestCommand
 from anta.cli.debug.utils import RunArbitraryCommand
 from anta.inventory import AntaInventory
-from anta.tools import exc_to_str
+from anta.tools.misc import exc_to_str
 
 logger = logging.getLogger(__name__)
 

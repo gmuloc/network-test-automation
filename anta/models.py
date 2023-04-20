@@ -1,6 +1,7 @@
 """
 Models to define a TestStructure
 """
+
 from __future__ import annotations
 
 import logging
@@ -8,16 +9,16 @@ import traceback
 from abc import ABC, abstractmethod
 from copy import deepcopy
 from functools import wraps
-from jinja2 import Environment
-from typing import Any, Callable, ClassVar, Dict, Optional, TypeVar, Union, cast, List
+from typing import Any, Callable, ClassVar, Dict, List, Optional, TypeVar, Union, cast, TYPE_CHECKING
 
-from aioeapi import EapiCommandError
-from httpx import ConnectError, HTTPError
 from pydantic import BaseModel
 
-from anta.inventory.models import InventoryDevice
+from anta.tools.misc import exc_to_str
+
 from anta.result_manager.models import TestResult
-from anta.tools import exc_to_str
+
+if TYPE_CHECKING:
+    from anta.inventory.models import InventoryDevice
 
 F = TypeVar("F", bound=Callable[..., Any])
 
@@ -42,6 +43,7 @@ class AntaTestCommand(BaseModel):
         if not hasattr(object, '_commands_run'):
             object.__setattr__(self, '_commands_run', [self.command])
 
+
 class AntaTestDynamiCommand(AntaTestCommand):
     """
     Class to define a test command with dynamic parameters
@@ -64,23 +66,6 @@ class AntaTestDynamiCommand(AntaTestCommand):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         object.__setattr__(self, '_commands_run', [str(self.command).format(**param) for param in self.parameters])
-
-class AntaTestJinjaCommand(AntaTestCommand):
-    """Class to define test using Jinja2 syntax
-
-    TODO: Make doc
-
-    """
-
-    parameters: List[Dict[Any, Any]]
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        rendering = [
-            Environment().from_string(self.command).render(entry)
-            for entry in self.parameters
-        ]
-        object.__setattr__(self, '_commands_run', rendering)
 
 
 class AntaTestFilter(ABC):
@@ -167,48 +152,14 @@ class AntaTest(ABC):
         """
         Private collection methids used in anta_assert to handle collection failures
 
-        it calls the user defined collect coroutine
-        """
-        self.logger.debug(
-            f"No data for test {self.name} for device {self.device.name}: running collect"
-        )
-        try:
-            if self.device.enable_password is not None:
-                enable_cmd = {
-                    "cmd": "enable",
-                    "input": str(self.device.enable_password),
-                }
-            else:
-                enable_cmd = {"cmd": "enable"}
-            # accessing class attribute via self
-            for command in self.instance_commands:
-                response = await self.device.session.cli(
-                    commands=[enable_cmd]+list(command._commands_run),
-                    ofmt=command.ofmt,
-                )
-                # remove first dict related to enable command
-                # only applicable to json output
-                if command.ofmt == 'json':
-                    response.pop(0)
-                command.output = response
+        it calls the collect co-routing define in InventoryDevice to collect ouput per command
 
-            self.logger.debug(
-                f"Data collected for test {self.name} for device {self.device.name}!"
-            )
-        except EapiCommandError as e:
-            self.logger.error(f"Command failed on {self.device.name}: {e.errmsg}")
-            self.result.is_error(exc_to_str(e))
-        except (HTTPError, ConnectError) as e:
-            self.logger.error(
-                f"Cannot connect to device {self.device.name}: {type(e).__name__}{exc_to_str(e)}"
-            )
-            self.result.is_error(exc_to_str(e))
-        except Exception as e:  # pylint: disable=broad-exception-caught
-            self.logger.error(
-                f"Exception raised while collecting data for test {self.name} (on device {self.device.name}) - {exc_to_str(e)}"
-            )
-            self.logger.debug(traceback.format_exc())
-            self.result.is_error(exc_to_str(e))
+        FIXME: to be tested and review
+        """
+
+        for command in self.instance_commands:
+            command = await(self.device.collect(command=command))
+
 
     @staticmethod
     def anta_test(function: F) -> F:

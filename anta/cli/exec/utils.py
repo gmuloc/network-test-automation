@@ -19,7 +19,7 @@ from scp import SCPClient
 
 from anta.inventory import AntaInventory
 from anta.inventory.models import InventoryDevice
-from anta.tools import exc_to_str
+from anta.tools.misc import exc_to_str
 
 EOS_TECH_SUPPORT_ARCHIVE_ZIP = "/mnt/flash/schedule/all_files.zip"
 

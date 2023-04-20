@@ -1,12 +1,19 @@
 """Models related to inventory management."""
 
+from __future__ import annotations
+
 import logging
+import traceback
 from typing import Any, Dict, Iterator, List, Optional, Type, Union
 
 import paramiko
-from aioeapi import Device
+from aioeapi import Device, EapiCommandError
+from httpx import ConnectError, HTTPError
 from paramiko.ssh_exception import AuthenticationException, SSHException
 from pydantic import BaseModel, IPvAnyAddress, IPvAnyNetwork, conint, constr, root_validator
+
+from anta.models import AntaTestCommand, AntaTestDynamiCommand
+from anta.tools.misc import exc_to_str
 
 # Default values
 
@@ -113,6 +120,15 @@ class InventoryDevice(BaseModel):
     hw_model: str = DEFAULT_HW_MODEL
     tags: List[str] = [DEFAULT_TAG]
     timeout: float = 10.0
+    logger = logging.getLogger(__name__)
+
+
+    def __init__(self, **kwargs):
+        """Class constructor
+        - configure an object logger
+        """
+        object.__setattr__(self, 'logger', logging.getLogger(__name__).getChild(self.__class__.__name__))
+        super().__init__(**kwargs)
 
     @root_validator(pre=True)
     def build_device(cls: Type[Any], values: Dict[str, Any]) -> Dict[str, Any]:
@@ -177,6 +193,45 @@ class InventoryDevice(BaseModel):
             logging.error(error)
         return client
 
+    async def collect(self, command: list[Union[AntaTestCommand, AntaTestDynamiCommand]]) -> Any:
+        # list[Union[AntaTestCommand, AntaTestDynamiCommand]]
+        """Collect device command result
+        FIXME: Under development / testing
+        TODO: Build documentation
+        """
+        self.logger.debug(f'run collect from device {self.name} for {command}')
+        try:
+            if self.enable_password is not None:
+                enable_cmd = {
+                    "cmd": "enable",
+                    "input": str(self.enable_password),
+                }
+            else:
+                enable_cmd = {"cmd": "enable"}
+            # accessing class attribute via self
+            response = await self.session.cli(
+                commands=[enable_cmd]+list(command._commands_run),
+                ofmt=command.ofmt,
+            )
+            # remove first dict related to enable command
+            # only applicable to json output
+            if command.ofmt == 'json':
+                response.pop(0)
+            command.output = response
+
+        except EapiCommandError as e:
+            self.logger.error(f"Command failed on {self.name}: {e.errmsg}")
+        except (HTTPError, ConnectError) as e:
+            self.logger.error(
+                f"Cannot connect to device {self.name}: {type(e).__name__}{exc_to_str(e)}"
+            )
+            self.logger.debug(traceback.format_exc())
+        except Exception as e:  # pylint: disable=broad-exception-caught
+            self.logger.error(
+                f"Exception raised while collecting data for test {self.name} (on device {self.name}) - {exc_to_str(e)}"
+            )
+            self.logger.debug(traceback.format_exc())
+        return command
 
 class InventoryDevices(BaseModel):
     """

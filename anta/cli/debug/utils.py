@@ -8,8 +8,8 @@ Utils functions to use with anta.cli.cli module.
 import asyncio
 import logging
 from typing import List
-from anta.models import AntaTest, AntaTestCommand
-from anta.inventory.models import InventoryDevice
+from anta.models import AntaTest
+from anta.models import AntaTestCommand
 
 
 class RunArbitraryCommand(AntaTest):

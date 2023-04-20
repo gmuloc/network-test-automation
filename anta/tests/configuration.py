@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import logging
 
-from anta.models import AntaTest, AntaTestCommand
+from anta.models_split_demo import AntaTest, AntaTestCommand
 
 logger = logging.getLogger(__name__)
 

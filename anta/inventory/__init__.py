@@ -2,6 +2,8 @@
 Inventory Module for ANTA.
 """
 
+from __future__ import annotations
+
 import asyncio
 import logging
 from typing import Any, Dict, List, Optional
@@ -13,8 +15,8 @@ from netaddr import IPAddress, IPNetwork
 from pydantic import ValidationError
 from yaml.loader import SafeLoader
 
-from .exceptions import InventoryIncorrectSchema, InventoryRootKeyErrors
-from .models import AntaInventoryInput, InventoryDevice, InventoryDevices
+from anta.inventory.exceptions import InventoryIncorrectSchema, InventoryRootKeyErrors
+from anta.inventory.models import AntaInventoryInput, InventoryDevice, InventoryDevices
 
 logger = logging.getLogger(__name__)
 

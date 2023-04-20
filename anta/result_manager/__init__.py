@@ -7,7 +7,7 @@ import logging
 from typing import Any, List
 
 from anta.result_manager.models import ListResult, TestResult
-from anta.tools import pydantic_to_dict
+from anta.tools.pydantic import pydantic_to_dict
 
 logger = logging.getLogger(__name__)
 
