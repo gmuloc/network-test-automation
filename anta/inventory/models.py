@@ -123,7 +123,7 @@ class InventoryDevice(BaseModel):
     logger = logging.getLogger(__name__)
 
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: Dict[str, Any]):
         """Class constructor
         - configure an object logger
         """
@@ -194,7 +194,6 @@ class InventoryDevice(BaseModel):
         return client
 
     async def collect(self, command: list[Union[AntaTestCommand, AntaTestDynamiCommand]]) -> Any:
-        # list[Union[AntaTestCommand, AntaTestDynamiCommand]]
         """Collect device command result
         FIXME: Under development / testing
         TODO: Build documentation

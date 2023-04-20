@@ -9,13 +9,12 @@ import traceback
 from abc import ABC, abstractmethod
 from copy import deepcopy
 from functools import wraps
-from typing import Any, Callable, ClassVar, Dict, List, Optional, TypeVar, Union, cast, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Callable, ClassVar, Dict, List, Optional, TypeVar, Union, cast
 
 from pydantic import BaseModel
 
-from anta.tools.misc import exc_to_str
-
 from anta.result_manager.models import TestResult
+from anta.tools.misc import exc_to_str
 
 if TYPE_CHECKING:
     from anta.inventory.models import InventoryDevice
@@ -38,7 +37,8 @@ class AntaTestCommand(BaseModel):
     ofmt: str = "json"
     output: Optional[Union[Dict[Any, Any], str]]
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: Dict[str, Any]):
+        """Class constructor"""
         super().__init__(**kwargs)
         if not hasattr(object, '_commands_run'):
             object.__setattr__(self, '_commands_run', [self.command])
@@ -63,7 +63,8 @@ class AntaTestDynamiCommand(AntaTestCommand):
     # command_base: str
     parameters: List[Dict[Any, Any]] = [{}]
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: Dict[str, Any]):
+        """Class constructor"""
         super().__init__(**kwargs)
         object.__setattr__(self, '_commands_run', [str(self.command).format(**param) for param in self.parameters])
 
@@ -114,6 +115,7 @@ class AntaTest(ABC):
         eos_data: list[dict[Any, Any] | str] | None = None,
         labels: list[str] | None = None,
     ):
+        """Class constructor"""
         self.logger = logging.getLogger(__name__).getChild(self.__class__.__name__)
         self.logger.setLevel(level="INFO")
         self.device = device

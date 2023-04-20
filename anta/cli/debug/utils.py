@@ -5,11 +5,7 @@
 Utils functions to use with anta.cli.cli module.
 """
 
-import asyncio
-import logging
-from typing import List
-from anta.models import AntaTest
-from anta.models import AntaTestCommand
+from anta.models import AntaTest, AntaTestCommand
 
 
 class RunArbitraryCommand(AntaTest):
@@ -30,4 +26,3 @@ class RunArbitraryCommand(AntaTest):
         Fake test function
         CLI should only call self.collect()
         """
-        pass
