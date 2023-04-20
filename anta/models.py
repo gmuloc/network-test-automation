@@ -8,7 +8,7 @@ import traceback
 from abc import ABC, abstractmethod
 from copy import deepcopy
 from functools import wraps
-import itertools
+from jinja2 import Environment
 from typing import Any, Callable, ClassVar, Dict, Optional, TypeVar, Union, cast, List
 
 from aioeapi import EapiCommandError
@@ -39,7 +39,8 @@ class AntaTestCommand(BaseModel):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        object.__setattr__(self, '_commands_run', [self.command])
+        if not hasattr(object, '_commands_run'):
+            object.__setattr__(self, '_commands_run', [self.command])
 
 class AntaTestDynamiCommand(AntaTestCommand):
     """
@@ -58,11 +59,28 @@ class AntaTestDynamiCommand(AntaTestCommand):
         _type_: _description_
     """
     # command_base: str
-    parameters: List[str] = []
+    parameters: List[Dict[Any, Any]] = [{}]
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        object.__setattr__(self, '_commands_run', [f'{self.command} {param}' for param in self.parameters])
+        object.__setattr__(self, '_commands_run', [str(self.command).format(**param) for param in self.parameters])
+
+class AntaTestJinjaCommand(AntaTestCommand):
+    """Class to define test using Jinja2 syntax
+
+    TODO: Make doc
+
+    """
+
+    parameters: List[Dict[Any, Any]]
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        rendering = [
+            Environment().from_string(self.command).render(entry)
+            for entry in self.parameters
+        ]
+        object.__setattr__(self, '_commands_run', rendering)
 
 
 class AntaTestFilter(ABC):
@@ -100,7 +118,7 @@ class AntaTest(ABC):
     name: ClassVar[str]
     description: ClassVar[str]
     categories: ClassVar[list[str]]
-    commands: ClassVar[list[AntaTestCommand]]
+    commands: ClassVar[list[Union[AntaTestCommand, AntaTestDynamiCommand]]]
 
     # Optional class attributes
     test_filters: ClassVar[list[AntaTestFilter]]
