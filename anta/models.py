@@ -8,7 +8,8 @@ import traceback
 from abc import ABC, abstractmethod
 from copy import deepcopy
 from functools import wraps
-from typing import Any, Callable, ClassVar, Dict, Optional, TypeVar, Union, cast
+import itertools
+from typing import Any, Callable, ClassVar, Dict, Optional, TypeVar, Union, cast, List
 
 from aioeapi import EapiCommandError
 from httpx import ConnectError, HTTPError
@@ -35,6 +36,33 @@ class AntaTestCommand(BaseModel):
     version: str = "latest"
     ofmt: str = "json"
     output: Optional[Union[Dict[Any, Any], str]]
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        object.__setattr__(self, '_commands_run', [self.command])
+
+class AntaTestDynamiCommand(AntaTestCommand):
+    """
+    Class to define a test command with dynamic parameters
+
+    TODO: make a better doc
+    supports commands like show interface <Eth1> where Eth1 is provided during test
+
+    Args:
+        AntaTest (_type_): _description_
+
+    Raises:
+        NotImplementedError: _description_
+
+    Returns:
+        _type_: _description_
+    """
+    # command_base: str
+    parameters: List[str] = []
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        object.__setattr__(self, '_commands_run', [f'{self.command} {param}' for param in self.parameters])
 
 
 class AntaTestFilter(ABC):
@@ -137,7 +165,7 @@ class AntaTest(ABC):
             # accessing class attribute via self
             for command in self.instance_commands:
                 response = await self.device.session.cli(
-                    commands=[enable_cmd, command.command],
+                    commands=[enable_cmd]+list(command._commands_run),
                     ofmt=command.ofmt,
                 )
                 # remove first dict related to enable command
