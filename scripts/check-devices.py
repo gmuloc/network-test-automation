@@ -18,6 +18,8 @@
 """
 Arista NRFU test runner script
 """
+# disabling duplicate-code here as we will get rid of this
+# pylint: disable=R0801
 
 import argparse
 import asyncio

@@ -12,10 +12,10 @@ import logging
 import click
 from rich.console import Console
 
-from anta.cli.utils import setup_logging
-from anta.models import AntaTestCommand
 from anta.cli.debug.utils import RunArbitraryCommand
+from anta.cli.utils import setup_logging
 from anta.inventory import AntaInventory
+from anta.models import AntaTestCommand
 
 logger = logging.getLogger(__name__)
 

@@ -10,9 +10,9 @@ import click
 
 from anta import __version__
 from anta.cli.check import commands as check_commands
+from anta.cli.debug import commands as debug_commands
 from anta.cli.exec import commands as exec_commands
 from anta.cli.get import commands as get_commands
-from anta.cli.debug import commands as debug_commands
 
 # Top level entrypoint
 

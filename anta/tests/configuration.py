@@ -7,6 +7,7 @@ Test functions related to the device configuration
 from __future__ import annotations
 
 import logging
+
 from anta.models import AntaTest, AntaTestCommand
 
 logger = logging.getLogger(__name__)

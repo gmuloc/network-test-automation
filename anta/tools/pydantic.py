@@ -5,9 +5,8 @@ Toolkit for ANTA to play with Pydantic.
 from __future__ import annotations
 
 import logging
-from typing import Any, Union
+from typing import TYPE_CHECKING, Any, Union
 
-from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from anta.inventory.models import InventoryDevices
     from anta.result_manager.models import ListResult

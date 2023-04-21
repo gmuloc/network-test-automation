@@ -6,10 +6,10 @@ Exec CLI helpers
 """
 
 import asyncio
+import itertools
 import logging
 import os
 import traceback
-import itertools
 from pathlib import Path
 from time import gmtime, strftime
 from typing import Dict, List, Literal
