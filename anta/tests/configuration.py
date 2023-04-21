@@ -53,10 +53,11 @@ class VerifyRunningConfigDiffs(AntaTest):
         self.logger.debug(f"self.instance_commands is {self.instance_commands}")
         command_output = self.instance_commands[0].output
         self.logger.debug(f"command_output is {command_output}")
-        assert command_output is None or isinstance(command_output, list)
-        if not any(cmd for cmd in command_output if cmd != ''):
+        if command_output is None:
             self.result.is_success()
-
+        elif isinstance(command_output, list):
+            if not any(cmd for cmd in command_output if cmd != ''):
+                self.result.is_success()
         else:
             self.result.is_failure()
             for line in command_output:

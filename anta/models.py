@@ -36,6 +36,7 @@ class AntaTestCommand(BaseModel):
     version: str = "latest"
     ofmt: str = "json"
     output: Optional[Union[Dict[Any, Any], str]]
+    command_exc: Union[str, List[str], None] = None
 
     def __init__(self, **kwargs: Dict[str, Any]):
         """Class constructor"""

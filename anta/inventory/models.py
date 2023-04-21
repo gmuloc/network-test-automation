@@ -207,15 +207,18 @@ class InventoryDevice(BaseModel):
             else:
                 enable_cmd = {"cmd": "enable"}
             # accessing class attribute via self
+            assert hasattr(command, 'command_exc')
+            assert hasattr(command, 'ofmt')
             response = await self.session.cli(
-                commands=[enable_cmd]+list(command.command_exc),  # mypy: attr-defined
-                ofmt=command.ofmt,  # mypy: attr-defined
+                commands=[enable_cmd]+list(command.command_exc),
+                ofmt=command.ofmt,
             )
             # remove first dict related to enable command
             # only applicable to json output
-            if command.ofmt == 'json':  # mypy: attr-defined
+            if command.ofmt == 'json':
                 response.pop(0)
-            command.output = response  # mypy: attr-defined
+            assert hasattr(command, 'output')
+            command.output = response
 
         except EapiCommandError as e:
             self.logger.error(f"Command failed on {self.name}: {e.errmsg}")
