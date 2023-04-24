@@ -15,10 +15,10 @@ class RunArbitraryCommand(AntaTest):
     Based on AntaTest to build relevant output for pytest
     """
 
-    name = 'Run aributrary EOS command'
-    description = 'To be used only with anta debug commands'
-    commands = [AntaTestCommand(command='show version')]
-    categories = ['debug']
+    name = "Run aributrary EOS command"
+    description = "To be used only with anta debug commands"
+    commands = [AntaTestCommand(command="show version")]
+    categories = ["debug"]
 
     @AntaTest.anta_test
     def test(self) -> None:

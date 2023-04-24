@@ -9,7 +9,7 @@ import traceback
 from abc import ABC, abstractmethod
 from copy import deepcopy
 from functools import wraps
-from typing import TYPE_CHECKING, Any, Callable, ClassVar, Dict, List, Optional, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, Callable, ClassVar, Dict, Optional, TypeVar, Union, cast
 
 from pydantic import BaseModel
 
@@ -36,38 +36,22 @@ class AntaTestCommand(BaseModel):
     version: str = "latest"
     ofmt: str = "json"
     output: Optional[Union[Dict[Any, Any], str]]
-    command_exc: Union[str, List[str], None] = None
-
-    def __init__(self, **kwargs: Dict[str, Any]):
-        """Class constructor"""
-        super().__init__(**kwargs)
-        if not hasattr(object, 'command_exc'):
-            object.__setattr__(self, 'command_exc', [self.command])
+    is_dynamic: bool = False
 
 
-class AntaTestDynamiCommand(AntaTestCommand):
+class AntaTestTemplate(BaseModel):
+    """Class to define a test command with its API version
+
+    Attributes:
+        command(str): Test command
+        version(str): eAPI version - default is latest
+        ofmt(str):  eAPI output - json or text - default is json
+        output: collected output either dict for json or str for text
     """
-    Class to define a test command with dynamic parameters
 
-    TODO: make a better doc
-    supports commands like show interface <Eth1> where Eth1 is provided during test
-
-    Args:
-        AntaTest (_type_): _description_
-
-    Raises:
-        NotImplementedError: _description_
-
-    Returns:
-        _type_: _description_
-    """
-    # command_base: str
-    parameters: List[Dict[Any, Any]] = [{}]
-
-    def __init__(self, **kwargs: Dict[str, Any]):
-        """Class constructor"""
-        super().__init__(**kwargs)
-        object.__setattr__(self, 'command_exc', [str(self.command).format(**param) for param in self.parameters])
+    template: str
+    version: str = "latest"
+    ofmt: str = "json"
 
 
 class AntaTestFilter(ABC):
@@ -105,7 +89,10 @@ class AntaTest(ABC):
     name: ClassVar[str]
     description: ClassVar[str]
     categories: ClassVar[list[str]]
-    commands: ClassVar[list[Union[AntaTestCommand, AntaTestDynamiCommand]]]
+    # Or any child type
+    commands: ClassVar[list[AntaTestCommand]]
+    # TODO - today we support only one template per Test
+    template: ClassVar[AntaTestTemplate]
 
     # Optional class attributes
     test_filters: ClassVar[list[AntaTestFilter]]
@@ -113,6 +100,8 @@ class AntaTest(ABC):
     def __init__(
         self,
         device: InventoryDevice,
+        template_params: list[dict[str, Any]] | None = None,
+        # TODO document very well the order of eos_data
         eos_data: list[dict[Any, Any] | str] | None = None,
         labels: list[str] | None = None,
     ):
@@ -122,14 +111,28 @@ class AntaTest(ABC):
         self.device = device
         self.result = TestResult(name=device.name, test=self.name)
         self.labels = labels or []
-        # TODO - check optimization
-        self.instance_commands = deepcopy(self.__class__.commands)
+
+        # TODO - check optimization for deepcopy
+        # Generating instance_commands from list of commands and template
+        self.instance_commands = []
+        if (cmds := self.__class__.commands) is not None:
+            self.instance_commands.extend(deepcopy(cmds))
+        if (tpl := self.__class__.template) is not None:
+            if template_params is None:
+                # TODO nicer error message
+                raise ValueError("Command has template but no params were given")
+            self.instance_commands.extend(
+                AntaTestCommand(
+                    command=tpl.template.format(param),
+                    ofmt=tpl.ofmt,
+                    version=tpl.version,
+                )
+                for param in template_params
+            )
+
         if eos_data is not None:
             self.logger.debug("Test initialized with input data")
             self.save_commands_data(eos_data)
-
-        # TODO - check if we do this
-        # self.id = ?
 
     def save_commands_data(self, eos_data: list[dict[Any, Any] | str]) -> None:
         """Called at init or at test execution time"""
@@ -144,12 +147,13 @@ class AntaTest(ABC):
         """
         Verify that the mandatory class attributes are defined
         """
-        mandatory_attributes = ["name", "description", "categories", "commands"]
+        mandatory_attributes = ["name", "description", "categories"]
         for attr in mandatory_attributes:
             if not hasattr(cls, attr):
-                raise NotImplementedError(
-                    f"Class {cls} is missing required class attribute {attr}"
-                )
+                raise NotImplementedError(f"Class {cls} is missing required class attribute {attr}")
+        # Check that either commands or template exist
+        if not (hasattr(cls, "commands") or hasattr(cls, "template")):
+            raise NotImplementedError(f"Class {cls} is missing required either commands or template attribute")
 
     async def collect(self) -> None:
         """
@@ -161,7 +165,7 @@ class AntaTest(ABC):
         """
 
         for command in self.instance_commands:
-            command = await(self.device.collect(command=command))
+            command = await self.device.collect(command=command)
 
     @staticmethod
     def anta_test(function: F) -> F:
@@ -194,15 +198,11 @@ class AntaTest(ABC):
                 if self.result.result != "unset":
                     return self.result
 
-            self.logger.debug(
-                f"Running asserts for test {self.name} for device {self.device.name}: running collect"
-            )
+            self.logger.debug(f"Running asserts for test {self.name} for device {self.device.name}: running collect")
             try:
                 function(self, **kwargs)
             except Exception as e:  # pylint: disable=broad-exception-caught
-                self.logger.error(
-                    f"Exception raised during 'assert' for test {self.name} (on device {self.device.name}) - {exc_to_str(e)}"
-                )
+                self.logger.error(f"Exception raised during 'assert' for test {self.name} (on device {self.device.name}) - {exc_to_str(e)}")
                 self.logger.debug(traceback.format_exc())
                 self.result.is_error(exc_to_str(e))
             return self.result

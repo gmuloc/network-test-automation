@@ -12,17 +12,17 @@ from httpx import ConnectError, HTTPError
 from paramiko.ssh_exception import AuthenticationException, SSHException
 from pydantic import BaseModel, IPvAnyAddress, IPvAnyNetwork, conint, constr, root_validator
 
-from anta.models import AntaTestCommand, AntaTestDynamiCommand
+from anta.models import AntaTestCommand
 from anta.tools.misc import exc_to_str
 
 # Default values
 
-DEFAULT_TAG = 'all'
-DEFAULT_HW_MODEL = 'unset'
+DEFAULT_TAG = "all"
+DEFAULT_HW_MODEL = "unset"
 
 # Pydantic models for input validation
 
-RFC_1123_REGEX = r'^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$'
+RFC_1123_REGEX = r"^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$"
 
 
 class AntaInventoryHost(BaseModel):
@@ -87,6 +87,7 @@ class AntaInventoryInput(BaseModel):
 
 # Pydantic models for inventory output structures
 
+
 class InventoryDevice(BaseModel):
     """
     Inventory model exposed by Inventory class.
@@ -105,7 +106,8 @@ class InventoryDevice(BaseModel):
     """
 
     class Config:  # pylint: disable=too-few-public-methods
-        """ Pydantic model configuration """
+        """Pydantic model configuration"""
+
         arbitrary_types_allowed = True
 
     name: str
@@ -126,33 +128,42 @@ class InventoryDevice(BaseModel):
         """Class constructor
         - configure an object logger
         """
-        object.__setattr__(self, 'logger', logging.getLogger(__name__).getChild(self.__class__.__name__))
+        object.__setattr__(
+            self,
+            "logger",
+            logging.getLogger(__name__).getChild(self.__class__.__name__),
+        )
         super().__init__(**kwargs)
 
     @root_validator(pre=True)
     def build_device(cls: Type[Any], values: Dict[str, Any]) -> Dict[str, Any]:
-        """ Build the device session object """
-        if not values.get('host'):
-            values['host'] = 'localhost'
-        if not values.get('port'):
-            values['port'] = '8080' if values['host'] == 'localhost' else '443'
-        if values.get('tags') is not None:
-            values['tags'].append(DEFAULT_TAG)
+        """Build the device session object"""
+        if not values.get("host"):
+            values["host"] = "localhost"
+        if not values.get("port"):
+            values["port"] = "8080" if values["host"] == "localhost" else "443"
+        if values.get("tags") is not None:
+            values["tags"].append(DEFAULT_TAG)
         else:
-            values['tags'] = [DEFAULT_TAG]
-        if values.get('session') is None:
-            proto = 'http' if values['port'] in ['80', '8080'] else 'https'
-            values['session'] = Device(host=values['host'], port=values['port'],
-                                       username=values.get('username'), password=values.get('password'),
-                                       proto=proto, timeout=values.get('timeout'))
-        if values.get('name') is None:
-            values['name'] = f"{values['host']}:{values['port']}"
+            values["tags"] = [DEFAULT_TAG]
+        if values.get("session") is None:
+            proto = "http" if values["port"] in ["80", "8080"] else "https"
+            values["session"] = Device(
+                host=values["host"],
+                port=values["port"],
+                username=values.get("username"),
+                password=values.get("password"),
+                proto=proto,
+                timeout=values.get("timeout"),
+            )
+        if values.get("name") is None:
+            values["name"] = f"{values['host']}:{values['port']}"
         return values
 
     def __eq__(self, other: BaseModel) -> bool:
         """
-            Two InventoryDevice objects are equal if the hostname and the port are the same.
-            This covers the use case of port forwarding when the host is localhost and the devices have different ports.
+        Two InventoryDevice objects are equal if the hostname and the port are the same.
+        This covers the use case of port forwarding when the host is localhost and the devices have different ports.
         """
         return self.session.host == other.session.host and self.session.port == other.session.port
 
@@ -182,22 +193,22 @@ class InventoryDevice(BaseModel):
                 port=ssh_port,
                 username=self.username,
                 password=self.password,
-                banner_timeout=banner_timeout
+                banner_timeout=banner_timeout,
             )
         except AuthenticationException as error:
-            logging.error(f'Authentication error for device {self.name}')
+            logging.error(f"Authentication error for device {self.name}")
             logging.error(error)
         except SSHException as error:
-            logging.error(f'SSHException for device {self.name}')
+            logging.error(f"SSHException for device {self.name}")
             logging.error(error)
         return client
 
-    async def collect(self, command: list[Union[AntaTestCommand, AntaTestDynamiCommand]]) -> Any:
+    async def collect(self, command: AntaTestCommand) -> Any:
         """Collect device command result
         FIXME: Under development / testing
         TODO: Build documentation
         """
-        self.logger.debug(f'run collect from device {self.name} for {command}')
+        self.logger.debug(f"run collect from device {self.name} for {command}")
         try:
             if self.enable_password is not None:
                 enable_cmd = {
@@ -207,30 +218,24 @@ class InventoryDevice(BaseModel):
             else:
                 enable_cmd = {"cmd": "enable"}
             # accessing class attribute via self
-            assert hasattr(command, 'command_exc')
-            assert hasattr(command, 'ofmt')
             response = await self.session.cli(
-                commands=[enable_cmd]+list(command.command_exc),
+                commands=[enable_cmd] + list(command.command),
                 ofmt=command.ofmt,
             )
             # remove first dict related to enable command
             # only applicable to json output
-            if command.ofmt == 'json':
-                response.pop(0)
-            assert hasattr(command, 'output')
+            if command.ofmt == "json":
+                # selecting only our command output
+                response = response[1]
             command.output = response
 
         except EapiCommandError as e:
             self.logger.error(f"Command failed on {self.name}: {e.errmsg}")
         except (HTTPError, ConnectError) as e:
-            self.logger.error(
-                f"Cannot connect to device {self.name}: {type(e).__name__}{exc_to_str(e)}"
-            )
+            self.logger.error(f"Cannot connect to device {self.name}: {type(e).__name__}{exc_to_str(e)}")
             self.logger.debug(traceback.format_exc())
         except Exception as e:  # pylint: disable=broad-exception-caught
-            self.logger.error(
-                f"Exception raised while collecting data for test {self.name} (on device {self.name}) - {exc_to_str(e)}"
-            )
+            self.logger.error(f"Exception raised while collecting data for test {self.name} (on device {self.name}) - {exc_to_str(e)}")
             self.logger.debug(traceback.format_exc())
         return command
 
@@ -242,6 +247,7 @@ class InventoryDevices(BaseModel):
     Attributes:
         __root__(List[InventoryDevice]): A list of InventoryDevice objects.
     """
+
     # pylint: disable=R0801
 
     __root__: List[InventoryDevice] = []
@@ -264,4 +270,4 @@ class InventoryDevices(BaseModel):
 
     def json(self) -> str:
         """Returns a JSON representation of the devices"""
-        return super().json(exclude={'__root__': {'__all__': {'session'}}})
+        return super().json(exclude={"__root__": {"__all__": {"session"}}})

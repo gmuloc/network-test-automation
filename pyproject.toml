@@ -178,3 +178,6 @@ source = ['anta']
 [tool.isort]
 profile = "black"
 line_length = 165
+
+[tool.black]
+line-length = 165

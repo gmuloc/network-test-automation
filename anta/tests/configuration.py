@@ -28,9 +28,9 @@ class VerifyZeroTouch(AntaTest):
         """Run VerifyZeroTouch validation"""
         self.logger.setLevel(logging.DEBUG)
         # TODO - easier way to access output ?
-        self.logger.debug(f'self.instance_commands is: {self.instance_commands}')
-        command_output = self.instance_commands[0].output[0]
-        self.logger.debug(f'dataset is: {command_output}')
+        self.logger.debug(f"self.instance_commands is: {self.instance_commands}")
+        command_output = self.instance_commands[0].output
+        self.logger.debug(f"dataset is: {command_output}")
         assert isinstance(command_output, dict)
         if command_output["mode"] == "disabled":
             self.result.is_success()
@@ -57,7 +57,7 @@ class VerifyRunningConfigDiffs(AntaTest):
         if command_output is None:
             self.result.is_success()
         elif isinstance(command_output, list):
-            if not any(cmd for cmd in command_output if cmd != ''):
+            if not any(cmd for cmd in command_output if cmd != ""):
                 self.result.is_success()
         else:
             self.result.is_failure()
