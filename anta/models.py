@@ -123,7 +123,7 @@ class AntaTest(ABC):
                 raise ValueError("Command has template but no params were given")
             self.instance_commands.extend(
                 AntaTestCommand(
-                    command=tpl.template.format(param),
+                    command=tpl.template.format(**param),
                     ofmt=tpl.ofmt,
                     version=tpl.version,
                     is_dynamic=True,
@@ -164,9 +164,8 @@ class AntaTest(ABC):
 
         FIXME: to be tested and review
         """
-
         for command in self.instance_commands:
-            command = await self.device.collect(command=command)
+            await self.device.collect(command=command)
 
     @staticmethod
     def anta_test(function: F) -> F:

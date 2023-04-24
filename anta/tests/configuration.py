@@ -51,16 +51,13 @@ class VerifyRunningConfigDiffs(AntaTest):
     @AntaTest.anta_test
     def test(self) -> None:
         """Run VerifyRunningConfigDiffs validation"""
+        self.logger.setLevel(logging.DEBUG)
         self.logger.debug(f"self.instance_commands is {self.instance_commands}")
         command_output = self.instance_commands[0].output
         self.logger.debug(f"command_output is {command_output}")
-        if command_output is None:
+        if command_output is None or command_output == "":
             self.result.is_success()
-        elif isinstance(command_output, list):
-            if not any(cmd for cmd in command_output if cmd != ""):
-                self.result.is_success()
         else:
             self.result.is_failure()
-            for line in command_output:
-                self.result.is_failure(line)
+            self.result.is_failure(str(command_output))
         self.logger.debug(f"result is {self.result}")

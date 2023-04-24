@@ -24,14 +24,7 @@ from anta.tests.configuration import VerifyRunningConfigDiffs, VerifyZeroTouch
             ["ZTP is NOT disabled"],
             id="failure",
         ),
-        # Hmmmm both errors do not return the same string ...
         # TODO: need to cover other exceptions like EapiCommandError
-        # pytest.param(
-        #     None, HTTPError("dummy"), "error", ["HTTPError (dummy)"], id="HTTP error"
-        # ),
-        # pytest.param(
-        #     None, KeyError("dummy"), "error", ["KeyError ('dummy')"], id="Key error"
-        # ),
     ],
 )
 def test_VerifyZeroTouch(
@@ -41,15 +34,8 @@ def test_VerifyZeroTouch(
     expected_result: str,
     expected_messages: List[str],
 ) -> None:
-    # TODO mock per command probably ..
-    if eos_data:
-        mocked_device.session.cli.return_value = eos_data[0]
-    mocked_device.session.cli.side_effect = side_effect
-    # TODO technically could avoid mocking to only test the assert part
     test = VerifyZeroTouch(mocked_device, eos_data=eos_data)
-    test.logger.setLevel(level="DEBUG")
     asyncio.run(test.test())
-    print(test.instance_commands)
 
     assert test.name == "verify_zerotouch"
     assert test.categories == ["configuration"]
@@ -63,7 +49,7 @@ def test_VerifyZeroTouch(
     "eos_data, side_effect, expected_result, expected_messages",
     [
         pytest.param(
-            ["", ""],
+            "",
             None,
             # False,
             "success",
@@ -71,11 +57,11 @@ def test_VerifyZeroTouch(
             id="success",
         ),
         pytest.param(
-            ["blah", "blah"],
+            ["blah blah"],
             None,
             # False,
             "failure",
-            ["blah", "blah"],
+            ["blah blah"],
             id="failure",
         ),
     ],
@@ -87,12 +73,7 @@ def test_VerifyRunningConfigDiffs(
     expected_result: str,
     expected_messages: List[str],
 ) -> None:
-    # TODO mock per command probably ..
-    if eos_data:
-        mocked_device.session.cli.return_value = eos_data[0]
-    mocked_device.session.cli.side_effect = side_effect
-    # TODO technically could avoid mocking to only test the assert part
-    test = VerifyRunningConfigDiffs(mocked_device)
+    test = VerifyRunningConfigDiffs(mocked_device, eos_data=eos_data)
     asyncio.run(test.test())
 
     assert test.name == "verify_running_config_diffs"

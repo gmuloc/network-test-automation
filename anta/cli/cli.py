@@ -70,6 +70,7 @@ def cli() -> None:
     get.add_command(get_commands.tags)
 
     debug.add_command(debug_commands.run_cmd)
+    debug.add_command(debug_commands.run_template)
 
     nrfu.add_command(check_commands.table)
     nrfu.add_command(check_commands.json)

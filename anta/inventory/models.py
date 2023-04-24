@@ -17,6 +17,8 @@ from anta.tools.misc import exc_to_str
 
 # Default values
 
+logger = logging.getLogger(__name__)
+
 DEFAULT_TAG = "all"
 DEFAULT_HW_MODEL = "unset"
 
@@ -122,18 +124,6 @@ class InventoryDevice(BaseModel):
     hw_model: str = DEFAULT_HW_MODEL
     tags: List[str] = [DEFAULT_TAG]
     timeout: float = 10.0
-    logger = logging.getLogger(__name__)
-
-    def __init__(self, **kwargs: Dict[str, Any]):
-        """Class constructor
-        - configure an object logger
-        """
-        object.__setattr__(
-            self,
-            "logger",
-            logging.getLogger(__name__).getChild(self.__class__.__name__),
-        )
-        super().__init__(**kwargs)
 
     @root_validator(pre=True)
     def build_device(cls: Type[Any], values: Dict[str, Any]) -> Dict[str, Any]:
@@ -208,7 +198,8 @@ class InventoryDevice(BaseModel):
         FIXME: Under development / testing
         TODO: Build documentation
         """
-        self.logger.debug(f"run collect from device {self.name} for {command}")
+        logger.debug(f"run collect from device {self.name} for {command}")
+
         try:
             if self.enable_password is not None:
                 enable_cmd = {
@@ -217,27 +208,31 @@ class InventoryDevice(BaseModel):
                 }
             else:
                 enable_cmd = {"cmd": "enable"}
-            # accessing class attribute via self
+            # FIXME: RuntimeError: Event loop is closed
+            # When sending commands over 2 asyncio.run, the first call
+            # of the second run fails
+            # Workaround in cli.debug.run_template
             response = await self.session.cli(
-                commands=[enable_cmd] + list(command.command),
+                commands=[enable_cmd, command.command],
                 ofmt=command.ofmt,
             )
             # remove first dict related to enable command
             # only applicable to json output
-            if command.ofmt == "json":
+            if command.ofmt in ["json", "text"]:
                 # selecting only our command output
                 response = response[1]
             command.output = response
 
         except EapiCommandError as e:
-            self.logger.error(f"Command failed on {self.name}: {e.errmsg}")
+            logger.error(f"Command failed on {self.name}: {e.errmsg}")
         except (HTTPError, ConnectError) as e:
-            self.logger.error(f"Cannot connect to device {self.name}: {type(e).__name__}{exc_to_str(e)}")
-            self.logger.debug(traceback.format_exc())
+            logger.error(f"Cannot connect to device {self.name}: {type(e).__name__}{exc_to_str(e)}")
+            logger.debug(traceback.format_exc())
         except Exception as e:  # pylint: disable=broad-exception-caught
-            self.logger.error(f"Exception raised while collecting data for test {self.name} (on device {self.name}) - {exc_to_str(e)}")
-            self.logger.debug(traceback.format_exc())
-        return command
+            logger.error(f"Exception raised while collecting data for test {self.name} (on device {self.name}) - {exc_to_str(e)}")
+            logger.debug(traceback.format_exc())
+        else:
+            return command
 
 
 class InventoryDevices(BaseModel):
