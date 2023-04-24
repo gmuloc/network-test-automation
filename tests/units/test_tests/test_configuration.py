@@ -16,9 +16,9 @@ from anta.tests.configuration import VerifyRunningConfigDiffs, VerifyZeroTouch
 @pytest.mark.parametrize(
     "eos_data, side_effect, expected_result, expected_messages",
     [
-        pytest.param([[{"mode": "disabled"}]], None, "success", [], id="success"),
+        pytest.param([{"mode": "disabled"}], None, "success", [], id="success"),
         pytest.param(
-            [[{"mode": "enabled"}]],
+            [{"mode": "enabled"}],
             None,
             "failure",
             ["ZTP is NOT disabled"],
@@ -49,6 +49,7 @@ def test_VerifyZeroTouch(
     test = VerifyZeroTouch(mocked_device, eos_data=eos_data)
     test.logger.setLevel(level="DEBUG")
     asyncio.run(test.test())
+    print(test.instance_commands)
 
     assert test.name == "verify_zerotouch"
     assert test.categories == ["configuration"]
@@ -62,7 +63,7 @@ def test_VerifyZeroTouch(
     "eos_data, side_effect, expected_result, expected_messages",
     [
         pytest.param(
-            [['', '']],
+            ["", ""],
             None,
             # False,
             "success",
@@ -70,11 +71,11 @@ def test_VerifyZeroTouch(
             id="success",
         ),
         pytest.param(
-            [['blah', 'blah']],
+            ["blah", "blah"],
             None,
             # False,
             "failure",
-            ['blah', 'blah'],
+            ["blah", "blah"],
             id="failure",
         ),
     ],

@@ -115,9 +115,9 @@ class AntaTest(ABC):
         # TODO - check optimization for deepcopy
         # Generating instance_commands from list of commands and template
         self.instance_commands = []
-        if (cmds := self.__class__.commands) is not None:
+        if hasattr(self.__class__, "commands") and (cmds := self.__class__.commands) is not None:
             self.instance_commands.extend(deepcopy(cmds))
-        if (tpl := self.__class__.template) is not None:
+        if hasattr(self.__class__, "template") and (tpl := self.__class__.template) is not None:
             if template_params is None:
                 # TODO nicer error message
                 raise ValueError("Command has template but no params were given")
@@ -126,6 +126,7 @@ class AntaTest(ABC):
                     command=tpl.template.format(param),
                     ofmt=tpl.ofmt,
                     version=tpl.version,
+                    is_dynamic=True,
                 )
                 for param in template_params
             )
