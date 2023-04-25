@@ -9,6 +9,7 @@ from __future__ import annotations
 import logging
 from typing import List, Optional
 
+from anta.decorators import skip_on_platforms
 from anta.models import AntaTest, AntaTestCommand
 
 logger = logging.getLogger(__name__)
@@ -24,7 +25,7 @@ class VerifyTransceiversManufacturers(AntaTest):
     categories = ["hardware"]
     commands = [AntaTestCommand(command="show inventory", ofmt="json")]
 
-    # @skip_on_platforms(["cEOSLab", "vEOS-lab"])
+    @skip_on_platforms(["cEOSLab", "vEOS-lab"])
     @AntaTest.anta_test
     def test(self, manufacturers: Optional[List[str]] = None) -> None:
         """Run VerifyTransceiversManufacturers validation"""

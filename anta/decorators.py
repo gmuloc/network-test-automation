@@ -27,11 +27,10 @@ def skip_on_platforms(platforms: List[str]) -> Callable[..., Callable[..., Corou
             """
             wrapper for func
             """
-            device = args[0]
-            if device.hw_model in platforms:
-                result = TestResult(name=device.name, test=function.__name__)
-                result.is_skipped(f"{wrapper.__name__} test is not supported on {device.hw_model}.")
-                return result
+            anta_test = args[0]
+            if anta_test.device.hw_model in platforms:
+                anta_test.result.is_skipped(f"{wrapper.__name__} test is not supported on {anta_test.device.hw_model}.")
+                return anta_test.result
 
             return await function(*args, **kwargs)
 
