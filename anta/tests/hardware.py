@@ -9,7 +9,6 @@ from __future__ import annotations
 import logging
 from typing import List, Optional
 
-# from anta.decorators import skip_on_platforms
 from anta.models import AntaTest, AntaTestCommand
 
 logger = logging.getLogger(__name__)
@@ -40,48 +39,6 @@ class VerifyTransceiversManufacturers(AntaTest):
             else:
                 self.result.is_failure("The following interfaces have transceivers from unauthorized manufacturers")
                 self.result.messages.append(str(wrong_manufacturers))
-
-
-# @skip_on_platforms(["cEOSLab", "vEOS-lab"])
-# @anta_test
-# async def verify_transceivers_manufacturers(
-#     device: InventoryDevice,
-#     result: TestResult,
-#     manufacturers: Optional[List[str]] = None,
-# ) -> TestResult:
-#     """
-#     Verifies the device is only using transceivers from supported manufacturers.
-
-#     Args:
-#         device (InventoryDevice): InventoryDevice instance containing all devices information.
-#         manufacturers (list): List of allowed transceivers manufacturers.
-
-#     Returns:
-#         TestResult instance with
-#         * result = "unset" if the test has not been executed
-#         * result = "skipped" if the test was not executed because no manufacturers were given
-#         * result = "success" if the device is only using transceivers from supported manufacturers.
-#         * result = "failure" otherwise.
-#         * result = "error" if any exception is caught
-
-#     """
-
-#     if not manufacturers:
-#         result.is_skipped("verify_transceivers_manufacturers was not run as no manufacturers were given")
-#         return result
-
-#     response = await device.session.cli(command="show inventory", ofmt="json")
-#     logger.debug(f"query result is: {response}")
-
-#     wrong_manufacturers = {interface: value["mfgName"] for interface, value in response["xcvrSlots"].items() if value["mfgName"] not in manufacturers}
-
-#     if not wrong_manufacturers:
-#         result.is_success()
-#     else:
-#         result.is_failure("The following interfaces have transceivers from unauthorized manufacturers")
-#         result.messages.append(str(wrong_manufacturers))
-
-#     return result
 
 
 # @skip_on_platforms(["cEOSLab", "vEOS-lab"])
