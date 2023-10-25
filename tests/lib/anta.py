@@ -1,19 +1,18 @@
 # Copyright (c) 2023 Arista Networks, Inc.
 # Use of this source code is governed by the Apache License 2.0
 # that can be found in the LICENSE file.
-"""
-generic test funciton used to generate unit tests for each AntaTest
-"""
+"""generic test funciton used to generate unit tests for each AntaTest."""
 from __future__ import annotations
 
 import asyncio
-from typing import Any
-from unittest.mock import MagicMock
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from unittest.mock import MagicMock
 
 
 def test(mocked_device: MagicMock, data: dict[str, Any]) -> None:
-    """
-    Generic test function for AntaTest subclass.
+    """Generic test function for AntaTest subclass.
     See `tests/units/anta_tests/README.md` for more information on how to use it.
     """
     # Instantiate the AntaTest subclass

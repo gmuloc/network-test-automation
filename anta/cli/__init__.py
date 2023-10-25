@@ -3,14 +3,12 @@
 # Use of this source code is governed by the Apache License 2.0
 # that can be found in the LICENSE file.
 # coding: utf-8 -*-
-"""
-ANTA CLI
-"""
+"""ANTA CLI."""
 from __future__ import annotations
 
 import logging
 import pathlib
-from typing import Any, Callable, Literal
+from typing import TYPE_CHECKING, Any, Callable, Literal
 
 import click
 
@@ -22,7 +20,9 @@ from anta.cli.nrfu import commands as check_commands
 from anta.cli.utils import AliasedGroup, IgnoreRequiredWithHelp, parse_catalog, parse_inventory
 from anta.loader import setup_logging
 from anta.result_manager import ResultManager
-from anta.result_manager.models import TestResult
+
+if TYPE_CHECKING:
+    from anta.result_manager.models import TestResult
 
 
 @click.group(cls=IgnoreRequiredWithHelp)
@@ -107,10 +107,14 @@ from anta.result_manager.models import TestResult
 @click.option("--ignore-error", help="Only report failures and not errors", show_envvar=True, is_flag=True, default=False)
 @click.option("--disable-cache", help="Disable cache globally", show_envvar=True, show_default=True, is_flag=True, default=False)
 def anta(
-    ctx: click.Context, inventory: pathlib.Path, log_level: Literal["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG"], log_file: pathlib.Path, **kwargs: Any
+    ctx: click.Context,
+    inventory: pathlib.Path,
+    log_level: Literal["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG"],
+    log_file: pathlib.Path,
+    **kwargs: Any,
 ) -> None:
     # pylint: disable=unused-argument
-    """Arista Network Test Automation (ANTA) CLI"""
+    """Arista Network Test Automation (ANTA) CLI."""
     setup_logging(log_level, log_file)
 
     if not ctx.obj.get("_anta_help"):
@@ -118,18 +122,21 @@ def anta(
             # User asked for a password prompt
             if ctx.params.get("password") is None:
                 ctx.params["password"] = click.prompt("Please enter a password to connect to EOS", type=str, hide_input=True, confirmation_prompt=True)
-            if ctx.params.get("enable"):
-                if ctx.params.get("enable_password") is None:
-                    if click.confirm("Is a password required to enter EOS privileged EXEC mode?"):
-                        ctx.params["enable_password"] = click.prompt(
-                            "Please enter a password to enter EOS privileged EXEC mode", type=str, hide_input=True, confirmation_prompt=True
-                        )
+            if ctx.params.get("enable") and ctx.params.get("enable_password") is None and click.confirm("Is a password required to enter EOS privileged EXEC mode?"):
+                ctx.params["enable_password"] = click.prompt(
+                    "Please enter a password to enter EOS privileged EXEC mode",
+                    type=str,
+                    hide_input=True,
+                    confirmation_prompt=True,
+                )
         if ctx.params.get("password") is None:
+            msg = f"EOS password needs to be provided by using either the '{anta.params[2].opts[0]}' option or the '{anta.params[5].opts[0]}' option."
             raise click.BadParameter(
-                f"EOS password needs to be provided by using either the '{anta.params[2].opts[0]}' option or the '{anta.params[5].opts[0]}' option."
+                msg,
             )
         if not ctx.params.get("enable") and ctx.params.get("enable_password"):
-            raise click.BadParameter(f"Providing a password to access EOS Privileged EXEC mode requires '{anta.params[4].opts[0]}' option.")
+            msg = f"Providing a password to access EOS Privileged EXEC mode requires '{anta.params[4].opts[0]}' option."
+            raise click.BadParameter(msg)
 
     ctx.ensure_object(dict)
     ctx.obj["inventory"] = parse_inventory(ctx, inventory)
@@ -147,24 +154,24 @@ def anta(
     callback=parse_catalog,
 )
 def _nrfu(ctx: click.Context, catalog: list[tuple[Callable[..., TestResult], dict[Any, Any]]]) -> None:
-    """Run NRFU against inventory devices"""
+    """Run NRFU against inventory devices."""
     ctx.obj["catalog"] = catalog
     ctx.obj["result_manager"] = ResultManager()
 
 
 @anta.group("exec", cls=AliasedGroup)
 def _exec() -> None:
-    """Execute commands to inventory devices"""
+    """Execute commands to inventory devices."""
 
 
 @anta.group("get", cls=AliasedGroup)
 def _get() -> None:
-    """Get data from/to ANTA"""
+    """Get data from/to ANTA."""
 
 
 @anta.group("debug", cls=AliasedGroup)
 def _debug() -> None:
-    """Debug commands for building ANTA"""
+    """Debug commands for building ANTA."""
 
 
 # Load group commands
@@ -191,7 +198,7 @@ _nrfu.add_command(check_commands.tpl_report)
 
 # ANTA CLI Execution
 def cli() -> None:
-    """Entrypoint for pyproject.toml"""
+    """Entrypoint for pyproject.toml."""
     anta(obj={}, auto_envvar_prefix="ANTA")  # pragma: no cover
 
 

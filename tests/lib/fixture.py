@@ -1,8 +1,7 @@
 # Copyright (c) 2023 Arista Networks, Inc.
 # Use of this source code is governed by the Apache License 2.0
 # that can be found in the LICENSE file.
-"""Fixture for Anta Testing"""
-
+"""Fixture for Anta Testing."""
 from typing import Callable
 from unittest.mock import MagicMock, create_autospec
 
@@ -17,12 +16,9 @@ from anta.result_manager.models import ListResult, TestResult
 from tests.lib.utils import default_anta_env
 
 
-@pytest.fixture
+@pytest.fixture()
 def mocked_device(hw_model: str = "unknown_hw") -> MagicMock:
-    """
-    Returns a mocked device with initiazlied fields
-    """
-
+    """Returns a mocked device with initiazlied fields."""
     mock = create_autospec(AntaDevice, instance=True)
     mock.host = "42.42.42.42"
     mock.name = "testdevice"
@@ -36,17 +32,13 @@ def mocked_device(hw_model: str = "unknown_hw") -> MagicMock:
     return mock
 
 
-@pytest.fixture
+@pytest.fixture()
 def test_result_factory(mocked_device: MagicMock) -> Callable[[int], TestResult]:
-    """
-    Return a anta.result_manager.models.TestResult object
-    """
+    """Return a anta.result_manager.models.TestResult object."""
     # pylint: disable=redefined-outer-name
 
     def _create(index: int = 0) -> TestResult:
-        """
-        Actual Factory
-        """
+        """Actual Factory."""
         return TestResult(
             name=mocked_device.name,
             test=f"VerifyTest{index}",
@@ -57,17 +49,13 @@ def test_result_factory(mocked_device: MagicMock) -> Callable[[int], TestResult]
     return _create
 
 
-@pytest.fixture
+@pytest.fixture()
 def list_result_factory(test_result_factory: Callable[[int], TestResult]) -> Callable[[int], ListResult]:
-    """
-    Return a ListResult with 'size' TestResult instanciated using the test_result_factory fixture
-    """
+    """Return a ListResult with 'size' TestResult instanciated using the test_result_factory fixture."""
     # pylint: disable=redefined-outer-name
 
     def _factory(size: int = 0) -> ListResult:
-        """
-        Factory for ListResult entry of size entries
-        """
+        """Factory for ListResult entry of size entries."""
         result = ListResult()
         for i in range(size):
             result.append(test_result_factory(i))
@@ -76,17 +64,13 @@ def list_result_factory(test_result_factory: Callable[[int], TestResult]) -> Cal
     return _factory
 
 
-@pytest.fixture
+@pytest.fixture()
 def result_manager_factory(list_result_factory: Callable[[int], ListResult]) -> Callable[[int], ResultManager]:
-    """
-    Return a ResultManager factory that takes as input a number of tests
-    """
+    """Return a ResultManager factory that takes as input a number of tests."""
     # pylint: disable=redefined-outer-name
 
     def _factory(number: int = 0) -> ResultManager:
-        """
-        Factory for ListResult entry of size entries
-        """
+        """Factory for ListResult entry of size entries."""
         result_manager = ResultManager()
         result_manager.add_test_results(list_result_factory(number).root)
         return result_manager
@@ -94,11 +78,9 @@ def result_manager_factory(list_result_factory: Callable[[int], ListResult]) -> 
     return _factory
 
 
-@pytest.fixture
+@pytest.fixture()
 def test_inventory() -> AntaInventory:
-    """
-    Return the test_inventory
-    """
+    """Return the test_inventory."""
     env = default_anta_env()
     return AntaInventory.parse(
         inventory_file=env["ANTA_INVENTORY"],
@@ -107,9 +89,7 @@ def test_inventory() -> AntaInventory:
     )
 
 
-@pytest.fixture
+@pytest.fixture()
 def click_runner() -> CliRunner:
-    """
-    Convenience fixture to return a click.CliRunner for cli testing
-    """
+    """Convenience fixture to return a click.CliRunner for cli testing."""
     return CliRunner()

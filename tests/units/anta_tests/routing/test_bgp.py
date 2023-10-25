@@ -1,9 +1,7 @@
 # Copyright (c) 2023 Arista Networks, Inc.
 # Use of this source code is governed by the Apache License 2.0
 # that can be found in the LICENSE file.
-"""
-Tests for anta.tests.routing.bgp.py
-"""
+"""Tests for anta.tests.routing.bgp.py."""
 # pylint: disable=C0302
 from __future__ import annotations
 
@@ -77,7 +75,7 @@ DATA: list[dict[str, Any]] = [
                                 "outMsgQueue": 0,
                                 "underMaintenance": False,
                                 "asn": "65000",
-                            }
+                            },
                         },
                         "vrf": "default",
                         "asn": "666",
@@ -98,13 +96,13 @@ DATA: list[dict[str, Any]] = [
                                 "outMsgQueue": 0,
                                 "underMaintenance": False,
                                 "asn": "12345",
-                            }
+                            },
                         },
                         "vrf": "BLAH",
                         "asn": "666",
                     },
-                }
-            }
+                },
+            },
         ],
         "inputs": None,
         "expected": {"result": "success"},
@@ -131,7 +129,7 @@ DATA: list[dict[str, Any]] = [
                                 "outMsgQueue": 0,
                                 "underMaintenance": False,
                                 "asn": "65000",
-                            }
+                            },
                         },
                         "vrf": "default",
                         "asn": "666",
@@ -152,20 +150,20 @@ DATA: list[dict[str, Any]] = [
                                 "outMsgQueue": 0,
                                 "underMaintenance": False,
                                 "asn": "12345",
-                            }
+                            },
                         },
                         "vrf": "BLAH",
                         "asn": "666",
                     },
-                }
-            }
+                },
+            },
         ],
         "inputs": None,
         "expected": {
             "result": "failure",
             "messages": [
                 "Some IPv4 Unicast BGP Peer are not up: {'default': {'7.7.7.7': {'peerState': 'Idle', 'inMsgQueue': 0, 'outMsgQueue': 0}},"
-                " 'BLAH': {'8.8.8.8': {'peerState': 'Idle', 'inMsgQueue': 0, 'outMsgQueue': 0}}}"
+                " 'BLAH': {'8.8.8.8': {'peerState': 'Idle', 'inMsgQueue': 0, 'outMsgQueue': 0}}}",
             ],
         },
     },
@@ -192,12 +190,12 @@ DATA: list[dict[str, Any]] = [
                                 "outMsgQueue": 0,
                                 "underMaintenance": False,
                                 "asn": "12345",
-                            }
+                            },
                         },
                         "vrf": "BLAH",
                         "asn": "666",
                     },
-                }
+                },
             },
             {
                 "vrfs": {
@@ -217,12 +215,12 @@ DATA: list[dict[str, Any]] = [
                                 "outMsgQueue": 0,
                                 "underMaintenance": False,
                                 "asn": "12345",
-                            }
+                            },
                         },
                         "vrf": "BLIH",
                         "asn": "666",
                     },
-                }
+                },
             },
         ],
         "expected": {"result": "success"},
@@ -250,13 +248,13 @@ DATA: list[dict[str, Any]] = [
                                 "outMsgQueue": 0,
                                 "underMaintenance": False,
                                 "asn": "12345",
-                            }
+                            },
                         },
                         "vrf": "BLAH",
                         "asn": "666",
                     },
-                }
-            }
+                },
+            },
         ],
         "expected": {"result": "failure", "messages": ["Expecting 2 BGP peer(s) in vrf BLAH but got 1 peer(s)"]},
     },
@@ -283,13 +281,13 @@ DATA: list[dict[str, Any]] = [
                                 "outMsgQueue": 0,
                                 "underMaintenance": False,
                                 "asn": "12345",
-                            }
+                            },
                         },
                         "vrf": "BLAH",
                         "asn": "666",
                     },
-                }
-            }
+                },
+            },
         ],
         "expected": {
             "result": "failure",
@@ -325,7 +323,7 @@ DATA: list[dict[str, Any]] = [
                                 "outMsgQueue": 0,
                                 "underMaintenance": False,
                                 "asn": "65000",
-                            }
+                            },
                         },
                         "vrf": "default",
                         "asn": "666",
@@ -346,13 +344,13 @@ DATA: list[dict[str, Any]] = [
                                 "outMsgQueue": 0,
                                 "underMaintenance": False,
                                 "asn": "12345",
-                            }
+                            },
                         },
                         "vrf": "BLAH",
                         "asn": "666",
                     },
-                }
-            }
+                },
+            },
         ],
         "inputs": None,
         "expected": {"result": "success"},
@@ -379,7 +377,7 @@ DATA: list[dict[str, Any]] = [
                                 "outMsgQueue": 0,
                                 "underMaintenance": False,
                                 "asn": "65000",
-                            }
+                            },
                         },
                         "vrf": "default",
                         "asn": "666",
@@ -400,20 +398,20 @@ DATA: list[dict[str, Any]] = [
                                 "outMsgQueue": 0,
                                 "underMaintenance": False,
                                 "asn": "12345",
-                            }
+                            },
                         },
                         "vrf": "BLAH",
                         "asn": "666",
                     },
-                }
-            }
+                },
+            },
         ],
         "inputs": None,
         "expected": {
             "result": "failure",
             "messages": [
                 "Some IPv4 Unicast BGP Peer are not up: {'default': {'2001:db8::cafe': {'peerState': 'Idle', 'inMsgQueue': 0, 'outMsgQueue': 0}},"
-                " 'BLAH': {'2001:db8::beef:cafe': {'peerState': 'Idle', 'inMsgQueue': 0, 'outMsgQueue': 0}}}"
+                " 'BLAH': {'2001:db8::beef:cafe': {'peerState': 'Idle', 'inMsgQueue': 0, 'outMsgQueue': 0}}}",
             ],
         },
     },
@@ -439,13 +437,13 @@ DATA: list[dict[str, Any]] = [
                                 "outMsgQueue": 0,
                                 "underMaintenance": False,
                                 "asn": "65000",
-                            }
+                            },
                         },
                         "vrf": "default",
                         "asn": "666",
-                    }
-                }
-            }
+                    },
+                },
+            },
         ],
         "inputs": None,
         "expected": {"result": "success"},
@@ -472,13 +470,13 @@ DATA: list[dict[str, Any]] = [
                                 "outMsgQueue": 0,
                                 "underMaintenance": False,
                                 "asn": "65000",
-                            }
+                            },
                         },
                         "vrf": "default",
                         "asn": "666",
                     },
-                }
-            }
+                },
+            },
         ],
         "inputs": None,
         "expected": {"result": "failure", "messages": ["The following EVPN peers are not established: ['7.7.7.7']"]},
@@ -505,13 +503,13 @@ DATA: list[dict[str, Any]] = [
                                 "outMsgQueue": 0,
                                 "underMaintenance": False,
                                 "asn": "12345",
-                            }
+                            },
                         },
                         "vrf": "default",
                         "asn": "666",
                     },
-                }
-            }
+                },
+            },
         ],
         "inputs": {"number": 1},
         "expected": {"result": "success"},
@@ -538,13 +536,13 @@ DATA: list[dict[str, Any]] = [
                                 "outMsgQueue": 42,
                                 "underMaintenance": False,
                                 "asn": "12345",
-                            }
+                            },
                         },
                         "vrf": "default",
                         "asn": "666",
                     },
-                }
-            }
+                },
+            },
         ],
         "inputs": {"number": 2},
         "expected": {"result": "failure", "messages": ["Expecting 2 BGP EVPN peers and got 1"]},
@@ -571,13 +569,13 @@ DATA: list[dict[str, Any]] = [
                                 "outMsgQueue": 0,
                                 "underMaintenance": False,
                                 "asn": "12345",
-                            }
+                            },
                         },
                         "vrf": "default",
                         "asn": "666",
                     },
-                }
-            }
+                },
+            },
         ],
         "inputs": {"number": 1},
         "expected": {"result": "failure", "messages": ["The following EVPN peers are not established: ['8.8.8.8']"]},
@@ -604,13 +602,13 @@ DATA: list[dict[str, Any]] = [
                                 "outMsgQueue": 42,
                                 "underMaintenance": False,
                                 "asn": "65000",
-                            }
+                            },
                         },
                         "vrf": "default",
                         "asn": "666",
-                    }
-                }
-            }
+                    },
+                },
+            },
         ],
         "inputs": None,
         "expected": {"result": "success"},
@@ -637,13 +635,13 @@ DATA: list[dict[str, Any]] = [
                                 "outMsgQueue": 0,
                                 "underMaintenance": False,
                                 "asn": "65000",
-                            }
+                            },
                         },
                         "vrf": "default",
                         "asn": "666",
                     },
-                }
-            }
+                },
+            },
         ],
         "inputs": None,
         "expected": {"result": "failure", "messages": ["The following RTC peers are not established: ['7.7.7.7']"]},
@@ -670,13 +668,13 @@ DATA: list[dict[str, Any]] = [
                                 "outMsgQueue": 42,
                                 "underMaintenance": False,
                                 "asn": "12345",
-                            }
+                            },
                         },
                         "vrf": "default",
                         "asn": "666",
                     },
-                }
-            }
+                },
+            },
         ],
         "inputs": {"number": 1},
         "expected": {"result": "success"},
@@ -703,13 +701,13 @@ DATA: list[dict[str, Any]] = [
                                 "outMsgQueue": 42,
                                 "underMaintenance": False,
                                 "asn": "12345",
-                            }
+                            },
                         },
                         "vrf": "default",
                         "asn": "666",
                     },
-                }
-            }
+                },
+            },
         ],
         "inputs": {"number": 2},
         "expected": {"result": "failure", "messages": ["Expecting 2 BGP RTC peers and got 1"]},
@@ -737,13 +735,13 @@ DATA: list[dict[str, Any]] = [
                                 "outMsgQueue": 0,
                                 "underMaintenance": False,
                                 "asn": "12345",
-                            }
+                            },
                         },
                         "vrf": "default",
                         "asn": "666",
                     },
-                }
-            }
+                },
+            },
         ],
         "expected": {"result": "failure", "messages": ["The following RTC peers are not established: ['8.8.8.8']"]},
     },
@@ -787,9 +785,9 @@ DATA: list[dict[str, Any]] = [
                                 "peerState": "Established",
                             },
                         },
-                    }
-                }
-            }
+                    },
+                },
+            },
         ],
         "inputs": {"address_families": [{"afi": "ipv4", "safi": "unicast", "vrf": "default", "num_peers": 2}]},
         "expected": {"result": "success"},
@@ -834,9 +832,9 @@ DATA: list[dict[str, Any]] = [
                                 "peerState": "Established",
                             },
                         },
-                    }
-                }
-            }
+                    },
+                },
+            },
         ],
         "inputs": {"address_families": [{"afi": "ipv4", "safi": "unicast", "vrf": "default", "num_peers": 3}]},
         "expected": {"result": "failure", "messages": ["Failures: [{'afi': 'ipv4', 'safi': 'unicast', 'vrfs': {'default': 'Expected: 3, Actual: 2'}}]"]},
@@ -917,8 +915,8 @@ DATA: list[dict[str, Any]] = [
                             },
                         },
                     },
-                }
-            }
+                },
+            },
         ],
         "inputs": {"address_families": [{"afi": "ipv4", "safi": "unicast", "vrf": "all", "num_peers": 3}]},
         "expected": {"result": "success"},
@@ -985,8 +983,8 @@ DATA: list[dict[str, Any]] = [
                             },
                         },
                     },
-                }
-            }
+                },
+            },
         ],
         "inputs": {"address_families": [{"afi": "ipv4", "safi": "unicast", "vrf": "all", "num_peers": 5}]},
         "expected": {"result": "failure", "messages": ["Failures: [{'afi': 'ipv4', 'safi': 'unicast', 'vrfs': {'all': 'Expected: 5, Actual: 3'}}]"]},
@@ -1031,8 +1029,8 @@ DATA: list[dict[str, Any]] = [
                                 "peerState": "Established",
                             },
                         },
-                    }
-                }
+                    },
+                },
             },
             {
                 "vrfs": {
@@ -1070,15 +1068,15 @@ DATA: list[dict[str, Any]] = [
                                 "peerState": "Established",
                             },
                         },
-                    }
-                }
+                    },
+                },
             },
         ],
         "inputs": {
             "address_families": [
                 {"afi": "ipv4", "safi": "unicast", "vrf": "PROD", "num_peers": 2},
                 {"afi": "evpn", "num_peers": 2},
-            ]
+            ],
         },
         "expected": {
             "result": "success",
@@ -1124,8 +1122,8 @@ DATA: list[dict[str, Any]] = [
                                 "peerState": "Established",
                             },
                         },
-                    }
-                }
+                    },
+                },
             },
             {"vrfs": {}},
             {
@@ -1164,8 +1162,8 @@ DATA: list[dict[str, Any]] = [
                                 "peerState": "Established",
                             },
                         },
-                    }
-                }
+                    },
+                },
             },
         ],
         "inputs": {
@@ -1173,14 +1171,14 @@ DATA: list[dict[str, Any]] = [
                 {"afi": "ipv4", "safi": "unicast", "vrf": "PROD", "num_peers": 3},
                 {"afi": "evpn", "num_peers": 3},
                 {"afi": "ipv6", "safi": "unicast", "vrf": "default", "num_peers": 3},
-            ]
+            ],
         },
         "expected": {
             "result": "failure",
             "messages": [
                 "Failures: [{'afi': 'ipv4', 'safi': 'unicast', 'vrfs': {'PROD': 'Expected: 3, Actual: 2'}}, "
                 "{'afi': 'ipv6', 'safi': 'unicast', 'vrfs': {'default': 'Not Configured'}}, "
-                "{'afi': 'evpn', 'vrfs': {'default': 'Expected: 3, Actual: 2'}}"
+                "{'afi': 'evpn', 'vrfs': {'default': 'Expected: 3, Actual: 2'}}",
             ],
         },
     },
@@ -1224,9 +1222,9 @@ DATA: list[dict[str, Any]] = [
                                 "peerState": "Established",
                             },
                         },
-                    }
-                }
-            }
+                    },
+                },
+            },
         ],
         "inputs": {"address_families": [{"afi": "ipv4", "safi": "unicast", "vrf": "default"}]},
         "expected": {"result": "success"},
@@ -1271,15 +1269,15 @@ DATA: list[dict[str, Any]] = [
                                 "peerState": "Established",
                             },
                         },
-                    }
-                }
-            }
+                    },
+                },
+            },
         ],
         "inputs": {"address_families": [{"afi": "ipv4", "safi": "unicast", "vrf": "default"}]},
         "expected": {
             "result": "failure",
             "messages": [
-                "Failures: [{'afi': 'ipv4', 'safi': 'unicast', 'vrfs': {'default': {'10.1.255.0': {'peerState': 'Idle', 'inMsgQueue': 0, 'outMsgQueue': 0}}}}]"
+                "Failures: [{'afi': 'ipv4', 'safi': 'unicast', 'vrfs': {'default': {'10.1.255.0': {'peerState': 'Idle', 'inMsgQueue': 0, 'outMsgQueue': 0}}}}]",
             ],
         },
     },
@@ -1359,8 +1357,8 @@ DATA: list[dict[str, Any]] = [
                             },
                         },
                     },
-                }
-            }
+                },
+            },
         ],
         "inputs": {"address_families": [{"afi": "ipv4", "safi": "unicast", "vrf": "all"}]},
         "expected": {
@@ -1443,15 +1441,15 @@ DATA: list[dict[str, Any]] = [
                             },
                         },
                     },
-                }
-            }
+                },
+            },
         ],
         "inputs": {"address_families": [{"afi": "ipv4", "safi": "unicast", "vrf": "all"}]},
         "expected": {
             "result": "failure",
             "messages": [
                 "Failures: [{'afi': 'ipv4', 'safi': 'unicast', 'vrfs': {'default': {'10.1.255.0': {'peerState': 'Idle', 'inMsgQueue': 0, 'outMsgQueue': 0}}, "
-                "'PROD': {'192.168.1.11': {'peerState': 'Established', 'inMsgQueue': 100, 'outMsgQueue': 200}}}}]"
+                "'PROD': {'192.168.1.11': {'peerState': 'Established', 'inMsgQueue': 100, 'outMsgQueue': 200}}}}]",
             ],
         },
     },
@@ -1509,8 +1507,8 @@ DATA: list[dict[str, Any]] = [
                                 "peerState": "Established",
                             },
                         },
-                    }
-                }
+                    },
+                },
             },
             {
                 "vrfs": {
@@ -1548,15 +1546,15 @@ DATA: list[dict[str, Any]] = [
                                 "peerState": "Established",
                             },
                         },
-                    }
-                }
+                    },
+                },
             },
         ],
         "inputs": {
             "address_families": [
                 {"afi": "ipv4", "safi": "unicast", "vrf": "PROD"},
                 {"afi": "evpn"},
-            ]
+            ],
         },
         "expected": {
             "result": "success",
@@ -1602,8 +1600,8 @@ DATA: list[dict[str, Any]] = [
                                 "peerState": "Established",
                             },
                         },
-                    }
-                }
+                    },
+                },
             },
             {"vrfs": {}},
             {
@@ -1642,8 +1640,8 @@ DATA: list[dict[str, Any]] = [
                                 "peerState": "Idle",
                             },
                         },
-                    }
-                }
+                    },
+                },
             },
         ],
         "inputs": {
@@ -1651,7 +1649,7 @@ DATA: list[dict[str, Any]] = [
                 {"afi": "ipv4", "safi": "unicast", "vrf": "PROD"},
                 {"afi": "evpn"},
                 {"afi": "ipv6", "safi": "unicast", "vrf": "default"},
-            ]
+            ],
         },
         "expected": {
             "result": "failure",
@@ -1659,7 +1657,7 @@ DATA: list[dict[str, Any]] = [
                 "Failures: [{'afi': 'ipv4', 'safi': 'unicast', 'vrfs': "
                 "{'PROD': {'192.168.1.11': {'peerState': 'Established', 'inMsgQueue': 10, 'outMsgQueue': 0}}}}, "
                 "{'afi': 'ipv6', 'safi': 'unicast', 'vrfs': {'default': 'Not Configured'}}, "
-                "{'afi': 'evpn', 'vrfs': {'default': {'10.1.0.2': {'peerState': 'Idle', 'inMsgQueue': 0, 'outMsgQueue': 0}}}"
+                "{'afi': 'evpn', 'vrfs': {'default': {'10.1.0.2': {'peerState': 'Idle', 'inMsgQueue': 0, 'outMsgQueue': 0}}}",
             ],
         },
     },
@@ -1703,9 +1701,9 @@ DATA: list[dict[str, Any]] = [
                                 "peerState": "Established",
                             },
                         },
-                    }
-                }
-            }
+                    },
+                },
+            },
         ],
         "inputs": {"address_families": [{"afi": "ipv4", "safi": "unicast", "vrf": "default", "peers": ["10.1.255.0", "10.1.255.2"]}]},
         "expected": {"result": "success"},
@@ -1750,15 +1748,15 @@ DATA: list[dict[str, Any]] = [
                                 "peerState": "Established",
                             },
                         },
-                    }
-                }
-            }
+                    },
+                },
+            },
         ],
         "inputs": {"address_families": [{"afi": "ipv4", "safi": "unicast", "vrf": "default", "peers": ["10.1.255.0", "10.1.255.2"]}]},
         "expected": {
             "result": "failure",
             "messages": [
-                "Failures: [{'afi': 'ipv4', 'safi': 'unicast', 'vrfs': {'default': {'10.1.255.0': {'peerState': 'Idle', 'inMsgQueue': 0, 'outMsgQueue': 0}}}}]"
+                "Failures: [{'afi': 'ipv4', 'safi': 'unicast', 'vrfs': {'default': {'10.1.255.0': {'peerState': 'Idle', 'inMsgQueue': 0, 'outMsgQueue': 0}}}}]",
             ],
         },
     },
@@ -1819,8 +1817,8 @@ DATA: list[dict[str, Any]] = [
                                 "peerState": "Established",
                             },
                         },
-                    }
-                }
+                    },
+                },
             },
             {
                 "vrfs": {
@@ -1858,15 +1856,15 @@ DATA: list[dict[str, Any]] = [
                                 "peerState": "Established",
                             },
                         },
-                    }
-                }
+                    },
+                },
             },
         ],
         "inputs": {
             "address_families": [
                 {"afi": "ipv4", "safi": "unicast", "vrf": "PROD", "peers": ["10.1.254.1", "192.168.1.11"]},
                 {"afi": "evpn", "peers": ["10.1.0.1", "10.1.0.2"]},
-            ]
+            ],
         },
         "expected": {"result": "success"},
     },
@@ -1910,8 +1908,8 @@ DATA: list[dict[str, Any]] = [
                                 "peerState": "Established",
                             },
                         },
-                    }
-                }
+                    },
+                },
             },
             {"vrfs": {}},
             {
@@ -1950,8 +1948,8 @@ DATA: list[dict[str, Any]] = [
                                 "peerState": "Idle",
                             },
                         },
-                    }
-                }
+                    },
+                },
             },
         ],
         "inputs": {
@@ -1959,7 +1957,7 @@ DATA: list[dict[str, Any]] = [
                 {"afi": "ipv4", "safi": "unicast", "vrf": "PROD", "peers": ["10.1.254.1", "192.168.1.11"]},
                 {"afi": "evpn", "peers": ["10.1.0.1", "10.1.0.2"]},
                 {"afi": "ipv6", "safi": "unicast", "vrf": "default", "peers": ["10.1.0.1", "10.1.0.2"]},
-            ]
+            ],
         },
         "expected": {
             "result": "failure",
@@ -1967,7 +1965,7 @@ DATA: list[dict[str, Any]] = [
                 "Failures: [{'afi': 'ipv4', 'safi': 'unicast', 'vrfs': "
                 "{'PROD': {'192.168.1.11': {'peerState': 'Established', 'inMsgQueue': 10, 'outMsgQueue': 0}}}}, "
                 "{'afi': 'ipv6', 'safi': 'unicast', 'vrfs': {'default': 'Not Configured'}}, "
-                "{'afi': 'evpn', 'vrfs': {'default': {'10.1.0.2': {'peerState': 'Idle', 'inMsgQueue': 0, 'outMsgQueue': 0}}}"
+                "{'afi': 'evpn', 'vrfs': {'default': {'10.1.0.2': {'peerState': 'Idle', 'inMsgQueue': 0, 'outMsgQueue': 0}}}",
             ],
         },
     },

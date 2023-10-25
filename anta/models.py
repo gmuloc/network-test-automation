@@ -1,38 +1,45 @@
 # Copyright (c) 2023 Arista Networks, Inc.
 # Use of this source code is governed by the Apache License 2.0
 # that can be found in the LICENSE file.
-"""
-Models to define a TestStructure
-"""
+"""Models to define a TestStructure."""
 from __future__ import annotations
 
 import hashlib
 import logging
 import re
 import time
-from abc import ABC, abstractmethod
+from abc import ABC
+from abc import abstractmethod
 from copy import deepcopy
 from datetime import timedelta
 from functools import wraps
-
-# Need to keep Dict and List for pydantic in python 3.8
-from typing import TYPE_CHECKING, Any, Callable, ClassVar, Coroutine, Dict, List, Literal, Optional, TypeVar, Union
-
-from pydantic import BaseModel, ConfigDict, ValidationError, conint
-from rich.progress import Progress, TaskID
+from typing import Any
+from typing import Callable
+from typing import ClassVar
+from typing import Coroutine
+from typing import Literal
+from typing import TYPE_CHECKING
+from typing import TypeVar
 
 from anta.result_manager.models import TestResult
-from anta.tools.misc import anta_log_exception, exc_to_str
+from anta.tools.misc import anta_log_exception
+from anta.tools.misc import exc_to_str
+from pydantic import BaseModel
+from pydantic import ConfigDict
+from pydantic import conint
+from pydantic import ValidationError
+
+# Need to keep Dict and List for pydantic in python 3.8
 
 if TYPE_CHECKING:
+    from rich.progress import Progress, TaskID
+
     from anta.device import AntaDevice
 
 F = TypeVar("F", bound=Callable[..., Any])
 # Proper way to type input class - revisit this later if we get any issue @gmuloc
 # This would imply overhead to define classes
 # https://stackoverflow.com/questions/74103528/type-hinting-an-instance-of-a-nested-class
-# N = TypeVar("N", bound="AntaTest.Input")
-
 
 # TODO - make this configurable - with an env var maybe?
 BLACKLIST_REGEX = [r"^reload.*", r"^conf\w*\s*(terminal|session)*", r"^wr\w*\s*\w+"]
@@ -41,8 +48,7 @@ logger = logging.getLogger(__name__)
 
 
 class AntaMissingParamException(Exception):
-    """
-    This Exception should be used when an expected key in an AntaCommand.params dictionary
+    """This Exception should be used when an expected key in an AntaCommand.params dictionary
     was not found.
 
     This Exception should in general never be raised in normal usage of ANTA.
@@ -54,7 +60,7 @@ class AntaMissingParamException(Exception):
     ]
 
     def __init__(self, message: str) -> None:
-        self.message = "\n".join([message] + AntaMissingParamException.GITHUB_SUGGESTION)
+        self.message = "\n".join([message, *AntaMissingParamException.GITHUB_SUGGESTION])
         super().__init__(self.message)
 
 
@@ -62,7 +68,8 @@ class AntaTemplate(BaseModel):
     """Class to define a command template as Python f-string.
     Can render a command from parameters.
 
-    Attributes:
+    Attributes
+    ----------
         template: Python f-string. Example: 'show vlan {vlan_id}'
         version: eAPI version - valid values are 1 or "latest" - default is "latest"
         revision: Revision of the command. Valid values are 1 to 99. Revision has precedence over version.
@@ -72,7 +79,7 @@ class AntaTemplate(BaseModel):
 
     template: str
     version: Literal[1, "latest"] = "latest"
-    revision: Optional[conint(ge=1, le=99)] = None  # type: ignore
+    revision: conint(ge=1, le=99) | None = None  # type: ignore
     ofmt: Literal["json", "text"] = "json"
     use_cache: bool = True
 
@@ -81,9 +88,11 @@ class AntaTemplate(BaseModel):
         Keep the parameters used in the AntaTemplate instance.
 
         Args:
+        ----
             params: dictionary of variables with string values to render the Python f-string
 
         Returns:
+        -------
             command: The rendered AntaCommand.
                      This AntaCommand instance have a template attribute that references this
                      AntaTemplate instance.
@@ -116,7 +125,8 @@ class AntaCommand(BaseModel):
 
         __Revision has precedence over version.__
 
-    Attributes:
+    Attributes
+    ----------
         command: Device command
         version: eAPI version - valid values are 1 or "latest" - default is "latest"
         revision: eAPI revision of the command. Valid values are 1 to 99. Revision has precedence over version.
@@ -133,46 +143,50 @@ class AntaCommand(BaseModel):
 
     command: str
     version: Literal[1, "latest"] = "latest"
-    revision: Optional[conint(ge=1, le=99)] = None  # type: ignore
+    revision: conint(ge=1, le=99) | None = None  # type: ignore
     ofmt: Literal["json", "text"] = "json"
-    output: Optional[Union[Dict[str, Any], str]] = None
-    template: Optional[AntaTemplate] = None
-    failed: Optional[Exception] = None
-    params: Dict[str, Any] = {}
+    output: dict[str, Any] | str | None = None
+    template: AntaTemplate | None = None
+    failed: Exception | None = None
+    params: dict[str, Any] = {}
     use_cache: bool = True
 
     @property
     def uid(self) -> str:
-        """Generate a unique identifier for this command"""
+        """Generate a unique identifier for this command."""
         uid_str = f"{self.command}_{self.version}_{self.revision or 'NA'}_{self.ofmt}"
         return hashlib.sha1(uid_str.encode()).hexdigest()
 
     @property
     def json_output(self) -> dict[str, Any]:
-        """Get the command output as JSON"""
+        """Get the command output as JSON."""
         if self.output is None:
-            raise RuntimeError(f"There is no output for command {self.command}")
+            msg = f"There is no output for command {self.command}"
+            raise RuntimeError(msg)
         if self.ofmt != "json" or not isinstance(self.output, dict):
-            raise RuntimeError(f"Output of command {self.command} is invalid")
+            msg = f"Output of command {self.command} is invalid"
+            raise RuntimeError(msg)
         return dict(self.output)
 
     @property
     def text_output(self) -> str:
-        """Get the command output as a string"""
+        """Get the command output as a string."""
         if self.output is None:
-            raise RuntimeError(f"There is no output for command {self.command}")
+            msg = f"There is no output for command {self.command}"
+            raise RuntimeError(msg)
         if self.ofmt != "text" or not isinstance(self.output, str):
-            raise RuntimeError(f"Output of command {self.command} is invalid")
+            msg = f"Output of command {self.command} is invalid"
+            raise RuntimeError(msg)
         return str(self.output)
 
     @property
     def collected(self) -> bool:
-        """Return True if the command has been collected"""
+        """Return True if the command has been collected."""
         return self.output is not None and self.failed is None
 
 
 class AntaTestFilter(ABC):
-    """Class to define a test Filter"""
+    """Class to define a test Filter."""
 
     # pylint: disable=too-few-public-methods
 
@@ -184,24 +198,24 @@ class AntaTestFilter(ABC):
         *args: list[Any],
         **kwagrs: dict[str, Any],
     ) -> bool:
-        """
-        Sets the TestResult status to skip with the appropriate skip message
+        """Sets the TestResult status to skip with the appropriate skip message.
 
-        Returns:
+        Returns
+        -------
             bool: True if the test should be skipped, False otherwise
         """
 
 
 class AntaTemplateRenderError(RuntimeError):
-    """
-    Raised when an AntaTemplate object could not be rendered
-    because of missing parameters
+    """Raised when an AntaTemplate object could not be rendered
+    because of missing parameters.
     """
 
-    def __init__(self, template: AntaTemplate, key: str):
-        """Constructor for AntaTemplateRenderError
+    def __init__(self, template: AntaTemplate, key: str) -> None:
+        """Constructor for AntaTemplateRenderError.
 
         Args:
+        ----
             template: The AntaTemplate instance that failed to render
             key: Key that has not been provided to render the template
         """
@@ -211,12 +225,13 @@ class AntaTemplateRenderError(RuntimeError):
 
 
 class AntaTest(ABC):
-    """Abstract class defining a test in ANTA
+    """Abstract class defining a test in ANTA.
 
     The goal of this class is to handle the heavy lifting and make
     writing a test as simple as possible.
 
-    Examples:
+    Examples
+    --------
     The following is an example of an AntaTest subclass implementation:
         ```python
             class VerifyReachability(AntaTest):
@@ -261,17 +276,18 @@ class AntaTest(ABC):
     name: ClassVar[str]
     description: ClassVar[str]
     categories: ClassVar[list[str]]
-    commands: ClassVar[list[Union[AntaTemplate, AntaCommand]]]
+    commands: ClassVar[list[AntaTemplate | AntaCommand]]
     # Optional class attributes
     test_filters: ClassVar[list[AntaTestFilter]]
     # Class attributes to handle the progress bar of ANTA CLI
-    progress: Optional[Progress] = None
-    nrfu_task: Optional[TaskID] = None
+    progress: Progress | None = None
+    nrfu_task: TaskID | None = None
 
     class Input(BaseModel):
         """Class defining inputs for a test in ANTA.
 
-        Examples:
+        Examples
+        --------
         A valid test catalog will look like the following:
             ```yaml
             <Python module>:
@@ -287,21 +303,22 @@ class AntaTest(ABC):
         """
 
         model_config = ConfigDict(extra="forbid")
-        result_overwrite: Optional[ResultOverwrite] = None
+        result_overwrite: ResultOverwrite | None = None
         filters: Optional[Filters] = None
 
         class ResultOverwrite(BaseModel):
-            """Test inputs model to overwrite result fields
+            """Test inputs model to overwrite result fields.
 
-            Attributes:
+            Attributes
+            ----------
                 description: overwrite TestResult.description
                 categories: overwrite TestResult.categories
                 custom_field: a free string that will be included in the TestResult object
             """
 
-            description: Optional[str] = None
-            categories: Optional[List[str]] = None
-            custom_field: Optional[str] = None
+            description: str | None = None
+            categories: list[str] | None = None
+            custom_field: str | None = None
 
         class Filters(BaseModel):
             """Runtime filters to map tests with list of tags or devices
@@ -317,12 +334,13 @@ class AntaTest(ABC):
     def __init__(
         self,
         device: AntaDevice,
-        inputs: Optional[dict[str, Any]],
-        eos_data: Optional[list[dict[Any, Any] | str]] = None,
-    ):
-        """AntaTest Constructor
+        inputs: dict[str, Any] | None,
+        eos_data: list[dict[Any, Any] | str] | None = None,
+    ) -> None:
+        """AntaTest Constructor.
 
         Args:
+        ----
             device: AntaDevice instance on which the test will be run
             inputs: dictionary of attributes used to instantiate the AntaTest.Input instance
             eos_data: Populate outputs of the test commands instead of collecting from devices.
@@ -337,12 +355,13 @@ class AntaTest(ABC):
         if self.result.result == "unset":
             self._init_commands(eos_data)
 
-    def _init_inputs(self, inputs: Optional[dict[str, Any]]) -> None:
+    def _init_inputs(self, inputs: dict[str, Any] | None) -> None:
         """Instantiate the `inputs` instance attribute with an `AntaTest.Input` instance
         to validate test inputs from defined model.
         Overwrite result fields based on `ResultOverwrite` input definition.
 
-        Any input validation error will set this test result status as 'error'."""
+        Any input validation error will set this test result status as 'error'.
+        """
         try:
             self.inputs = self.Input(**inputs) if inputs is not None else self.Input()
         except ValidationError as e:
@@ -357,10 +376,10 @@ class AntaTest(ABC):
                 self.result.description = res_ow.description
             self.result.custom_field = res_ow.custom_field
 
-    def _init_commands(self, eos_data: Optional[list[dict[Any, Any] | str]]) -> None:
+    def _init_commands(self, eos_data: list[dict[Any, Any] | str] | None) -> None:
         """Instantiate the `instance_commands` instance attribute from the `commands` class attribute.
         - Copy of the `AntaCommand` instances
-        - Render all `AntaTemplate` instances using the `render()` method
+        - Render all `AntaTemplate` instances using the `render()` method.
 
         Any template rendering error will set this test result status as 'error'.
         Any exception in user code in `render()` will set this test result status as 'error'.
@@ -392,7 +411,7 @@ class AntaTest(ABC):
             self.save_commands_data(eos_data)
 
     def save_commands_data(self, eos_data: list[dict[str, Any] | str]) -> None:
-        """Populate output of all AntaCommand instances in `instance_commands`"""
+        """Populate output of all AntaCommand instances in `instance_commands`."""
         if len(eos_data) > len(self.instance_commands):
             self.result.is_error(message="Test initialization error: Trying to save more data than there are commands for the test")
             return
@@ -403,11 +422,12 @@ class AntaTest(ABC):
             self.instance_commands[index].output = data
 
     def __init_subclass__(cls) -> None:
-        """Verify that the mandatory class attributes are defined"""
+        """Verify that the mandatory class attributes are defined."""
         mandatory_attributes = ["name", "description", "categories", "commands"]
         for attr in mandatory_attributes:
             if not hasattr(cls, attr):
-                raise NotImplementedError(f"Class {cls.__module__}.{cls.__name__} is missing required class attribute {attr}")
+                msg = f"Class {cls.__module__}.{cls.__name__} is missing required class attribute {attr}"
+                raise NotImplementedError(msg)
 
     @property
     def collected(self) -> bool:
@@ -424,8 +444,10 @@ class AntaTest(ABC):
            AntaTest.Input instance at self.inputs.
 
         This is not an abstract method because it does not need to be implemented if there is
-        no AntaTemplate for this test."""
-        raise NotImplementedError(f"AntaTemplate are provided but render() method has not been implemented for {self.__module__}.{self.name}")
+        no AntaTemplate for this test.
+        """
+        msg = f"AntaTemplate are provided but render() method has not been implemented for {self.__module__}.{self.name}"
+        raise NotImplementedError(msg)
 
     @property
     def blocked(self) -> bool:
@@ -440,9 +462,7 @@ class AntaTest(ABC):
         return state
 
     async def collect(self) -> None:
-        """
-        Method used to collect outputs of all commands of this test class from the device of this test instance.
-        """
+        """Method used to collect outputs of all commands of this test class from the device of this test instance."""
         try:
             if self.blocked is False:
                 await self.device.collect_commands(self.instance_commands)
@@ -453,8 +473,7 @@ class AntaTest(ABC):
 
     @staticmethod
     def anta_test(function: F) -> Callable[..., Coroutine[Any, Any, TestResult]]:
-        """
-        Decorator for the `test()` method.
+        """Decorator for the `test()` method.
 
         This decorator implements (in this order):
 
@@ -467,15 +486,16 @@ class AntaTest(ABC):
         @wraps(function)
         async def wrapper(
             self: AntaTest,
-            eos_data: Optional[list[dict[Any, Any] | str]] = None,
+            eos_data: list[dict[Any, Any] | str] | None = None,
             **kwargs: Any,
         ) -> TestResult:
-            """
-            Args:
+            """Args:
+            ----
                 eos_data: Populate outputs of the test commands instead of collecting from devices.
                           This list must have the same length and order than the `instance_commands` instance attribute.
 
-            Returns:
+            Returns
+            -------
                 result: TestResult instance attribute populated with error status if any
             """
 
@@ -502,8 +522,8 @@ class AntaTest(ABC):
                 if self.failed_commands:
                     self.result.is_error(
                         message="\n".join(
-                            [f"{cmd.command} has failed: {exc_to_str(cmd.failed)}" if cmd.failed else f"{cmd.command} has failed" for cmd in self.failed_commands]
-                        )
+                            [f"{cmd.command} has failed: {exc_to_str(cmd.failed)}" if cmd.failed else f"{cmd.command} has failed" for cmd in self.failed_commands],
+                        ),
                     )
                     return self.result
                 function(self, **kwargs)
@@ -522,20 +542,18 @@ class AntaTest(ABC):
 
     @classmethod
     def update_progress(cls) -> None:
-        """
-        Update progress bar for all AntaTest objects if it exists
-        """
+        """Update progress bar for all AntaTest objects if it exists."""
         if cls.progress and (cls.nrfu_task is not None):
             cls.progress.update(cls.nrfu_task, advance=1)
 
     @abstractmethod
     def test(self) -> Coroutine[Any, Any, TestResult]:
-        """
-        This abstract method is the core of the test logic.
+        """This abstract method is the core of the test logic.
         It must set the correct status of the `result` instance attribute
         with the appropriate outcome of the test.
 
-        Examples:
+        Examples
+        --------
         It must be implemented using the `AntaTest.anta_test` decorator:
             ```python
             @AntaTest.anta_test

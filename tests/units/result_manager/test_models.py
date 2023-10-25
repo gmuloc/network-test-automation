@@ -16,7 +16,7 @@ from tests.lib.utils import generate_test_ids_dict
 pytest.skip(reason="Not yet ready for CI", allow_module_level=True)
 
 
-class Test_InventoryUnitModels:
+class TestInventoryUnitModels:
     """Test components of anta.result_manager.models."""
 
     @pytest.mark.parametrize("test_definition", TEST_RESULT_UNIT, ids=generate_test_ids_dict)
@@ -36,11 +36,11 @@ class Test_InventoryUnitModels:
             pytest.skip("Not concerned by the test")
         try:
             result = TestResult(**test_definition["input"])
-            logging.info(f"TestResult is {result.dict()}")
+            logging.info("TestResult is %s", result.dict())
         # pylint: disable=W0703
         except Exception as e:
-            logging.error(f"Error loading data:\n{str(e)}")
-            assert False
+            logging.error(f"Error loading data:\n{e!s}")
+            raise AssertionError from e
 
     @pytest.mark.parametrize("test_definition", TEST_RESULT_UNIT, ids=generate_test_ids_dict)
     def test_anta_result_init_invalid(self, test_definition: dict[str, Any]) -> None:
@@ -60,10 +60,10 @@ class Test_InventoryUnitModels:
         try:
             TestResult(**test_definition["input"])
         except ValueError as e:
-            logging.warning(f"Error loading data:\n{str(e)}")
+            logging.warning("Error loading data:\n%s", e)
         else:
             logging.error("An exception is expected here")
-            assert False
+            raise AssertionError
 
     @pytest.mark.parametrize("test_definition", TEST_RESULT_UNIT, ids=generate_test_ids_dict)
     def test_anta_result_set_status_success(self, test_definition: dict[str, Any]) -> None:

@@ -1,29 +1,29 @@
 # Copyright (c) 2023 Arista Networks, Inc.
 # Use of this source code is governed by the Apache License 2.0
 # that can be found in the LICENSE file.
-"""
-Test anta.report.__init__.py
-"""
+"""Test anta.report.__init__.py."""
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import pytest
 from rich.table import Table
-from rich.text import Text
 
 from anta import RICH_COLOR_PALETTE
 from anta.reporter import ReportTable
 
+if TYPE_CHECKING:
+    from rich.text import Text
+
 
 class Test_ReportTable:
-    """
-    Test ReportTable class
-    """
+    """Test ReportTable class."""
 
     # not testing __init__ as nothing is going on there
 
     @pytest.mark.parametrize(
-        "usr_list, delimiter, expected_output",
+        ("usr_list", "delimiter", "expected_output"),
         [
             pytest.param([], None, "", id="empty list no delimiter"),
             pytest.param([], "*", "", id="empty list with delimiter"),
@@ -34,9 +34,7 @@ class Test_ReportTable:
         ],
     )
     def test__split_list_to_txt_list(self, usr_list: list[str], delimiter: str | None, expected_output: str) -> None:
-        """
-        test _split_list_to_txt_list
-        """
+        """Test _split_list_to_txt_list."""
         # pylint: disable=protected-access
         report = ReportTable()
         assert report._split_list_to_txt_list(usr_list, delimiter) == expected_output
@@ -50,9 +48,7 @@ class Test_ReportTable:
         ],
     )
     def test__build_headers(self, headers: list[str]) -> None:
-        """
-        test _build_headers
-        """
+        """Test _build_headers."""
         # pylint: disable=protected-access
         report = ReportTable()
         table = Table()
@@ -63,7 +59,7 @@ class Test_ReportTable:
             assert table.columns[table_column_before].style == RICH_COLOR_PALETTE.HEADER
 
     @pytest.mark.parametrize(
-        "status, output_type, expected_status",
+        ("status", "output_type", "expected_status"),
         [
             pytest.param("unknown", None, None, id="unknown status"),
             pytest.param("unset", None, None, id="unset status"),
@@ -76,9 +72,7 @@ class Test_ReportTable:
         ],
     )
     def test__color_result(self, status: str, output_type: str, expected_status: str | Text) -> None:
-        """
-        test _build_headers
-        """
+        """Test _build_headers."""
         # pylint: disable=protected-access
         report = ReportTable()
         if output_type == "Text":

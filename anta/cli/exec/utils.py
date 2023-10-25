@@ -2,9 +2,7 @@
 # Use of this source code is governed by the Apache License 2.0
 # that can be found in the LICENSE file.
 
-"""
-Exec CLI helpers
-"""
+"""Exec CLI helpers."""
 from __future__ import annotations
 
 import asyncio
@@ -13,13 +11,16 @@ import json
 import logging
 from pathlib import Path
 from typing import Literal
+from typing import TYPE_CHECKING, Literal
 
 from aioeapi import EapiCommandError
 
 from anta.device import AntaDevice, AsyncEOSDevice
-from anta.inventory import AntaInventory
 from anta.models import AntaCommand
 from anta.tools.misc import anta_log_exception, exc_to_str
+
+if TYPE_CHECKING:
+    from anta.inventory import AntaInventory
 
 EOS_SCHEDULED_TECH_SUPPORT = "/mnt/flash/schedule/tech-support"
 
@@ -27,9 +28,7 @@ logger = logging.getLogger(__name__)
 
 
 async def clear_counters_utils(anta_inventory: AntaInventory, tags: list[str] | None = None) -> None:
-    """
-    Clear counters
-    """
+    """Clear counters."""
 
     async def clear(dev: AntaDevice) -> None:
         commands = [AntaCommand(command="clear counters")]
@@ -54,9 +53,7 @@ async def collect_commands(
     root_dir: Path,
     tags: list[str] | None = None,
 ) -> None:
-    """
-    Collect EOS commands
-    """
+    """Collect EOS commands."""
 
     async def collect(dev: AntaDevice, command: str, outformat: Literal["json", "text"]) -> None:
         outdir = Path() / root_dir / dev.name / outformat
@@ -93,14 +90,10 @@ async def collect_commands(
 
 
 async def collect_scheduled_show_tech(inv: AntaInventory, root_dir: Path, configure: bool, tags: list[str] | None = None, latest: int | None = None) -> None:
-    """
-    Collect scheduled show-tech on devices
-    """
+    """Collect scheduled show-tech on devices."""
 
     async def collect(device: AntaDevice) -> None:
-        """
-        Collect all the tech-support files stored on Arista switches flash and copy them locally
-        """
+        """Collect all the tech-support files stored on Arista switches flash and copy them locally."""
         try:
             # Get the tech-support filename to retrieve
             cmd = f"bash timeout 10 ls -1t {EOS_SCHEDULED_TECH_SUPPORT}"
@@ -109,7 +102,7 @@ async def collect_scheduled_show_tech(inv: AntaInventory, root_dir: Path, config
             command = AntaCommand(command=cmd, ofmt="text")
             await device.collect(command=command)
             if command.collected and command.text_output:
-                filenames = list(map(lambda f: Path(f"{EOS_SCHEDULED_TECH_SUPPORT}/{f}"), command.text_output.splitlines()))
+                filenames = [Path(f"{EOS_SCHEDULED_TECH_SUPPORT}/{f}") for f in command.text_output.splitlines()]
             else:
                 logger.error(f"Unable to get tech-support filenames on {device.name}: verify that {EOS_SCHEDULED_TECH_SUPPORT} is not empty")
                 return
@@ -137,7 +130,7 @@ async def collect_scheduled_show_tech(inv: AntaInventory, root_dir: Path, config
                         [
                             {"cmd": "configure terminal"},
                             {"cmd": "aaa authorization exec default local"},
-                        ]
+                        ],
                     )
                     logger.warning(f"Configuring 'aaa authorization exec default local' on device {device.name}")
                     command = AntaCommand(command="show running-config | include aaa authorization exec default local", ofmt="text")

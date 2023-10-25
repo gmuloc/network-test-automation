@@ -1,31 +1,35 @@
 # Copyright (c) 2023 Arista Networks, Inc.
 # Use of this source code is governed by the Apache License 2.0
 # that can be found in the LICENSE file.
-"""
-test anta.models.py
-"""
+"""test anta.models.py."""
 # Mypy does not understand AntaTest.Input typing
 # mypy: disable-error-code=attr-defined
 from __future__ import annotations
 
 import asyncio
 from typing import Any
-from unittest.mock import MagicMock
+from typing import ClassVar
+from typing import TYPE_CHECKING
 
 import pytest
+from anta.models import AntaCommand
+from anta.models import AntaTemplate
+from anta.models import AntaTemplateRenderError
+from anta.models import AntaTest
 from pydantic import ValidationError
-
-from anta.models import AntaCommand, AntaTemplate, AntaTemplateRenderError, AntaTest
 from tests.lib.utils import generate_test_ids
+
+if TYPE_CHECKING:
+    from unittest.mock import MagicMock
 
 
 class FakeTest(AntaTest):
-    """ANTA test that always succeed"""
+    """ANTA test that always succeed."""
 
     name = "FakeTest"
     description = "ANTA test that always succeed"
-    categories = []
-    commands = []
+    categories: ClassVar[list[str]] = []
+    commands: ClassVar[list[AntaTemplate | AntaCommand]] = []
 
     @AntaTest.anta_test
     def test(self) -> None:
@@ -33,12 +37,12 @@ class FakeTest(AntaTest):
 
 
 class FakeTestWithInput(AntaTest):
-    """ANTA test with inputs that always succeed"""
+    """ANTA test with inputs that always succeed."""
 
     name = "FakeTestWithInput"
     description = "ANTA test that always succeed"
-    categories = []
-    commands = []
+    categories: ClassVar[list[str]] = []
+    commands: ClassVar[list[AntaTemplate | AntaCommand]] = []
 
     class Input(AntaTest.Input):  # pylint: disable=missing-class-docstring
         string: str
@@ -49,12 +53,12 @@ class FakeTestWithInput(AntaTest):
 
 
 class FakeTestWithTemplate(AntaTest):
-    """ANTA test with template that always succeed"""
+    """ANTA test with template that always succeed."""
 
     name = "FakeTestWithTemplate"
     description = "ANTA test that always succeed"
-    categories = []
-    commands = [AntaTemplate(template="show interface {interface}")]
+    categories: ClassVar[list[str]] = []
+    commands: ClassVar[list[AntaTemplate | AntaCommand]] = [AntaTemplate(template="show interface {interface}")
 
     class Input(AntaTest.Input):  # pylint: disable=missing-class-docstring
         interface: str
@@ -68,12 +72,12 @@ class FakeTestWithTemplate(AntaTest):
 
 
 class FakeTestWithTemplateNoRender(AntaTest):
-    """ANTA test with template that always succeed"""
+    """ANTA test with template that always succeed."""
 
     name = "FakeTestWithTemplate"
     description = "ANTA test that always succeed"
-    categories = []
-    commands = [AntaTemplate(template="show interface {interface}")]
+    categories: ClassVar[list[str]] = []
+    commands: ClassVar[list[AntaTemplate | AntaCommand]] = [AntaTemplate(template="show interface {interface}")]
 
     class Input(AntaTest.Input):  # pylint: disable=missing-class-docstring
         interface: str
@@ -84,12 +88,12 @@ class FakeTestWithTemplateNoRender(AntaTest):
 
 
 class FakeTestWithTemplateWrongRender(AntaTest):
-    """ANTA test with template that always succeed"""
+    """ANTA test with template that always succeed."""
 
     name = "FakeTestWithTemplate"
     description = "ANTA test that always succeed"
-    categories = []
-    commands = [AntaTemplate(template="show interface {interface}")]
+    categories: ClassVar[list[str]] = []
+    commands: ClassVar[list[AntaTemplate | AntaCommand]] = [AntaTemplate(template="show interface {interface}")]
 
     class Input(AntaTest.Input):  # pylint: disable=missing-class-docstring
         interface: str
@@ -166,18 +170,16 @@ ANTATEST_DATA: list[dict[str, Any]] = [
 
 
 class Test_AntaTest:
-    """
-    Test for anta.models.AntaTest
-    """
+    """Test for anta.models.AntaTest."""
 
     def test__init_subclass__name(self) -> None:
-        """Test __init_subclass__"""
+        """Test __init_subclass__."""
         # Pylint detects all the classes in here as unused which is on purpose
         # pylint: disable=unused-variable
         with pytest.raises(NotImplementedError) as exec_info:
 
             class WrongTestNoName(AntaTest):
-                """ANTA test that is missing a name"""
+                """ANTA test that is missing a name."""
 
                 description = "ANTA test that is missing a name"
                 categories = []
@@ -192,7 +194,7 @@ class Test_AntaTest:
         with pytest.raises(NotImplementedError) as exec_info:
 
             class WrongTestNoDescription(AntaTest):
-                """ANTA test that is missing a description"""
+                """ANTA test that is missing a description."""
 
                 name = "WrongTestNoDescription"
                 categories = []
@@ -207,7 +209,7 @@ class Test_AntaTest:
         with pytest.raises(NotImplementedError) as exec_info:
 
             class WrongTestNoCategories(AntaTest):
-                """ANTA test that is missing categories"""
+                """ANTA test that is missing categories."""
 
                 name = "WrongTestNoCategories"
                 description = "ANTA test that is missing categories"
@@ -222,7 +224,7 @@ class Test_AntaTest:
         with pytest.raises(NotImplementedError) as exec_info:
 
             class WrongTestNoCommands(AntaTest):
-                """ANTA test that is missing commands"""
+                """ANTA test that is missing commands."""
 
                 name = "WrongTestNoCommands"
                 description = "ANTA test that is missing commands"
@@ -236,7 +238,7 @@ class Test_AntaTest:
 
     @pytest.mark.parametrize("data", ANTATEST_DATA, ids=generate_test_ids(ANTATEST_DATA))
     def test__init__(self, mocked_device: MagicMock, data: dict[str, Any]) -> None:
-        """Test __init__"""
+        """Test __init__."""
         test = data["test"](mocked_device, inputs=data["inputs"])
         assert test.result.result == data["expected"]["__init__"]["result"]
         # If provided, test that the Exception message matches what is expected
@@ -259,7 +261,7 @@ class Test_AntaTest:
 
     @pytest.mark.parametrize("data", ANTATEST_DATA, ids=generate_test_ids(ANTATEST_DATA))
     def test_test(self, mocked_device: MagicMock, data: dict[str, Any]) -> None:
-        """Test the AntaTest.test method"""
+        """Test the AntaTest.test method."""
         test = data["test"](mocked_device, inputs=data["inputs"])
         asyncio.run(test.test())
         assert test.result.result == data["expected"]["test"]["result"]
@@ -276,7 +278,7 @@ def test_blacklist(mocked_device: MagicMock, data: str) -> None:
     """Test for blacklisting function."""
 
     class FakeTestWithBlacklist(AntaTest):
-        """Fake Test for blacklist"""
+        """Fake Test for blacklist."""
 
         name = "FakeTestWithBlacklist"
         description = "ANTA test that has blacklisted command"

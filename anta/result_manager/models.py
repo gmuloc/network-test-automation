@@ -4,21 +4,22 @@
 """Models related to anta.result_manager module."""
 from __future__ import annotations
 
-from collections.abc import Iterator
-
 # Need to keep List for pydantic in 3.8
-from typing import List, Optional
+from typing import TYPE_CHECKING, List
 
 from pydantic import BaseModel, ConfigDict, RootModel
 
-from anta.custom_types import TestStatus
+if TYPE_CHECKING:
+    from collections.abc import Iterator
+
+    from anta.custom_types import TestStatus
 
 
 class TestResult(BaseModel):
-    """
-    Describe the result of a test from a single device.
+    """Describe the result of a test from a single device.
 
-    Attributes:
+    Attributes
+    ----------
         name: Device name where the test has run.
         test: Test name runs on the device.
         categories: List of categories the TestResult belongs to, by default the AntaTest categories.
@@ -34,55 +35,55 @@ class TestResult(BaseModel):
 
     name: str
     test: str
-    categories: List[str]
+    categories: list[str]
     description: str
     result: TestStatus = "unset"
-    messages: List[str] = []
-    error: Optional[Exception] = None
-    custom_field: Optional[str] = None
+    messages: list[str] = []
+    error: Exception | None = None
+    custom_field: str | None = None
 
     def is_success(self, message: str | None = None) -> None:
-        """
-        Helper to set status to success
+        """Helper to set status to success.
 
         Args:
+        ----
             message: Optional message related to the test
         """
         self._set_status("success", message)
 
     def is_failure(self, message: str | None = None) -> None:
-        """
-        Helper to set status to failure
+        """Helper to set status to failure.
 
         Args:
+        ----
             message: Optional message related to the test
         """
         self._set_status("failure", message)
 
     def is_skipped(self, message: str | None = None) -> None:
-        """
-        Helper to set status to skipped
+        """Helper to set status to skipped.
 
         Args:
+        ----
             message: Optional message related to the test
         """
         self._set_status("skipped", message)
 
     def is_error(self, message: str | None = None, exception: Exception | None = None) -> None:
-        """
-        Helper to set status to error
+        """Helper to set status to error.
 
         Args:
+        ----
             exception: Optional Exception objet related to the error
         """
         self._set_status("error", message)
         self.error = exception
 
     def _set_status(self, status: TestStatus, message: str | None = None) -> None:
-        """
-        Set status and insert optional message
+        """Set status and insert optional message.
 
         Args:
+        ----
             status: status of the test
             message: optional message
         """
@@ -91,21 +92,19 @@ class TestResult(BaseModel):
             self.messages.append(message)
 
     def __str__(self) -> str:
-        """
-        Returns a human readable string of this TestResult
-        """
+        """Returns a human readable string of this TestResult."""
         return f"Test {self.test} on device {self.name} has result {self.result}"
 
 
 class ListResult(RootModel[List[TestResult]]):
-    """
-    list result for all tests on all devices.
+    """list result for all tests on all devices.
 
-    Attributes:
+    Attributes
+    ----------
         __root__ (list[TestResult]): A list of TestResult objects.
     """
 
-    root: List[TestResult] = []
+    root: list[TestResult] = []
 
     def extend(self, values: list[TestResult]) -> None:
         """Add support for extend method."""
@@ -126,5 +125,5 @@ class ListResult(RootModel[List[TestResult]]):
         return self.root[item]
 
     def __len__(self) -> int:
-        """Support for length of __root__"""
+        """Support for length of __root__."""
         return len(self.root)

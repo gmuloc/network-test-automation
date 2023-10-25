@@ -1,21 +1,21 @@
 # Copyright (c) 2023 Arista Networks, Inc.
 # Use of this source code is governed by the Apache License 2.0
 # that can be found in the LICENSE file.
-"""
-Test functions related to the EOS various security settings
-"""
+"""Test functions related to the EOS various security settings."""
 # Mypy does not understand AntaTest.Input typing
 # mypy: disable-error-code=attr-defined
 from __future__ import annotations
 
-from pydantic import conint
+from typing import TYPE_CHECKING
 
 from anta.models import AntaCommand, AntaTest
 
+if TYPE_CHECKING:
+    from pydantic import conint
+
 
 class VerifySSHStatus(AntaTest):
-    """
-    Verifies if the SSHD agent is disabled in the default VRF.
+    """Verifies if the SSHD agent is disabled in the default VRF.
 
     Expected Results:
         * success: The test will pass if the SSHD agent is disabled in the default VRF.
@@ -31,7 +31,7 @@ class VerifySSHStatus(AntaTest):
     def test(self) -> None:
         command_output = self.instance_commands[0].text_output
 
-        line = [line for line in command_output.split("\n") if line.startswith("SSHD status")][0]
+        line = next(line for line in command_output.split("\n") if line.startswith("SSHD status"))
         status = line.split("is ")[1]
 
         if status == "disabled":
@@ -41,8 +41,7 @@ class VerifySSHStatus(AntaTest):
 
 
 class VerifySSHIPv4Acl(AntaTest):
-    """
-    Verifies if the SSHD agent has the right number IPv4 ACL(s) configured for a specified VRF.
+    """Verifies if the SSHD agent has the right number IPv4 ACL(s) configured for a specified VRF.
 
     Expected results:
         * success: The test will pass if the SSHD agent has the provided number of IPv4 ACL(s) in the specified VRF.
@@ -79,8 +78,7 @@ class VerifySSHIPv4Acl(AntaTest):
 
 
 class VerifySSHIPv6Acl(AntaTest):
-    """
-    Verifies if the SSHD agent has the right number IPv6 ACL(s) configured for a specified VRF.
+    """Verifies if the SSHD agent has the right number IPv6 ACL(s) configured for a specified VRF.
 
     Expected results:
         * success: The test will pass if the SSHD agent has the provided number of IPv6 ACL(s) in the specified VRF.
@@ -117,8 +115,7 @@ class VerifySSHIPv6Acl(AntaTest):
 
 
 class VerifyTelnetStatus(AntaTest):
-    """
-    Verifies if Telnet is disabled in the default VRF.
+    """Verifies if Telnet is disabled in the default VRF.
 
     Expected Results:
         * success: The test will pass if Telnet is disabled in the default VRF.
@@ -140,8 +137,7 @@ class VerifyTelnetStatus(AntaTest):
 
 
 class VerifyAPIHttpStatus(AntaTest):
-    """
-    Verifies if eAPI HTTP server is disabled globally.
+    """Verifies if eAPI HTTP server is disabled globally.
 
     Expected Results:
         * success: The test will pass if eAPI HTTP server is disabled globally.
@@ -163,8 +159,7 @@ class VerifyAPIHttpStatus(AntaTest):
 
 
 class VerifyAPIHttpsSSL(AntaTest):
-    """
-    Verifies if eAPI HTTPS server SSL profile is configured and valid.
+    """Verifies if eAPI HTTPS server SSL profile is configured and valid.
 
     Expected results:
         * success: The test will pass if the eAPI HTTPS server SSL profile is configured and valid.
@@ -194,8 +189,7 @@ class VerifyAPIHttpsSSL(AntaTest):
 
 
 class VerifyAPIIPv4Acl(AntaTest):
-    """
-    Verifies if eAPI has the right number IPv4 ACL(s) configured for a specified VRF.
+    """Verifies if eAPI has the right number IPv4 ACL(s) configured for a specified VRF.
 
     Expected results:
         * success: The test will pass if eAPI has the provided number of IPv4 ACL(s) in the specified VRF.
@@ -232,8 +226,7 @@ class VerifyAPIIPv4Acl(AntaTest):
 
 
 class VerifyAPIIPv6Acl(AntaTest):
-    """
-    Verifies if eAPI has the right number IPv6 ACL(s) configured for a specified VRF.
+    """Verifies if eAPI has the right number IPv6 ACL(s) configured for a specified VRF.
 
     Expected results:
         * success: The test will pass if eAPI has the provided number of IPv6 ACL(s) in the specified VRF.

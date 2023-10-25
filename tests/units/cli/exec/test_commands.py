@@ -1,9 +1,7 @@
 # Copyright (c) 2023 Arista Networks, Inc.
 # Use of this source code is governed by the Apache License 2.0
 # that can be found in the LICENSE file.
-"""
-Tests for anta.cli.exec.commands
-"""
+"""Tests for anta.cli.exec.commands."""
 
 from __future__ import annotations
 
@@ -22,9 +20,7 @@ if TYPE_CHECKING:
 
 
 def test_clear_counters_help(click_runner: CliRunner) -> None:
-    """
-    Test `anta exec clear-counters --help`
-    """
+    """Test `anta exec clear-counters --help`."""
     result = click_runner.invoke(clear_counters, ["--help"])
     assert result.exit_code == 0
     assert "Usage" in result.output
@@ -38,9 +34,7 @@ def test_clear_counters_help(click_runner: CliRunner) -> None:
     ],
 )
 def test_clear_counters(click_runner: CliRunner, tags: str | None) -> None:
-    """
-    Test `anta exec clear-counters`
-    """
+    """Test `anta exec clear-counters`."""
     env = default_anta_env()
     cli_args = ["exec", "clear-counters"]
     expected_tags = None
@@ -55,9 +49,7 @@ def test_clear_counters(click_runner: CliRunner, tags: str | None) -> None:
 
 
 def test_snapshot_help(click_runner: CliRunner) -> None:
-    """
-    Test `anta exec snapshot --help`
-    """
+    """Test `anta exec snapshot --help`."""
     result = click_runner.invoke(snapshot, ["--help"])
     assert result.exit_code == 0
     assert "Usage" in result.output
@@ -67,7 +59,7 @@ COMMAND_LIST_PATH_FILE = Path(__file__).parent.parent.parent.parent / "data" / "
 
 
 @pytest.mark.parametrize(
-    "output, commands_path, tags",
+    ("output", "commands_path", "tags"),
     [
         pytest.param(None, None, None, id="missing command list"),
         pytest.param(None, Path("/I/do/not/exist"), None, id="wrong path for command_list"),
@@ -77,14 +69,12 @@ COMMAND_LIST_PATH_FILE = Path(__file__).parent.parent.parent.parent / "data" / "
     ],
 )
 def test_snapshot(click_runner: CliRunner, output: str | None, commands_path: Path | None, tags: str | None) -> None:
-    """
-    Test `anta exec snapshot`
-    """
+    """Test `anta exec snapshot`."""
     env = default_anta_env()
     cli_args = ["exec", "snapshot"]
 
     # Need to mock datetetime
-    expected_path = Path("")
+    expected_path = Path()
     if output is not None:
         cli_args.extend(["--output", output])
         expected_path = Path(f"{output}")
@@ -116,16 +106,14 @@ def test_snapshot(click_runner: CliRunner, output: str | None, commands_path: Pa
 
 
 def test_collect_tech_support_help(click_runner: CliRunner) -> None:
-    """
-    Test `anta exec collect-tech-support --help`
-    """
+    """Test `anta exec collect-tech-support --help`."""
     result = click_runner.invoke(collect_tech_support, ["--help"])
     assert result.exit_code == 0
     assert "Usage" in result.output
 
 
 @pytest.mark.parametrize(
-    "output, latest, configure, tags",
+    ("output", "latest", "configure", "tags"),
     [
         pytest.param(None, None, False, None, id="no params"),
         pytest.param("/tmp/dummy", None, False, None, id="with output"),
@@ -135,9 +123,7 @@ def test_collect_tech_support_help(click_runner: CliRunner) -> None:
     ],
 )
 def test_collect_tech_support(click_runner: CliRunner, output: str | None, latest: str | None, configure: bool | None, tags: str | None) -> None:
-    """
-    Test `anta exec collect-tech-support`
-    """
+    """Test `anta exec collect-tech-support`."""
     env = default_anta_env()
     cli_args = ["exec", "collect-tech-support"]
     expected_path = Path("tech-support")

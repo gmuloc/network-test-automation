@@ -1,28 +1,27 @@
 # Copyright (c) 2023 Arista Networks, Inc.
 # Use of this source code is governed by the Apache License 2.0
 # that can be found in the LICENSE file.
-"""
-Loader that parses a YAML test catalog and imports corresponding Python functions
-"""
+"""Loader that parses a YAML test catalog and imports corresponding Python functions."""
 from __future__ import annotations
 
 import importlib
 import logging
 import sys
-from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from rich.logging import RichHandler
 
 from anta import __DEBUG__
 from anta.models import AntaTest
 
+if TYPE_CHECKING:
+    from pathlib import Path
+
 logger = logging.getLogger(__name__)
 
 
 def setup_logging(level: str = logging.getLevelName(logging.INFO), file: Path | None = None) -> None:
-    """
-    Configure logging for ANTA.
+    """Configure logging for ANTA.
     By default, the logging level is INFO for all loggers except for httpx and asyncssh which are too verbose:
     their logging level is WARNING.
 
@@ -36,6 +35,7 @@ def setup_logging(level: str = logging.getLevelName(logging.INFO), file: Path | 
     be logged to stdout while all levels will be logged in the file.
 
     Args:
+    ----
         level: ANTA logging level
         file: Send logs to a file
     """
@@ -54,10 +54,7 @@ def setup_logging(level: str = logging.getLevelName(logging.INFO), file: Path | 
     # Add RichHandler for stdout
     richHandler = RichHandler(markup=True, rich_tracebacks=True, tracebacks_show_locals=True)
     # In ANTA debug mode, show Python module in stdout
-    if __DEBUG__:
-        fmt_string = r"[grey58]\[%(name)s][/grey58] %(message)s"
-    else:
-        fmt_string = "%(message)s"
+    fmt_string = "[grey58]\\[%(name)s][/grey58] %(message)s" if __DEBUG__ else "%(message)s"
     formatter = logging.Formatter(fmt=fmt_string, datefmt="[%X]")
     richHandler.setFormatter(formatter)
     root.addHandler(richHandler)
@@ -76,8 +73,7 @@ def setup_logging(level: str = logging.getLevelName(logging.INFO), file: Path | 
 
 
 def parse_catalog(test_catalog: dict[str, Any], package: str | None = None) -> list[tuple[AntaTest, dict[str, Any] | None]]:
-    """
-    Function to parse the catalog and return a list of tests with their inputs
+    """Function to parse the catalog and return a list of tests with their inputs.
 
     A valid test catalog must follow the following structure:
         <Python module>:
@@ -85,6 +81,7 @@ def parse_catalog(test_catalog: dict[str, Any], package: str | None = None) -> l
                 <AntaTest.Input compliant dictionary>
 
     Example:
+    -------
         anta.tests.connectivity:
             - VerifyReachability:
                 hosts:
@@ -114,9 +111,11 @@ def parse_catalog(test_catalog: dict[str, Any], package: str | None = None) -> l
                         custom_field: "Test run by John Doe"
 
     Args:
+    ----
         test_catalog: Python dictionary representing the test catalog YAML file
 
     Returns:
+    -------
         tests: List of tuples (test, inputs) where test is a reference of an AntaTest subclass
               and inputs is a dictionary
     """

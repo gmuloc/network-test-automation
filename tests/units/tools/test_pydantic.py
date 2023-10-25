@@ -1,9 +1,7 @@
 # Copyright (c) 2023 Arista Networks, Inc.
 # Use of this source code is governed by the Apache License 2.0
 # that can be found in the LICENSE file.
-"""
-Tests for anta.tools.pydantic
-"""
+"""Tests for anta.tools.pydantic."""
 
 from __future__ import annotations
 
@@ -26,7 +24,7 @@ EXPECTED_ONE_ENTRY = [
         "result": "unset",
         "messages": [],
         "custom_field": "None",
-    }
+    },
 ]
 EXPECTED_THREE_ENTRIES = [
     {
@@ -63,7 +61,7 @@ EXPECTED_THREE_ENTRIES = [
 
 
 @pytest.mark.parametrize(
-    "number_of_entries, expected",
+    ("number_of_entries", "expected"),
     [
         pytest.param(0, [], id="empty"),
         pytest.param(1, EXPECTED_ONE_ENTRY, id="one"),
@@ -75,8 +73,6 @@ def test_pydantic_to_dict(
     number_of_entries: int,
     expected: dict[str, Any],
 ) -> None:
-    """
-    Test pydantic_to_dict
-    """
+    """Test pydantic_to_dict."""
     list_result = list_result_factory(number_of_entries)
     assert pydantic_to_dict(list_result) == expected

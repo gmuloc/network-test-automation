@@ -2,21 +2,21 @@
 # Use of this source code is governed by the Apache License 2.0
 # that can be found in the LICENSE file.
 
-"""
-Utils functions to use with anta.cli.get.commands module.
-"""
+"""Utils functions to use with anta.cli.get.commands module."""
 from __future__ import annotations
 
 import json
 import logging
-from pathlib import Path
-from typing import Any, Union
+from typing import TYPE_CHECKING, Any
 
 import requests
 import urllib3
 import yaml
 
-from ...inventory import AntaInventory
+from anta.inventory import AntaInventory
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -24,8 +24,7 @@ logger = logging.getLogger(__name__)
 
 
 def get_cv_token(cvp_ip: str, cvp_username: str, cvp_password: str) -> str:
-    """Generate AUTH token from CVP using password"""
-
+    """Generate AUTH token from CVP using password."""
     # use CVP REST API to generate a token
     URL = f"https://{cvp_ip}/cvpservice/login/authenticate.do"
     payload = json.dumps({"userId": cvp_username, "password": cvp_password})
@@ -36,9 +35,7 @@ def get_cv_token(cvp_ip: str, cvp_username: str, cvp_password: str) -> str:
 
 
 def create_inventory_from_cvp(inv: list[dict[str, Any]], directory: str, container: str) -> None:
-    """
-    create an inventory file from Arista CloudVision
-    """
+    """Create an inventory file from Arista CloudVision."""
     i: dict[str, dict[str, Any]] = {AntaInventory.INVENTORY_ROOT_KEY: {"hosts": []}}
     logger.debug(f"Received {len(inv)} device(s) from CVP")
     for dev in inv:
@@ -52,22 +49,22 @@ def create_inventory_from_cvp(inv: list[dict[str, Any]], directory: str, contain
     logger.info(f"Inventory file has been created in {out_file}")
 
 
-def create_inventory_from_ansible(inventory: Path, output_file: Path, ansible_root: Union[str, None] = None) -> None:
-    """
-    Create an ANTA inventory from an Ansible inventory YAML file
+def create_inventory_from_ansible(inventory: Path, output_file: Path, ansible_root: str | None = None) -> None:
+    """Create an ANTA inventory from an Ansible inventory YAML file.
 
     Args:
+    ----
         inventory (str): Ansible Inventory file to read
         output_file (str, optional): ANTA inventory file to generate.
         ansible_root (Union[str, None], optional): Ansible group from where to extract data. Defaults to None.
     """
 
-    def deep_yaml_parsing(data: dict[str, Any], hosts: Union[None, list[dict[str, str]]] = None) -> Union[None, list[dict[str, str]]]:
-        """Deep parsing of YAML file to extract hosts and associated IPs"""
+    def deep_yaml_parsing(data: dict[str, Any], hosts: None | list[dict[str, str]] = None) -> None | list[dict[str, str]]:
+        """Deep parsing of YAML file to extract hosts and associated IPs."""
         if hosts is None:
             hosts = []
         for key, value in data.items():
-            if isinstance(value, dict) and "ansible_host" in value.keys():
+            if isinstance(value, dict) and "ansible_host" in value:
                 hosts.append({"name": key, "host": value["ansible_host"]})
             elif isinstance(value, dict):
                 deep_yaml_parsing(value, hosts)
@@ -78,13 +75,11 @@ def create_inventory_from_ansible(inventory: Path, output_file: Path, ansible_ro
     i: dict[str, dict[str, Any]] = {AntaInventory.INVENTORY_ROOT_KEY: {"hosts": []}}
     with open(inventory, encoding="utf-8") as inv:
         ansible_inventory = yaml.safe_load(inv)
-    if ansible_root not in ansible_inventory.keys():
+    if ansible_root not in ansible_inventory:
         logger.error(f"Group {ansible_root} not in ansible inventory {inventory}")
-        raise ValueError(f"Group {ansible_root} not in ansible inventory {inventory}")
-    if ansible_root is None:
-        ansible_hosts = deep_yaml_parsing(ansible_inventory, hosts=[])
-    else:
-        ansible_hosts = deep_yaml_parsing(ansible_inventory[ansible_root], hosts=[])
+        msg = f"Group {ansible_root} not in ansible inventory {inventory}"
+        raise ValueError(msg)
+    ansible_hosts = deep_yaml_parsing(ansible_inventory, hosts=[]) if ansible_root is None else deep_yaml_parsing(ansible_inventory[ansible_root], hosts=[])
     if ansible_hosts is None:
         ansible_hosts = []
     for dev in ansible_hosts:

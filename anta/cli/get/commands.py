@@ -2,19 +2,14 @@
 # Use of this source code is governed by the Apache License 2.0
 # that can be found in the LICENSE file.
 # pylint: disable = redefined-outer-name
-
-"""
-Commands for Anta CLI to run check commands.
-"""
+"""Commands for Anta CLI to run check commands."""
 from __future__ import annotations
 
 import asyncio
 import json
 import logging
-import os
 import sys
 from pathlib import Path
-from typing import Optional
 
 import click
 from cvprac.cvp_client import CvpClient
@@ -36,39 +31,37 @@ logger = logging.getLogger(__name__)
 @click.option("--cvp-container", "-c", default=None, help="Container where devices are configured", type=str, required=False)
 @click.option("--inventory-directory", "-d", default="anta_inventory", help="Path to save inventory file", type=click.Path())
 def from_cvp(inventory_directory: str, cvp_ip: str, cvp_username: str, cvp_password: str, cvp_container: str) -> None:
-    """
-    Build ANTA inventory from Cloudvision
+    """Build ANTA inventory from Cloudvision.
 
     TODO - handle get_inventory and get_devices_in_container failure
     """
     # pylint: disable=too-many-arguments
-    logger.info(f"Getting auth token from {cvp_ip} for user {cvp_username}")
+    logger.info("Getting auth token from %s for user %s", cvp_ip, cvp_username)
     token = get_cv_token(cvp_ip=cvp_ip, cvp_username=cvp_username, cvp_password=cvp_password)
 
     # Create output directory
-    cwd = os.getcwd()
-    out_dir = os.path.dirname(f"{cwd}/{inventory_directory}/")
-    if not os.path.exists(out_dir):
-        logger.info(f"Creating inventory folder {out_dir}")
-        os.makedirs(out_dir)
+    cwd = Path.cwd()
+    out_dir = Path(f"{cwd}/{inventory_directory}/").parent
+    if not Path.exists(out_dir):
+        logger.info("Creating inventory folder %s", out_dir)
+        Path.mkdir(out_dir, parents=True)
 
     clnt = CvpClient()
-    print(clnt)
     try:
         clnt.connect(nodes=[cvp_ip], username="", password="", api_token=token)
     except CvpApiError as error:
-        logger.error(f"Error connecting to cvp: {error}")
+        logger.error("Error connecting to cvp: %s", error)
         sys.exit(1)
-    logger.info(f"Connected to CVP {cvp_ip}")
+    logger.info("Connected to CVP %s", cvp_ip)
 
     cvp_inventory = None
     if cvp_container is None:
         # Get a list of all devices
-        logger.info(f"Getting full inventory from {cvp_ip}")
+        logger.info("Getting full inventory from %s", cvp_ip)
         cvp_inventory = clnt.api.get_inventory()
     else:
         # Get devices under a container
-        logger.info(f"Getting inventory for container {cvp_container} from {cvp_ip}")
+        logger.info("Getting inventory for container %s from %s", cvp_container, cvp_ip)
         cvp_inventory = clnt.api.get_devices_in_container(cvp_container)
     create_inventory_from_cvp(cvp_inventory, out_dir, cvp_container)
 
@@ -90,8 +83,8 @@ def from_cvp(inventory_directory: str, cvp_ip: str, cvp_username: str, cvp_passw
     type=click.Path(file_okay=True, dir_okay=False, exists=False, writable=True, path_type=Path),
 )
 def from_ansible(output: Path, ansible_inventory: Path, ansible_group: str) -> None:
-    """Build ANTA inventory from an ansible inventory YAML file"""
-    logger.info(f"Building inventory from ansible file {ansible_inventory}")
+    """Build ANTA inventory from an ansible inventory YAML file."""
+    logger.info("Building inventory from ansible file %s", ansible_inventory)
 
     # Create output directory
     output.parent.mkdir(parents=True, exist_ok=True)
@@ -106,10 +99,9 @@ def from_ansible(output: Path, ansible_inventory: Path, ansible_group: str) -> N
 @click.pass_context
 @click.option("--tags", "-t", help="List of tags using comma as separator: tag1,tag2,tag3", type=str, required=False, callback=parse_tags)
 @click.option("--connected/--not-connected", help="Display inventory after connection has been created", default=False, required=False)
-def inventory(ctx: click.Context, tags: Optional[list[str]], connected: bool) -> None:
+def inventory(ctx: click.Context, tags: list[str] | None, connected: bool) -> None:
     """Show inventory loaded in ANTA."""
-
-    logger.debug(f"Requesting devices for tags: {tags}")
+    logger.debug("Requesting devices for tags: %s", tags)
     console.print("Current inventory content is:", style="white on blue")
 
     if connected:

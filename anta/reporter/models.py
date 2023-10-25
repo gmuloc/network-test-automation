@@ -12,7 +12,8 @@ from anta.custom_types import TestStatus
 class ColorManager(BaseModel):
     """Color management for status report.
 
-    Attributes:
+    Attributes
+    ----------
         level (str): Test result value.
         color (str): Associated color.
     """
@@ -21,19 +22,19 @@ class ColorManager(BaseModel):
     color: str
 
     def style_rich(self) -> Text:
-        """
-        Build a rich Text syntax with color
+        """Build a rich Text syntax with color.
 
-        Returns:
+        Returns
+        -------
             Text: object with level string and its associated color.
         """
         return Text(self.level, style=self.color)
 
     def string(self) -> str:
-        """
-        Build an str with color code
+        """Build an str with color code.
 
-        Returns:
+        Returns
+        -------
             str: String with level and its associated color
         """
         return f"[{self.color}]{self.level}"

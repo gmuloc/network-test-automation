@@ -1,9 +1,7 @@
 # Copyright (c) 2023 Arista Networks, Inc.
 # Use of this source code is governed by the Apache License 2.0
 # that can be found in the LICENSE file.
-"""
-test anta.device.py
-"""
+"""test anta.device.py."""
 
 from __future__ import annotations
 
@@ -77,16 +75,12 @@ INIT_DEVICE_DATA: list[dict[str, Any]] = [
 
 # TODO remove this pylint later
 # pylint: disable=too-few-public-methods
-class Test_AsyncEOSDevice:
-    """
-    Test for anta.device.AsyncEOSDevice
-    """
+class TestAsyncEOSDevice:
+    """Test for anta.device.AsyncEOSDevice."""
 
     @pytest.mark.parametrize("device_data", INIT_DEVICE_DATA, ids=generate_test_ids_list(INIT_DEVICE_DATA))
     def test__init__(self, device_data: dict[str, Any]) -> None:
-        """
-        Checking name only for now
-        """
+        """Checking name only for now."""
         host = device_data["device"]["host"]
         username = device_data["device"]["username"]
         password = device_data["device"]["password"]
@@ -178,8 +172,7 @@ COLLECT_ANTADEVICE_DATA: list[dict[str, Any]] = [
 
 
 class TestAntaDevice:
-    """
-    Test for anta.device.AntaDevice Abstract class
+    """Test for anta.device.AntaDevice Abstract class.
 
     Leveraging:
         @patch("anta.device.AntaDevice.__abstractmethods__", set())
@@ -189,12 +182,10 @@ class TestAntaDevice:
     # pylint: disable=abstract-class-instantiated
 
     @patch("anta.device.AntaDevice.__abstractmethods__", set())
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     @pytest.mark.parametrize("device_data", COLLECT_ANTADEVICE_DATA, ids=generate_test_ids_list(COLLECT_ANTADEVICE_DATA))
     async def test_collect(self, device_data: dict[str, Any]) -> None:
-        """
-        Test AntaDevice.collect behavior
-        """
+        """Test AntaDevice.collect behavior."""
         command = AntaCommand(command=device_data["command"]["command"], use_cache=device_data["command"]["use_cache"])
         device = AntaDevice(name=device_data["device"]["name"], disable_cache=device_data["device"].get("disable_cache"))  # type: ignore[abstract]
 
@@ -234,11 +225,11 @@ class TestAntaDevice:
             patched__collect.assert_called_once_with(command=command)
 
     @patch("anta.device.AntaDevice.__abstractmethods__", set())
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_cache_statistics(self) -> None:
-        """
-        Verify that when cache statistics attribute does not exist
-        TODO add a test where cache has some value
+        """Verify that when cache statistics attribute does not exist.
+
+        TODO add a test where cache has some value.
         """
         device = AntaDevice(name="with_cache", disable_cache=False)  # type: ignore[abstract]
         assert device.cache_statistics == {"total_commands_sent": 0, "cache_hits": 0, "cache_hit_ratio": "0.00%"}

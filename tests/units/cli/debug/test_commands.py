@@ -1,9 +1,7 @@
 # Copyright (c) 2023 Arista Networks, Inc.
 # Use of this source code is governed by the Apache License 2.0
 # that can be found in the LICENSE file.
-"""
-Tests for anta.cli.debug.commands
-"""
+"""Tests for anta.cli.debug.commands."""
 
 from __future__ import annotations
 
@@ -27,15 +25,14 @@ if TYPE_CHECKING:
 
 
 @pytest.mark.parametrize(
-    "device_name, expected_raise",
+    ("device_name", "expected_raise"),
     [
         pytest.param("dummy", nullcontext(), id="existing device"),
         pytest.param("mocked_device", pytest.raises(click.exceptions.UsageError), id="non existing device"),
     ],
 )
 def test_get_device(test_inventory: AntaInventory, device_name: str, expected_raise: Any) -> None:
-    """
-    Test get_device
+    """Test get_device.
 
     test_inventory is a fixture that returns an AntaInventory using the content of tests/data/test_inventory.yml
     """
@@ -49,15 +46,13 @@ def test_get_device(test_inventory: AntaInventory, device_name: str, expected_ra
         assert isinstance(result, AntaDevice)
 
 
-class TestEAPIException(Exception):
-    """
-    Dummy exception for the tests
-    """
+class TestEAPIError(Exception):
+    """Dummy exception for the tests."""
 
 
 # TODO complete test cases
 @pytest.mark.parametrize(
-    "command, ofmt, version, revision, device, failed",
+    ("command", "ofmt", "version", "revision", "device", "failed"),
     [
         pytest.param("show version", "json", None, None, "dummy", False, id="json command"),
         pytest.param("show version", "text", None, None, "dummy", False, id="text command"),
@@ -67,11 +62,15 @@ class TestEAPIException(Exception):
     ],
 )
 def test_run_cmd(
-    click_runner: CliRunner, command: str, ofmt: Literal["json", "text"], version: Literal["1", "latest"] | None, revision: int | None, device: str, failed: bool
+    click_runner: CliRunner,
+    command: str,
+    ofmt: Literal["json", "text"],
+    version: Literal["1", "latest"] | None,
+    revision: int | None,
+    device: str,
+    failed: bool,
 ) -> None:
-    """
-    Test `anta debug run-cmd`
-    """
+    """Test `anta debug run-cmd`."""
     # pylint: disable=too-many-arguments
     env = default_anta_env()
     cli_args = ["debug", "run-cmd", "--command", command, "--device", device]
@@ -99,27 +98,24 @@ def test_run_cmd(
     # failed
     expected_failed = None
     if failed:
-        expected_failed = TestEAPIException("Command failed to run")
+        expected_failed = TestEAPIError("Command failed to run")
 
     # exit code
     expected_exit_code = 1 if failed else 0
 
     def expected_result() -> Any:
-        """
-        Helper to return some dummy payload for collect depending on outformat
-        """
+        """Return some dummy payload for collect depending on outformat."""
         if failed:
             return None
         if expected_ofmt == "json":
             return {"dummy": 42}
         if expected_ofmt == "text":
             return "dummy"
-        raise ValueError("Unknown format")
+        msg = "Unknown format"
+        raise ValueError(msg)
 
     async def dummy_collect(c: AntaCommand) -> None:
-        """
-        mocking collect coroutine
-        """
+        """Mocking collect coroutine."""
         c.output = expected_result()
         if c.output is None:
             c.failed = expected_failed
@@ -138,6 +134,6 @@ def test_run_cmd(
             template=None,
             failed=expected_failed,
             params={},
-        )
+        ),
     )
     assert result.exit_code == expected_exit_code

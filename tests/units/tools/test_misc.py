@@ -1,33 +1,25 @@
 # Copyright (c) 2023 Arista Networks, Inc.
 # Use of this source code is governed by the Apache License 2.0
 # that can be found in the LICENSE file.
-"""
-Tests for anta.tools.misc
-"""
+"""Tests for anta.tools.misc."""
 
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING
 from unittest.mock import patch
 
 import pytest
 
 from anta.tools.misc import anta_log_exception, exc_to_str, tb_to_str
 
-if TYPE_CHECKING:
-    from pytest import LogCaptureFixture
-
 
 def my_raising_function(exception: Exception) -> None:
-    """
-    dummy function to raise Exception
-    """
+    """Raise dummy Exception."""
     raise exception
 
 
 @pytest.mark.parametrize(
-    "exception, message, calling_logger, __DEBUG__value, expected_message",
+    ("exception", "message", "calling_logger", "__DEBUG__value", "expected_message"),
     [
         pytest.param(ValueError("exception message"), None, None, False, "ValueError (exception message)", id="exception only"),
         pytest.param(ValueError("exception message"), "custom message", None, False, "custom message: ValueError (exception message)", id="custom message"),
@@ -43,17 +35,14 @@ def my_raising_function(exception: Exception) -> None:
     ],
 )
 def test_anta_log_exception(
-    caplog: LogCaptureFixture,
+    caplog: pytest.LogCaptureFixture,
     exception: Exception,
     message: str | None,
     calling_logger: logging.Logger | None,
     __DEBUG__value: bool,
     expected_message: str,
 ) -> None:
-    """
-    Test anta_log_exception
-    """
-
+    """Test anta_log_exception."""
     if calling_logger is not None:
         # https://github.com/pytest-dev/pytest/issues/3697
         calling_logger.propagate = True
@@ -86,18 +75,14 @@ def test_anta_log_exception(
         assert "Traceback" in caplog.text
 
 
-@pytest.mark.parametrize("exception, expected_output", [(ValueError("test"), "ValueError (test)"), (ValueError(), "ValueError")])
+@pytest.mark.parametrize(("exception", "expected_output"), [(ValueError("test"), "ValueError (test)"), (ValueError(), "ValueError")])
 def test_exc_to_str(exception: Exception, expected_output: str) -> None:
-    """
-    Test exc_to_str
-    """
+    """Test exc_to_str."""
     assert exc_to_str(exception) == expected_output
 
 
 def test_tb_to_str() -> None:
-    """
-    Test tb_to_str
-    """
+    """Test tb_to_str."""
     try:
         my_raising_function(ValueError("test"))
     except ValueError as e:

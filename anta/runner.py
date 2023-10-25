@@ -1,21 +1,22 @@
 # Copyright (c) 2023 Arista Networks, Inc.
 # Use of this source code is governed by the Apache License 2.0
 # that can be found in the LICENSE file.
-# pylint: disable=too-many-branches
-"""
-ANTA runner function
-"""
+"""ANTA runner function."""
 from __future__ import annotations
+# pylint: disable=too-many-branches
 
 import asyncio
 import itertools
 import logging
 from typing import Union
+from typing import TYPE_CHECKING
 
-from anta.inventory import AntaInventory
 from anta.models import AntaTest
-from anta.result_manager import ResultManager
 from anta.tools.misc import anta_log_exception
+
+if TYPE_CHECKING:
+    from anta.inventory import AntaInventory
+    from anta.result_manager import ResultManager
 
 logger = logging.getLogger(__name__)
 
@@ -32,11 +33,11 @@ async def main(
     tags: list[str],
     established_only: bool = True,
 ) -> None:
-    """
-    Main coroutine to run ANTA.
+    """Main coroutine to run ANTA.
     Use this as an entrypoint to the test framwork in your script.
 
     Args:
+    ----
         manager: ResultManager object to populate with the test results.
         inventory: AntaInventory object that includes the device(s).
         tests: ANTA test catalog. Output of anta.loader.parse_catalog().
@@ -44,9 +45,9 @@ async def main(
         established_only: Include only established device(s). Defaults to True.
 
     Returns:
+    -------
         any: ResultManager object gets updated with the test results.
     """
-
     if not tests:
         logger.info("The list of tests is empty, exiting")
         return
@@ -64,7 +65,7 @@ async def main(
     if len(devices) == 0:
         logger.info(
             f"No device in the established state '{established_only}' "
-            f"{f'matching the tags {tags} ' if tags else ''}was found. There is no device to run tests against, exiting"
+            f"{f'matching the tags {tags} ' if tags else ''}was found. There is no device to run tests against, exiting",
         )
         return
 

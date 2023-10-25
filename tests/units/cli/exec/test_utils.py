@@ -1,9 +1,7 @@
 # Copyright (c) 2023 Arista Networks, Inc.
 # Use of this source code is governed by the Apache License 2.0
 # that can be found in the LICENSE file.
-"""
-Tests for anta.cli.exec.utils
-"""
+"""Tests for anta.cli.exec.utils."""
 
 from __future__ import annotations
 
@@ -13,18 +11,19 @@ from unittest.mock import call, patch
 import pytest
 
 from anta.cli.exec.utils import clear_counters_utils  # , collect_commands, collect_scheduled_show_tech
-from anta.device import AntaDevice
-from anta.inventory import AntaInventory
 from anta.models import AntaCommand
 
 if TYPE_CHECKING:
     from pytest import LogCaptureFixture
 
+    from anta.device import AntaDevice
+    from anta.inventory import AntaInventory
+
 
 # TODO complete test cases
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 @pytest.mark.parametrize(
-    "inventory_state, per_device_command_output, tags",
+    ("inventory_state", "per_device_command_output", "tags"),
     [
         pytest.param(
             {"dummy": {"is_online": False}, "dummy2": {"is_online": False}, "dummy3": {"is_online": False}},
@@ -59,23 +58,17 @@ async def test_clear_counters_utils(
     per_device_command_output: dict[str, Any],
     tags: list[str] | None,
 ) -> None:
-    """
-    Test anta.cli.exec.utils.clear_counters_utils
-    """
+    """Test anta.cli.exec.utils.clear_counters_utils."""
 
     async def mock_connect_inventory() -> None:
-        """
-        mocking connect_inventory coroutine
-        """
+        """Mocking connect_inventory coroutine."""
         for name, device in test_inventory.items():
             device.is_online = inventory_state[name].get("is_online", True)
             device.established = inventory_state[name].get("established", device.is_online)
             device.hw_model = inventory_state[name].get("hw_model", "dummy")
 
     async def dummy_collect(self: AntaDevice, command: AntaCommand) -> None:
-        """
-        mocking collect coroutine
-        """
+        """Mocking collect coroutine."""
         command.output = per_device_command_output.get(self.name, "")
 
     # Need to patch the child device class
@@ -84,7 +77,6 @@ async def test_clear_counters_utils(
         "anta.inventory.AntaInventory.connect_inventory",
         side_effect=mock_connect_inventory,
     ) as mocked_connect_inventory:
-        print(mocked_collect)
         mocked_collect.side_effect = dummy_collect
         await clear_counters_utils(test_inventory, tags=tags)
 
@@ -107,9 +99,9 @@ async def test_clear_counters_utils(
                             template=None,
                             failed=None,
                             params={},
-                        )
+                        ),
                     },
-                )
+                ),
             )
             if device.hw_model not in ["cEOSLab", "vEOS-lab"]:
                 calls.append(
@@ -125,9 +117,9 @@ async def test_clear_counters_utils(
                                 template=None,
                                 failed=None,
                                 params={},
-                            )
+                            ),
                         },
-                    )
+                    ),
                 )
         mocked_collect.assert_has_awaits(calls)
         # Check error

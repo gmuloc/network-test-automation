@@ -30,7 +30,7 @@ from tests.data.json_data import (
 from tests.lib.utils import generate_test_ids_dict
 
 
-class Test_InventoryUnitModels:
+class TestInventoryUnitModels:
     """Test components of AntaInventoryInput model."""
 
     @pytest.mark.parametrize("test_definition", INVENTORY_MODEL_HOST_VALID, ids=generate_test_ids_dict)
@@ -51,7 +51,7 @@ class Test_InventoryUnitModels:
             host_inventory = AntaInventoryHost(host=test_definition["input"])
         except ValidationError as exc:
             logging.warning("Error: %s", str(exc))
-            assert False
+            raise AssertionError
         else:
             assert test_definition["input"] == str(host_inventory.host)
 
@@ -110,7 +110,7 @@ class Test_InventoryUnitModels:
             network_inventory = AntaInventoryNetwork(network=test_definition["input"])
         except ValidationError as exc:
             logging.warning("Error: %s", str(exc))
-            assert False
+            raise AssertionError
         else:
             assert test_definition["input"] == str(network_inventory.network)
 
@@ -133,11 +133,11 @@ class Test_InventoryUnitModels:
         except ValidationError as exc:
             logging.warning("Error: %s", str(exc))
         else:
-            assert False
+            raise AssertionError
 
     @pytest.mark.parametrize("test_definition", INVENTORY_MODEL_NETWORK_CACHE, ids=generate_test_ids_dict)
     def test_anta_inventory_network_cache(self, test_definition: dict[str, Any]) -> None:
-        """Test network disable_cache
+        """Test network disable_cache.
 
         Test structure:
         ---------------
@@ -176,7 +176,7 @@ class Test_InventoryUnitModels:
             )
         except ValidationError as exc:
             logging.warning("Error: %s", str(exc))
-            assert False
+            raise AssertionError
         else:
             assert test_definition["input"]["start"] == str(range_inventory.start)
             assert test_definition["input"]["end"] == str(range_inventory.end)
@@ -203,11 +203,11 @@ class Test_InventoryUnitModels:
         except ValidationError as exc:
             logging.warning("Error: %s", str(exc))
         else:
-            assert False
+            raise AssertionError
 
     @pytest.mark.parametrize("test_definition", INVENTORY_MODEL_RANGE_CACHE, ids=generate_test_ids_dict)
     def test_anta_inventory_range_cache(self, test_definition: dict[str, Any]) -> None:
-        """Test range disable_cache
+        """Test range disable_cache.
 
         Test structure:
         ---------------
@@ -221,22 +221,23 @@ class Test_InventoryUnitModels:
         """
         if "disable_cache" in test_definition["input"]:
             range_inventory = AntaInventoryRange(
-                start=test_definition["input"]["start"], end=test_definition["input"]["end"], disable_cache=test_definition["input"]["disable_cache"]
+                start=test_definition["input"]["start"],
+                end=test_definition["input"]["end"],
+                disable_cache=test_definition["input"]["disable_cache"],
             )
         else:
             range_inventory = AntaInventoryRange(start=test_definition["input"]["start"], end=test_definition["input"]["end"])
         assert test_definition["expected_result"] == range_inventory.disable_cache
 
 
-class Test_AntaInventoryInputModel:
+class TestAntaInventoryInputModel:
     """Unit test of AntaInventoryInput model."""
 
     def test_inventory_input_structure(self) -> None:
         """Test inventory keys are those expected."""
-
         inventory = AntaInventoryInput()
         logging.info("Inventory keys are: %s", str(inventory.model_dump().keys()))
-        assert all(elem in inventory.model_dump().keys() for elem in ["hosts", "networks", "ranges"])
+        assert all(elem in inventory.model_dump() for elem in ["hosts", "networks", "ranges"])
 
     @pytest.mark.parametrize("inventory_def", INVENTORY_MODEL_VALID, ids=generate_test_ids_dict)
     def test_anta_inventory_intput_valid(self, inventory_def: dict[str, Any]) -> None:
@@ -265,10 +266,10 @@ class Test_AntaInventoryInputModel:
             inventory = AntaInventoryInput(**inventory_def["input"])
         except ValidationError as exc:
             logging.warning("Error: %s", str(exc))
-            assert False
+            raise AssertionError
         else:
             logging.info("Checking if all root keys are correctly lodaded")
-            assert all(elem in inventory.model_dump().keys() for elem in inventory_def["input"].keys())
+            assert all(elem in inventory.model_dump() for elem in inventory_def["input"])
 
     @pytest.mark.parametrize("inventory_def", INVENTORY_MODEL_INVALID, ids=generate_test_ids_dict)
     def test_anta_inventory_intput_invalid(self, inventory_def: dict[str, Any]) -> None:
@@ -293,21 +294,20 @@ class Test_AntaInventoryInputModel:
         }
 
         """
-        # inventory_file = self.create_inventory(content=inventory_def['input'], tmp_path=tmp_path)
         try:
-            if "hosts" in inventory_def["input"].keys():
+            if "hosts" in inventory_def["input"]:
                 logging.info(
                     "Loading %s into AntaInventoryInput hosts section",
                     str(inventory_def["input"]["hosts"]),
                 )
                 AntaInventoryInput(hosts=inventory_def["input"]["hosts"])
-            if "networks" in inventory_def["input"].keys():
+            if "networks" in inventory_def["input"]:
                 logging.info(
                     "Loading %s into AntaInventoryInput networks section",
                     str(inventory_def["input"]["networks"]),
                 )
                 AntaInventoryInput(networks=inventory_def["input"]["networks"])
-            if "ranges" in inventory_def["input"].keys():
+            if "ranges" in inventory_def["input"]:
                 logging.info(
                     "Loading %s into AntaInventoryInput ranges section",
                     str(inventory_def["input"]["ranges"]),
@@ -316,10 +316,10 @@ class Test_AntaInventoryInputModel:
         except ValidationError as exc:
             logging.warning("Error: %s", str(exc))
         else:
-            assert False
+            raise AssertionError
 
 
-class Test_InventoryDeviceModel:
+class TestInventoryDeviceModel:
     """Unit test of InventoryDevice model."""
 
     @pytest.mark.parametrize("test_definition", INVENTORY_DEVICE_MODEL_VALID, ids=generate_test_ids_dict)
@@ -355,7 +355,7 @@ class Test_InventoryDeviceModel:
                 AsyncEOSDevice(**entity)
             except TypeError as exc:
                 logging.warning("Error: %s", str(exc))
-                assert False
+                raise AssertionError
 
     @pytest.mark.parametrize("test_definition", INVENTORY_DEVICE_MODEL_INVALID, ids=generate_test_ids_dict)
     def test_inventory_device_invalid(self, test_definition: dict[str, Any]) -> None:
@@ -391,4 +391,4 @@ class Test_InventoryDeviceModel:
             except TypeError as exc:
                 logging.info("Error: %s", str(exc))
             else:
-                assert False
+                raise AssertionError

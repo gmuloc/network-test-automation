@@ -2,9 +2,7 @@
 # Use of this source code is governed by the Apache License 2.0
 # that can be found in the LICENSE file.
 
-"""
-Commands for Anta CLI to execute EOS commands.
-"""
+"""Commands for Anta CLI to execute EOS commands."""
 from __future__ import annotations
 
 import asyncio
@@ -26,7 +24,7 @@ logger = logging.getLogger(__name__)
 @click.pass_context
 @click.option("--tags", "-t", help="List of tags using comma as separator: tag1,tag2,tag3", type=str, required=False, callback=parse_tags)
 def clear_counters(ctx: click.Context, tags: list[str] | None) -> None:
-    """Clear counter statistics on EOS devices"""
+    """Clear counter statistics on EOS devices."""
     asyncio.run(clear_counters_utils(ctx.obj["inventory"], tags=tags))
 
 
@@ -51,11 +49,11 @@ def clear_counters(ctx: click.Context, tags: list[str] | None) -> None:
     show_default=True,
 )
 def snapshot(ctx: click.Context, tags: list[str] | None, commands_list: Path, output: Path) -> None:
-    """Collect commands output from devices in inventory"""
+    """Collect commands output from devices in inventory."""
     print(f"Collecting data for {commands_list}")
     print(f"Output directory is {output}")
     try:
-        with open(commands_list, "r", encoding="UTF-8") as file:
+        with open(commands_list, encoding="UTF-8") as file:
             file_content = file.read()
             eos_commands = safe_load(file_content)
     except FileNotFoundError:
@@ -77,5 +75,5 @@ def snapshot(ctx: click.Context, tags: list[str] | None, commands_list: Path, ou
 )
 @click.option("--tags", "-t", help="List of tags using comma as separator: tag1,tag2,tag3", type=str, required=False, callback=parse_tags)
 def collect_tech_support(ctx: click.Context, tags: list[str] | None, output: Path, latest: int | None, configure: bool) -> None:
-    """Collect scheduled tech-support from EOS devices"""
+    """Collect scheduled tech-support from EOS devices."""
     asyncio.run(collect_scheduled_show_tech(ctx.obj["inventory"], output, configure, tags=tags, latest=latest))

@@ -96,7 +96,7 @@ INVENTORY_MODEL_VALID = [
             "ranges": [
                 {"start": "10.1.0.1", "end": "10.1.0.10"},
                 {"start": "10.2.0.1", "end": "10.2.1.10"},
-            ]
+            ],
         },
         "expected_result": "valid",
     },
@@ -154,8 +154,8 @@ ANTA_INVENTORY_TESTS_VALID = [
                 "ranges": [
                     {"start": "10.0.0.1", "end": "10.0.0.11"},
                     {"start": "10.0.0.101", "end": "10.0.0.111"},
-                ]
-            }
+                ],
+            },
         },
         "expected_result": "valid",
         "parameters": {
@@ -201,8 +201,8 @@ ANTA_INVENTORY_TESTS_VALID = [
                 "ranges": [
                     {"start": "10.0.0.1", "end": "10.0.0.11", "tags": ["leaf"]},
                     {"start": "10.0.0.101", "end": "10.0.0.111", "tags": ["spine"]},
-                ]
-            }
+                ],
+            },
         },
         "expected_result": "valid",
         "parameters": {
@@ -246,8 +246,8 @@ ANTA_INVENTORY_TESTS_INVALID = [
                 "ranges": [
                     {"start": "10.0.0.1", "end": "10.0.0.11"},
                     {"start": "10.0.0.100", "end": "10.0.0.111"},
-                ]
-            }
+                ],
+            },
         },
         "expected_result": "invalid",
     },

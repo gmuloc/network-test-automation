@@ -1,9 +1,7 @@
 # Copyright (c) 2023 Arista Networks, Inc.
 # Use of this source code is governed by the Apache License 2.0
 # that can be found in the LICENSE file.
-"""
-Result Manager Module for ANTA.
-"""
+"""Result Manager Module for ANTA."""
 from __future__ import annotations
 
 import json
@@ -20,11 +18,10 @@ logger = logging.getLogger(__name__)
 
 
 class ResultManager:
-    """
-    Helper to manage Test Results and generate reports.
+    """Helper to manage Test Results and generate reports.
 
-    Examples:
-
+    Examples
+    --------
         Create Inventory:
 
             inventory_anta = AntaInventory.parse(
@@ -68,8 +65,7 @@ class ResultManager:
     """
 
     def __init__(self) -> None:
-        """
-        Class constructor.
+        """Class constructor.
 
         The status of the class is initialized to "unset"
 
@@ -95,15 +91,11 @@ class ResultManager:
         self.error_status = False
 
     def __len__(self) -> int:
-        """
-        Implement __len__ method to count number of results.
-        """
+        """Implement __len__ method to count number of results."""
         return len(self._result_entries)
 
     def _update_status(self, test_status: TestStatus) -> None:
-        """
-        Update ResultManager status based on the table above.
-        """
+        """Update ResultManager status based on the table above."""
         ResultValidator = TypeAdapter(TestStatus)
         ResultValidator.validate_python(test_status)
         if test_status == "error":
@@ -117,32 +109,31 @@ class ResultManager:
             self.status = "failure"
 
     def add_test_result(self, entry: TestResult) -> None:
-        """Add a result to the list
+        """Add a result to the list.
 
         Args:
+        ----
             entry (TestResult): TestResult data to add to the report
         """
         self._result_entries.append(entry)
         self._update_status(entry.result)
 
     def add_test_results(self, entries: list[TestResult]) -> None:
-        """Add a list of results to the list
+        """Add a list of results to the list.
 
         Args:
+        ----
             entries (list[TestResult]): List of TestResult data to add to the report
         """
         for e in entries:
             self.add_test_result(e)
 
     def get_status(self, ignore_error: bool = False) -> str:
-        """
-        Returns the current status including error_status if ignore_error is False
-        """
+        """Returns the current status including error_status if ignore_error is False."""
         return "error" if self.error_status and not ignore_error else self.status
 
     def get_results(self, output_format: str = "native") -> Any:
-        """
-        Expose list of all test results in different format
+        """Expose list of all test results in different format.
 
         Support multiple format:
           - native: ListResults format
@@ -150,9 +141,11 @@ class ResultManager:
           - json: a native JSON format
 
         Args:
+        ----
             output_format (str, optional): format selector. Can be either native/list/json. Defaults to 'native'.
 
         Returns:
+        -------
             any: List of results.
         """
         if output_format == "list":
@@ -164,17 +157,19 @@ class ResultManager:
         if output_format == "native":
             # Default return for native format.
             return self._result_entries
-        raise ValueError(f"{output_format} is not a valid value ['list', 'json', 'native']")
+        msg = f"{output_format} is not a valid value ['list', 'json', 'native']"
+        raise ValueError(msg)
 
     def get_result_by_test(self, test_name: str, output_format: str = "native") -> Any:
-        """
-        Get list of test result for a given test.
+        """Get list of test result for a given test.
 
         Args:
+        ----
             test_name (str): Test name to use to filter results
             output_format (str, optional): format selector. Can be either native/list. Defaults to 'native'.
 
         Returns:
+        -------
             list[TestResult]: List of results related to the test.
         """
         if output_format == "list":
@@ -187,14 +182,15 @@ class ResultManager:
         return result_manager_filtered
 
     def get_result_by_host(self, host_ip: str, output_format: str = "native") -> Any:
-        """
-        Get list of test result for a given host.
+        """Get list of test result for a given host.
 
         Args:
+        ----
             host_ip (str): IP Address of the host to use to filter results.
             output_format (str, optional): format selector. Can be either native/list. Defaults to 'native'.
 
         Returns:
+        -------
             Any: List of results related to the host.
         """
         if output_format == "list":
@@ -207,10 +203,10 @@ class ResultManager:
         return result_manager_filtered
 
     def get_testcases(self) -> list[str]:
-        """
-        Get list of name of all test cases in current manager.
+        """Get list of name of all test cases in current manager.
 
-        Returns:
+        Returns
+        -------
             list[str]: List of names for all tests.
         """
         result_list = []
@@ -220,10 +216,10 @@ class ResultManager:
         return result_list
 
     def get_hosts(self) -> list[str]:
-        """
-        Get list of IP addresses in current manager.
+        """Get list of IP addresses in current manager.
 
-        Returns:
+        Returns
+        -------
             list[str]: List of IP addresses.
         """
         result_list = []
