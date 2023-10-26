@@ -30,8 +30,8 @@ class AntaInventoryHost(BaseModel):
     """
 
     name: str | None = None
-    host: constr(pattern=RFC_1123_REGEX) | IPvAnyAddress  # type: ignore
-    port: conint(gt=1, lt=65535) | None = None  # type: ignore
+    host: constr(pattern=RFC_1123_REGEX) | IPvAnyAddress  # type: ignore[valid-type]
+    port: conint(gt=1, lt=65535) | None = None  # type: ignore[valid-type]
     tags: list[str] | None = None
     disable_cache: bool = False
 

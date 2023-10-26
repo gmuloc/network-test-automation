@@ -43,8 +43,6 @@ classifiers = [
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3 :: Only",
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Topic :: Software Development :: Testing",
@@ -233,7 +231,7 @@ envlist =
   clean,
   lint,
   type,
-  py{38,39,310,311,312},
+  py{38,39,310,311},
   report
 
 [gh-actions]
@@ -242,7 +240,6 @@ python =
   3.9: py39
   3.10: py310
   3.11: erase, py311, report
-  3.12: py312
 
 [testenv]
 description = Run pytest with {basepython}
@@ -290,6 +287,9 @@ depends = py311
 # select all cause we like being suffering
 select = ["A", "B", "C", "D", "E", "F", "G", "I", "N", "Q", "S", "T", "W", "ANN", "ARG", "BLE", "COM", "DJ", "DTZ", "EM", "ERA", "EXE", "FBT", "ICN", "INP", "ISC", "NPY", "PD", "PGH", "PIE", "PL", "PT", "PTH", "PYI", "RET", "RSE", "RUF", "SIM", "SLF", "TCH", "TID", "TRY", "UP", "YTT"]
 ignore = [
+  "ANN101",  # Missing type annotation for `self` in method - we know what self is..
+  # TODO - discuss if we want to enforce this next one going forward
+  "RUF012",  # Mutable class attributes should be annotated with `typing.ClassVar - ignoring this as we would need to add this for every test categories and commands definition
   "D203",  # Ignoring conflicting D* warnings - one-blank-line-before-class
   "D213",  # Ignoring conflicting D* warning - multi-line-summary-second-line
 ]
@@ -344,7 +344,6 @@ max-complexity = 10
 
 [tool.ruff.per-file-ignores]
 "tests/units/*" = [
-  "ANN101",  # Missing type annotation for `self` in method - don't care for tests
   "BLE001",  # Do not catch blind exception: `Exception` - already disabling this in pylint
   "S101",    # Complains about asserts
   "S108",    # Probable insecure usage of temporary file or directory
@@ -354,7 +353,20 @@ max-complexity = 10
 ]
 "anta/*" = [
   "FBT001",  # TODO - fix this later
+  "FBT002",  # TODO - fix this later
   "BLE001",  # Do not catch blind exception: `Exception` - caught by other linter
   "TRY400",  # Use `logging.exception` instead of `logging.error` - we know what we are doing
+]
+"anta/tests*" = [
+  "D102",  # We accept no docstring for render and AntaInput
+  "D106",  # We accept no docstring for render and AntaInput
+  # TODO revisit this given that we are using `This` everywhere in tests ...
+  "D404",  # First word of the docstring should not be "This"
+]
+"anta/tests/field_notices.py" = [
+  "PLR2004",  # Magic value used in comparison, consider replacing 2131 with a constant variable - Field notice IDs are magic values
+]
+"anta/decorators.py" = [
+  "ANN401",  # Ok to use Any type hint in our decorators
 ]
 

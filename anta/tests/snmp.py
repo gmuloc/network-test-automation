@@ -54,7 +54,7 @@ class VerifySnmpIPv4Acl(AntaTest):
     commands = [AntaCommand(command="show snmp ipv4 access-list summary")]
 
     class Input(AntaTest.Input):  # pylint: disable=missing-class-docstring
-        number: conint(ge=0)  # type:ignore
+        number: conint(ge=0)  # type:ignore[valid-type]
         """The number of expected IPv4 ACL(s)"""
         vrf: str = "default"
         """The name of the VRF in which to check for the SNMP agent"""
@@ -91,7 +91,7 @@ class VerifySnmpIPv6Acl(AntaTest):
     commands = [AntaCommand(command="show snmp ipv6 access-list summary")]
 
     class Input(AntaTest.Input):  # pylint: disable=missing-class-docstring
-        number: conint(ge=0)  # type:ignore
+        number: conint(ge=0)  # type:ignore[valid-type]
         """The number of expected IPv6 ACL(s)"""
         vrf: str = "default"
         """The name of the VRF in which to check for the SNMP agent"""

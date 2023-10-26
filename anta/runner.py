@@ -33,16 +33,17 @@ async def main(
     tags: list[str],
     established_only: bool = True,
 ) -> None:
-    """Main coroutine to run ANTA.
+    """Run main ANTA coroutine.
+
     Use this as an entrypoint to the test framwork in your script.
 
     Args:
     ----
-        manager: ResultManager object to populate with the test results.
-        inventory: AntaInventory object that includes the device(s).
-        tests: ANTA test catalog. Output of anta.loader.parse_catalog().
-        tags: List of tags to filter devices from the inventory. Defaults to None.
-        established_only: Include only established device(s). Defaults to True.
+    manager: ResultManager object to populate with the test results.
+    inventory: AntaInventory object that includes the device(s).
+    tests: ANTA test catalog. Output of anta.loader.parse_catalog().
+    tags: List of tags to filter devices from the inventory. Defaults to None.
+    established_only: Include only established device(s). Defaults to True.
 
     Returns:
     -------
@@ -64,8 +65,9 @@ async def main(
 
     if len(devices) == 0:
         logger.info(
-            f"No device in the established state '{established_only}' "
-            f"{f'matching the tags {tags} ' if tags else ''}was found. There is no device to run tests against, exiting",
+            "No device in the established state '%s' %swas found. There is no device to run tests against, exiting",
+            established_only,
+            f"matching the tags {tags} " if tags else "",
         )
         return
 
@@ -101,6 +103,6 @@ async def main(
     # Get each device statistics
     for device in devices:
         if device.cache_statistics is not None:
-            logger.info(f"Cache statistics for {device.name}: {device.cache_statistics}")
+            logger.info("Cache statistics for %s:%s", device.name, device.cache_statistics)
         else:
-            logger.info(f"Caching is not enabled on {device.name}")
+            logger.info("Caching is not enabled on %s", device.name)

@@ -19,8 +19,7 @@ class VerifyZeroTouch(AntaTest):
 
     @AntaTest.anta_test
     def test(self) -> None:
-        command_output = self.instance_commands[0].output
-        assert isinstance(command_output, dict)
+        command_output = self.instance_commands[0].json_output
         if command_output["mode"] == "disabled":
             self.result.is_success()
         else:

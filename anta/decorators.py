@@ -22,11 +22,11 @@ def deprecated_test(new_tests: list[str] | None = None) -> Callable[[F], F]:
 
     Args:
     ----
-        new_tests (Optional[list[str]]): A list of new test classes that should replace the deprecated test.
+    new_tests (Optional[list[str]]): A list of new test classes that should replace the deprecated test.
 
     Returns:
     -------
-        Callable[[F], F]: A decorator that can be used to wrap test functions.
+    Callable[[F], F]: A decorator that can be used to wrap test functions.
     """
 
     def decorator(function: F) -> F:
@@ -34,11 +34,11 @@ def deprecated_test(new_tests: list[str] | None = None) -> Callable[[F], F]:
 
         Args:
         ----
-            function (F): The test function to be decorated.
+        function (F): The test function to be decorated.
 
         Returns:
         -------
-            F: The decorated function.
+        F: The decorated function.
         """
 
         @wraps(function)
@@ -64,11 +64,11 @@ def skip_on_platforms(platforms: list[str]) -> Callable[[F], F]:
 
     Args:
     ----
-        platforms (list[str]): List of hardware models on which the test should be skipped.
+    platforms (list[str]): List of hardware models on which the test should be skipped.
 
     Returns:
     -------
-        Callable[[F], F]: A decorator that can be used to wrap test functions.
+    Callable[[F], F]: A decorator that can be used to wrap test functions.
     """
 
     def decorator(function: F) -> F:
@@ -76,11 +76,11 @@ def skip_on_platforms(platforms: list[str]) -> Callable[[F], F]:
 
         Args:
         ----
-            function (F): The test function to be decorated.
+        function (F): The test function to be decorated.
 
         Returns:
         -------
-            F: The decorated function.
+        F: The decorated function.
         """
 
         @wraps(function)
@@ -120,11 +120,11 @@ def check_bgp_family_enable(family: str) -> Callable[[F], F]:
 
     Args:
     ----
-        family (str): BGP address family to check. Accepted values are 'ipv4', 'ipv6', 'evpn', 'rtc'.
+    family (str): BGP address family to check. Accepted values are 'ipv4', 'ipv6', 'evpn', 'rtc'.
 
     Returns:
     -------
-        Callable[[F], F]: A decorator that can be used to wrap test functions.
+    Callable[[F], F]: A decorator that can be used to wrap test functions.
     """
 
     def decorator(function: F) -> F:
@@ -132,11 +132,11 @@ def check_bgp_family_enable(family: str) -> Callable[[F], F]:
 
         Args:
         ----
-            function (F): The test function to be decorated.
+        function (F): The test function to be decorated.
 
         Returns:
         -------
-            F: The decorated function.
+        F: The decorated function.
         """
 
         @wraps(function)

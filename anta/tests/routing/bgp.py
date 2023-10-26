@@ -7,8 +7,6 @@
 from __future__ import annotations
 
 from ipaddress import IPv4Address, IPv6Address
-
-# Need to keep Dict and List for pydantic in python 3.8
 from typing import Any, List, Optional, Union, cast
 
 from pydantic import BaseModel, PositiveInt, model_validator
@@ -18,10 +16,13 @@ from anta.decorators import check_bgp_family_enable, deprecated_test
 from anta.models import AntaCommand, AntaTemplate, AntaTest
 from anta.tools.get_value import get_value
 
+# Need to keep Dict and List for pydantic in python 3.8
+
 
 def _check_bgp_vrfs(bgp_vrfs: dict[str, Any]) -> dict[str, Any]:
-    """Parse the output of the `show bgp <address family> unicast summary vrf <vrf>` 'vrfs' key
-    and returns a dictionary with the following structure:
+    """Parse the output of the `show bgp <address family> unicast summary vrf <vrf>` 'vrfs' key.
+
+    Returns a dictionary with the following structure:
 
     {
         <vrf>: {
@@ -36,7 +37,7 @@ def _check_bgp_vrfs(bgp_vrfs: dict[str, Any]) -> dict[str, Any]:
 
     Args:
     ----
-        bgp_vrfs: Output of the `show bgp <address family> unicast summary vrf <vrf>` 'vrfs' key
+    bgp_vrfs: Output of the `show bgp <address family> unicast summary vrf <vrf>` 'vrfs' key
     """
     state_issue: dict[str, Any] = {}
     for vrf in bgp_vrfs:
@@ -60,18 +61,18 @@ def _check_bgp_vrfs(bgp_vrfs: dict[str, Any]) -> dict[str, Any]:
     return state_issue
 
 
-def _add_bgp_failures(failures: dict[tuple[str, str | None], dict[str, Any]], afi: Afi, safi: Safi | None, vrf: str, issue: Any) -> None:
+def _add_bgp_failures(failures: dict[tuple[str, str | None], dict[str, Any]], afi: Afi, safi: Safi | None, vrf: str, issue: str | dict[str, Any]) -> None:
     """Add a BGP failure entry to the given `failures` dictionary.
 
     Note: This function modifies `failures` in-place.
 
-    Parameters
-    ----------
-        failures (dict): The dictionary to which the failure will be added.
-        afi (Afi): The address family identifier.
-        vrf (str): The VRF name.
-        safi (Safi, optional): The subsequent address family identifier.
-        issue (Any): A description of the issue. Can be of any type.
+    Args:
+    ----
+    failures (dict): The dictionary to which the failure will be added.
+    afi (Afi): The address family identifier.
+    vrf (str): The VRF name.
+    safi (Safi, optional): The subsequent address family identifier.
+    issue (str | dict[str, Any]): A description of the issue.
 
     The `failures` dictionnary will have the following structure:
         {
@@ -101,22 +102,23 @@ def _add_bgp_failures(failures: dict[tuple[str, str | None], dict[str, Any]], af
 def _check_peer_issues(peer_data: dict[str, Any] | None) -> dict[str, Any]:
     """Check for issues in BGP peer data.
 
-    Parameters
-    ----------
-        peer_data (dict, optional): The BGP peer data dictionary nested in the `show bgp <afi> <safi> summary` command.
+    Args:
+    ----
+    peer_data (dict, optional): The BGP peer data dictionary nested in the `show bgp <afi> <safi> summary` command.
 
-    Returns
+    Returns:
     -------
-        dict: Dictionary with keys indicating issues or an empty dictionary if no issues.
+    dict: Dictionary with keys indicating issues or an empty dictionary if no issues.
 
     Example:
+    -------
         {"peerNotFound": True}
         {"peerState": "Idle", "inMsgQueue": 2, "outMsgQueue": 0}
         {}
 
-    Raises
+    Raises:
     ------
-        ValueError: If any of the required keys ("peerState", "inMsgQueue", "outMsgQueue") are missing in `peer_data`, i.e. invalid BGP peer data.
+    ValueError: If any of the required keys ("peerState", "inMsgQueue", "outMsgQueue") are missing in `peer_data`, i.e. invalid BGP peer data.
     """
     if peer_data is None:
         return {"peerNotFound": True}
@@ -132,8 +134,9 @@ def _check_peer_issues(peer_data: dict[str, Any] | None) -> dict[str, Any]:
 
 
 class VerifyBGPIPv4UnicastState(AntaTest):
-    """Verifies all IPv4 unicast BGP sessions are established (for all VRF)
-    and all BGP messages queues for these sessions are empty (for all VRF).
+    """Verifies all IPv4 unicast BGP sessions are established (for all VRF).
+
+    Also verifies BGP messages queues for these sessions are empty (for all VRF).
 
     * self.result = "skipped" if no BGP vrf are returned by the device
     * self.result = "success" if all IPv4 unicast BGP sessions are established (for all VRF)
@@ -159,7 +162,9 @@ class VerifyBGPIPv4UnicastState(AntaTest):
 
 
 class VerifyBGPIPv4UnicastCount(AntaTest):
-    """Verifies all IPv4 unicast BGP sessions are established
+    """Verify all IPv4 unicast count.
+
+    Verifies all IPv4 unicast BGP sessions are established
     and all BGP messages queues for these sessions are empty
     and the actual number of BGP IPv4 unicast neighbors is the one we expect
     in all VRFs specified as input.
@@ -207,7 +212,9 @@ class VerifyBGPIPv4UnicastCount(AntaTest):
 
 
 class VerifyBGPIPv6UnicastState(AntaTest):
-    """Verifies all IPv6 unicast BGP sessions are established (for all VRF)
+    """Verifies all IPv6 unicast states.
+
+    Verifies all IPv6 unicast BGP sessions are established (for all VRF)
     and all BGP messages queues for these sessions are empty (for all VRF).
 
     * self.result = "skipped" if no BGP vrf are returned by the device
@@ -261,7 +268,9 @@ class VerifyBGPEVPNState(AntaTest):
 
 
 class VerifyBGPEVPNCount(AntaTest):
-    """Verifies all EVPN BGP sessions are established (default VRF)
+    """Verifies all EVPN BGP count.
+
+    Verifies all EVPN BGP sessions are established (default VRF)
     and the actual number of BGP EVPN neighbors is the one we expect (default VRF).
 
     * self.result = "success" if all EVPN BGP sessions are Established and if the actual
@@ -323,7 +332,9 @@ class VerifyBGPRTCState(AntaTest):
 
 
 class VerifyBGPRTCCount(AntaTest):
-    """Verifies all RTC BGP sessions are established (default VRF)
+    """Verifies RTC BGP count.
+
+    Verifies all RTC BGP sessions are established (default VRF)
     and the actual number of BGP RTC neighbors is the one we expect (default VRF).
 
     * self.result = "success" if all RTC BGP sessions are Established and if the actual

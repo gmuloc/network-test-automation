@@ -5,13 +5,13 @@
 from __future__ import annotations
 
 from ipaddress import IPv4Address, ip_interface
-
-# Need to keep List for pydantic in python 3.8
 from typing import Literal
 
 from pydantic import model_validator
 
 from anta.models import AntaCommand, AntaTemplate, AntaTest
+
+# Need to keep List for pydantic in python 3.8
 
 # Mypy does not understand AntaTest.Input typing
 # mypy: disable-error-code=attr-defined
@@ -19,6 +19,7 @@ from anta.models import AntaCommand, AntaTemplate, AntaTest
 
 class VerifyRoutingProtocolModel(AntaTest):
     """Verifies the configured routing protocol model is the one we expect.
+
     And if there is no mismatch between the configured and operating routing protocol model.
     """
 
@@ -46,6 +47,7 @@ class VerifyRoutingProtocolModel(AntaTest):
 
 class VerifyRoutingTableSize(AntaTest):
     """Verifies the size of the IP routing table (default VRF).
+
     Should be between the two provided thresholds.
     """
 
@@ -60,7 +62,7 @@ class VerifyRoutingTableSize(AntaTest):
         maximum: int
         """Expected maximum routing table (default VRF) size"""
 
-        @model_validator(mode="after")  # type: ignore
+        @model_validator(mode="after")  # type: ignore[valid-type]
         def check_min_max(self) -> AntaTest.Input:
             """Validate that maximum is greater than minimum."""
             if self.minimum > self.maximum:

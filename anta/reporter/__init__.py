@@ -6,7 +6,6 @@
 from __future__ import annotations
 
 import logging
-import os.path
 from typing import TYPE_CHECKING, Any
 
 from jinja2 import Template
@@ -18,6 +17,8 @@ from .models import ColorManager
 
 if TYPE_CHECKING:
     import pathlib
+
+    from rich.text import Text
 
     from anta.result_manager import ResultManager
 
@@ -40,12 +41,12 @@ class ReportTable:
 
         Args:
         ----
-            usr_list (list[str]): List of string to concatenate
-            delimiter (str, optional): A delimiter to use to start string. Defaults to None.
+        usr_list (list[str]): List of string to concatenate
+        delimiter (str, optional): A delimiter to use to start string. Defaults to None.
 
         Returns:
         -------
-            str: Multi-lines string
+        str: Multi-lines string
         """
         if delimiter is not None:
             return "\n".join(f"{delimiter} {line}" for line in usr_list)
@@ -58,12 +59,12 @@ class ReportTable:
 
         Args:
         ----
-            headers (list[str]): List of headers
-            table (Table): A rich Table instance
+        headers (list[str]): List of headers
+        table (Table): A rich Table instance
 
         Returns:
         -------
-            Table: A rich Table instance with headers
+        Table: A rich Table instance with headers
         """
         for idx, header in enumerate(headers):
             if idx == 0:
@@ -72,19 +73,19 @@ class ReportTable:
                 table.add_column(header, justify="left")
         return table
 
-    def _color_result(self, status: str, output_type: str = "Text") -> Any:
-        """Helper to implement color based on test status.
+    def _color_result(self, status: str, output_type: str = "Text") -> str | Text:
+        """Return formatted text with color based on test status.
 
         It gives output for either standard str or Text() colorized with Style()
 
         Args:
         ----
-            status (str): status value to colorized
-            output_type (str, optional): Which format to output code. Defaults to 'Text'.
+        status (str): status value to colorized
+        output_type (str, optional): Which format to output code. Defaults to 'Text'.
 
         Returns:
         -------
-            Any: Can be either str or Text with Style
+        str | Text: formatted text with color
         """
         # TODO refactor this code as it looks quite surprising
         if len([result for result in self.colors if str(result.level).upper() == status.upper()]) == 1:
@@ -105,14 +106,14 @@ class ReportTable:
 
         Args:
         ----
-            result_manager (ResultManager): A manager with a list of tests.
-            host (str, optional): IP Address of a host to search for. Defaults to None.
-            testcase (str, optional): A test name to search for. Defaults to None.
-            title (str, optional): Title for the report. Defaults to 'All tests results'.
+        result_manager (ResultManager): A manager with a list of tests.
+        host (str, optional): IP Address of a host to search for. Defaults to None.
+        testcase (str, optional): A test name to search for. Defaults to None.
+        title (str, optional): Title for the report. Defaults to 'All tests results'.
 
         Returns:
         -------
-            Table: A fully populated rich Table
+        Table: A fully populated rich Table
         """
         table = Table(title=title)
         headers = ["Device", "Test Name", "Test Status", "Message(s)", "Test description", "Test category"]
@@ -139,13 +140,13 @@ class ReportTable:
 
         Args:
         ----
-            result_manager (ResultManager): A manager with a list of tests.
-            testcase (str, optional): A test name to search for. Defaults to None.
-            title (str, optional): Title for the report. Defaults to 'All tests results'.
+        result_manager (ResultManager): A manager with a list of tests.
+        testcase (str, optional): A test name to search for. Defaults to None.
+        title (str, optional): Title for the report. Defaults to 'All tests results'.
 
         Returns:
         -------
-            Table: A fully populated rich Table
+        Table: A fully populated rich Table
         """
         # sourcery skip: class-extract-method
         table = Table(title=title)
@@ -188,13 +189,13 @@ class ReportTable:
 
         Args:
         ----
-            result_manager (ResultManager): A manager with a list of tests.
-            host (str, optional): IP Address of a host to search for. Defaults to None.
-            title (str, optional): Title for the report. Defaults to 'All tests results'.
+        result_manager (ResultManager): A manager with a list of tests.
+        host (str, optional): IP Address of a host to search for. Defaults to None.
+        title (str, optional): Title for the report. Defaults to 'All tests results'.
 
         Returns:
         -------
-            Table: A fully populated rich Table
+        Table: A fully populated rich Table
         """
         table = Table(title=title)
         headers = [
@@ -210,7 +211,7 @@ class ReportTable:
             if host is None or str(host_read) == host:
                 results = result_manager.get_result_by_host(host_read)
                 logger.debug("data to use for computation")
-                logger.debug(f"{host}: {results}")
+                logger.debug("%s: %s", host, results)
                 nb_failure = len([result for result in results if result.result == "failure"])
                 nb_error = len([result for result in results if result.result == "error"])
                 list_failure = [str(result.test) for result in results if result.result in ["failure", "error"]]
@@ -231,8 +232,9 @@ class ReportJinja:
     """Report builder based on a Jinja2 template."""
 
     def __init__(self, template_path: pathlib.Path) -> None:
-        if os.path.isfile(template_path):
-            self.tempalte_path = template_path
+        """__init__."""
+        if template_path.is_file():
+            self.template_path = template_path
         else:
             msg = f"template file is not found: {template_path}"
             raise FileNotFoundError(msg)
@@ -258,15 +260,15 @@ class ReportJinja:
 
         Args:
         ----
-            data (list[dict[str, Any]]): List of results from ResultManager.get_results
-            trim_blocks (bool, optional): enable trim_blocks for J2 rendering. Defaults to True.
-            lstrip_blocks (bool, optional): enable lstrip_blocks for J2 rendering. Defaults to True.
+        data (list[dict[str, Any]]): List of results from ResultManager.get_results
+        trim_blocks (bool, optional): enable trim_blocks for J2 rendering. Defaults to True.
+        lstrip_blocks (bool, optional): enable lstrip_blocks for J2 rendering. Defaults to True.
 
         Returns:
         -------
-            str: rendered template
+        str: rendered template
         """
-        with open(self.tempalte_path, encoding="utf-8") as file_:
+        with self.template_path.open(encoding="utf-8") as file_:
             template = Template(file_.read(), trim_blocks=trim_blocks, lstrip_blocks=lstrip_blocks)
 
         return template.render({"data": data})

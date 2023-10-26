@@ -7,7 +7,6 @@ from __future__ import annotations
 from typing import Any
 
 
-# pylint: disable=too-many-arguments
 def get_value(
     dictionary: dict[Any, Any],
     key: str,
@@ -17,6 +16,7 @@ def get_value(
     separator: str = ".",
 ) -> Any:
     """Get a value from a dictionary or nested dictionaries.
+
     Key supports dot-notation like "foo.bar" to do deeper lookups.
     Returns the supplied default value or None if the key is not found and required is False.
 
@@ -46,6 +46,9 @@ def get_value(
     ValueError
         If the key is not found and required == True.
     """
+    # Accept too many arguments and Any as input types
+    # pylint: disable=too-many-arguments
+    # ruff: noqa: PLR0913,ANN401
     if org_key is None:
         org_key = key
     keys = key.split(separator)

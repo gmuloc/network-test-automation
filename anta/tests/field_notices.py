@@ -2,13 +2,14 @@
 # Use of this source code is governed by the Apache License 2.0
 # that can be found in the LICENSE file.
 """Test functions to flag field notices."""
-
 from anta.decorators import skip_on_platforms
 from anta.models import AntaCommand, AntaTest
 
 
 class VerifyFieldNotice44Resolution(AntaTest):
-    """Verifies the device is using an Aboot version that fix the bug discussed
+    """Verify Field Notice 44 exposure.
+
+    Verifies the device is using an Aboot version that fix the bug discussed
     in the field notice 44 (Aboot manages system settings prior to EOS initialization).
 
     https://www.arista.com/en/support/advisories-notices/field-notice/8756-field-notice-44
@@ -87,13 +88,12 @@ class VerifyFieldNotice44Resolution(AntaTest):
             if component["name"] == "Aboot":
                 aboot_version = component["version"].split("-")[2]
         self.result.is_success()
-        if aboot_version.startswith("4.0.") and int(aboot_version.split(".")[2]) < 7:
-            self.result.is_failure(f"device is running incorrect version of aboot ({aboot_version})")
-        elif aboot_version.startswith("4.1.") and int(aboot_version.split(".")[2]) < 1:
-            self.result.is_failure(f"device is running incorrect version of aboot ({aboot_version})")
-        elif aboot_version.startswith("6.0.") and int(aboot_version.split(".")[2]) < 9:
-            self.result.is_failure(f"device is running incorrect version of aboot ({aboot_version})")
-        elif aboot_version.startswith("6.1.") and int(aboot_version.split(".")[2]) < 7:
+        if (
+            (aboot_version.startswith("4.0.") and int(aboot_version.split(".")[2]) < 7)
+            or (aboot_version.startswith("4.1.") and int(aboot_version.split(".")[2]) < 1)
+            or (aboot_version.startswith("6.0.") and int(aboot_version.split(".")[2]) < 9)
+            or (aboot_version.startswith("6.1.") and int(aboot_version.split(".")[2]) < 7)
+        ):
             self.result.is_failure(f"device is running incorrect version of aboot ({aboot_version})")
 
 
@@ -125,25 +125,7 @@ class VerifyFieldNotice72Resolution(AntaTest):
             return
 
         serial = command_output["serialNumber"]
-        number = int(serial[3:7])
-
-        if "JPE" not in serial and "JAS" not in serial:
-            self.result.is_skipped("Device not exposed")
-            return
-
-        if model == "DCS-7280SR3-48YC8" and "JPE" in serial and number >= 2131:
-            self.result.is_skipped("Device not exposed")
-            return
-
-        if model == "DCS-7280SR3-48YC8" and "JAS" in serial and number >= 2041:
-            self.result.is_skipped("Device not exposed")
-            return
-
-        if model == "DCS-7280SR3K-48YC8" and "JPE" in serial and number >= 2134:
-            self.result.is_skipped("Device not exposed")
-            return
-
-        if model == "DCS-7280SR3K-48YC8" and "JAS" in serial and number >= 2041:
+        if self._skip_if_not_exposed(model, serial):
             self.result.is_skipped("Device not exposed")
             return
 
@@ -159,3 +141,21 @@ class VerifyFieldNotice72Resolution(AntaTest):
         # We should never hit this point
         self.result.is_error(message="Error in running test - FixedSystemvrm1 not found")
         return
+
+    def _skip_if_not_exposed(self, model: str, serial: str) -> bool:
+        """Set of rules to check if a device can be skipped because not exposed.
+
+        Args:
+        ----
+        model: The model name
+        serial: The serial number
+        """
+        number = int(serial[3:7])
+
+        return (
+            ("JPE" not in serial and "JAS" not in serial)
+            or (model == "DCS-7280SR3-48YC8" and "JPE" in serial and number >= 2131)
+            or (model == "DCS-7280SR3-48YC8" and "JAS" in serial and number >= 2041)
+            or (model == "DCS-7280SR3K-48YC8" and "JPE" in serial and number >= 2134)
+            or (model == "DCS-7280SR3K-48YC8" and "JAS" in serial and number >= 2041)
+        )

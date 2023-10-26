@@ -6,7 +6,6 @@ from __future__ import annotations
 
 import json
 import logging
-from typing import Any
 
 from pydantic import TypeAdapter
 
@@ -96,12 +95,12 @@ class ResultManager:
 
     def _update_status(self, test_status: TestStatus) -> None:
         """Update ResultManager status based on the table above."""
-        ResultValidator = TypeAdapter(TestStatus)
-        ResultValidator.validate_python(test_status)
+        result_validator = TypeAdapter(TestStatus)
+        result_validator.validate_python(test_status)
         if test_status == "error":
             self.error_status = True
             return
-        if self.status == "unset":
+        if self.status == "unset":  # noqa: SIM114
             self.status = test_status
         elif self.status == "skipped" and test_status in {"success", "failure"}:
             self.status = test_status
@@ -113,7 +112,7 @@ class ResultManager:
 
         Args:
         ----
-            entry (TestResult): TestResult data to add to the report
+        entry (TestResult): TestResult data to add to the report
         """
         self._result_entries.append(entry)
         self._update_status(entry.result)
@@ -123,30 +122,31 @@ class ResultManager:
 
         Args:
         ----
-            entries (list[TestResult]): List of TestResult data to add to the report
+        entries (list[TestResult]): List of TestResult data to add to the report
         """
         for e in entries:
             self.add_test_result(e)
 
     def get_status(self, ignore_error: bool = False) -> str:
-        """Returns the current status including error_status if ignore_error is False."""
+        """Return the current status including error_status if ignore_error is False."""
         return "error" if self.error_status and not ignore_error else self.status
 
-    def get_results(self, output_format: str = "native") -> Any:
+    # TODO - revisit the next three methods and their return types in particular ListResult vs list[TestResult..]
+    def get_results(self, output_format: str = "native") -> list[TestResult] | ListResult | str:
         """Expose list of all test results in different format.
 
         Support multiple format:
-          - native: ListResults format
+          - native: ListResult format
           - list: a list of TestResult
           - json: a native JSON format
 
         Args:
         ----
-            output_format (str, optional): format selector. Can be either native/list/json. Defaults to 'native'.
+        output_format (str, optional): format selector. Can be either native/list/json. Defaults to 'native'.
 
         Returns:
         -------
-            any: List of results.
+        list[TestResult] | ListResult | str: List of results with the required format.
         """
         if output_format == "list":
             return list(self._result_entries)
@@ -160,17 +160,17 @@ class ResultManager:
         msg = f"{output_format} is not a valid value ['list', 'json', 'native']"
         raise ValueError(msg)
 
-    def get_result_by_test(self, test_name: str, output_format: str = "native") -> Any:
+    def get_result_by_test(self, test_name: str, output_format: str = "native") -> list[TestResult] | ListResult:
         """Get list of test result for a given test.
 
         Args:
         ----
-            test_name (str): Test name to use to filter results
-            output_format (str, optional): format selector. Can be either native/list. Defaults to 'native'.
+        test_name (str): Test name to use to filter results
+        output_format (str, optional): format selector. Can be either native/list. Defaults to 'native'.
 
         Returns:
         -------
-            list[TestResult]: List of results related to the test.
+        list[TestResult] | ListResult: List of results related to the test.
         """
         if output_format == "list":
             return [result for result in self._result_entries if str(result.test) == test_name]
@@ -181,17 +181,17 @@ class ResultManager:
                 result_manager_filtered.append(result)
         return result_manager_filtered
 
-    def get_result_by_host(self, host_ip: str, output_format: str = "native") -> Any:
+    def get_result_by_host(self, host_ip: str, output_format: str = "native") -> list[TestResult] | ListResult:
         """Get list of test result for a given host.
 
         Args:
         ----
-            host_ip (str): IP Address of the host to use to filter results.
-            output_format (str, optional): format selector. Can be either native/list. Defaults to 'native'.
+        host_ip (str): IP Address of the host to use to filter results.
+        output_format (str, optional): format selector. Can be either native/list. Defaults to 'native'.
 
         Returns:
         -------
-            Any: List of results related to the host.
+        list[TestResult] | ListResult: List of results related to the host.
         """
         if output_format == "list":
             return [result for result in self._result_entries if str(result.name) == host_ip]
@@ -207,7 +207,7 @@ class ResultManager:
 
         Returns
         -------
-            list[str]: List of names for all tests.
+        list[str]: List of names for all tests.
         """
         result_list = []
         for testcase in self._result_entries:
@@ -220,7 +220,7 @@ class ResultManager:
 
         Returns
         -------
-            list[str]: List of IP addresses.
+        list[str]: List of IP addresses.
         """
         result_list = []
         for testcase in self._result_entries:

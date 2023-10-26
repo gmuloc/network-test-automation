@@ -22,6 +22,7 @@ logger = logging.getLogger(__name__)
 
 def setup_logging(level: str = logging.getLevelName(logging.INFO), file: Path | None = None) -> None:
     """Configure logging for ANTA.
+
     By default, the logging level is INFO for all loggers except for httpx and asyncssh which are too verbose:
     their logging level is WARNING.
 
@@ -36,8 +37,8 @@ def setup_logging(level: str = logging.getLevelName(logging.INFO), file: Path | 
 
     Args:
     ----
-        level: ANTA logging level
-        file: Send logs to a file
+    level: ANTA logging level
+    file: Send logs to a file
     """
     # Init root logger
     root = logging.getLogger()
@@ -52,28 +53,28 @@ def setup_logging(level: str = logging.getLevelName(logging.INFO), file: Path | 
         logging.getLogger("httpx").setLevel(logging.WARNING)
 
     # Add RichHandler for stdout
-    richHandler = RichHandler(markup=True, rich_tracebacks=True, tracebacks_show_locals=True)
+    rich_handler = RichHandler(markup=True, rich_tracebacks=True, tracebacks_show_locals=True)
     # In ANTA debug mode, show Python module in stdout
     fmt_string = "[grey58]\\[%(name)s][/grey58] %(message)s" if __DEBUG__ else "%(message)s"
     formatter = logging.Formatter(fmt=fmt_string, datefmt="[%X]")
-    richHandler.setFormatter(formatter)
-    root.addHandler(richHandler)
+    rich_handler.setFormatter(formatter)
+    root.addHandler(rich_handler)
     # Add FileHandler if file is provided
     if file:
-        fileHandler = logging.FileHandler(file)
+        file_handler = logging.FileHandler(file)
         formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-        fileHandler.setFormatter(formatter)
-        root.addHandler(fileHandler)
+        file_handler.setFormatter(formatter)
+        root.addHandler(file_handler)
         # If level is DEBUG and file is provided, do not send DEBUG level to stdout
         if loglevel == logging.DEBUG:
-            richHandler.setLevel(logging.INFO)
+            rich_handler.setLevel(logging.INFO)
 
     if __DEBUG__:
         logger.debug("ANTA Debug Mode enabled")
 
 
 def parse_catalog(test_catalog: dict[str, Any], package: str | None = None) -> list[tuple[AntaTest, dict[str, Any] | None]]:
-    """Function to parse the catalog and return a list of tests with their inputs.
+    """Parse the catalog and return a list of tests with their inputs.
 
     A valid test catalog must follow the following structure:
         <Python module>:
@@ -112,11 +113,12 @@ def parse_catalog(test_catalog: dict[str, Any], package: str | None = None) -> l
 
     Args:
     ----
-        test_catalog: Python dictionary representing the test catalog YAML file
+    test_catalog: Python dictionary representing the test catalog YAML file
+    package: The name a the package to use to load the tests
 
     Returns:
     -------
-        tests: List of tuples (test, inputs) where test is a reference of an AntaTest subclass
+    tests: List of tuples (test, inputs) where test is a reference of an AntaTest subclass
               and inputs is a dictionary
     """
     tests: list[tuple[AntaTest, dict[str, Any] | None]] = []
@@ -124,31 +126,30 @@ def parse_catalog(test_catalog: dict[str, Any], package: str | None = None) -> l
         return tests
     for key, value in test_catalog.items():
         # Required to manage iteration within a tests module
-        if package is not None:
-            key = ".".join([package, key])
+        module_name = ".".join([package, key]) if package is not None else key
         try:
-            module = importlib.import_module(f"{key}")
+            module = importlib.import_module(f"{module_name}")
         except ModuleNotFoundError:
-            logger.critical(f"No test module named '{key}'")
+            logger.critical("No test module named '%s'", module_name)
             sys.exit(1)
         if isinstance(value, list):
             # This is a list of tests
-            for test in value:
-                for test_name, inputs in test.items():
+            for test_def in value:
+                for test_name, inputs in test_def.items():
                     # A test must be a subclass of AntaTest as defined in the Python module
                     try:
                         test = getattr(module, test_name)
                     except AttributeError:
-                        logger.critical(f"Wrong test name '{test_name}' in '{module.__name__}'")
+                        logger.critical("Wrong test name '%s' in '%s'", test_name, module.__name__)
                         sys.exit(1)
                     if not issubclass(test, AntaTest):
-                        logger.critical(f"'{test.__module__}.{test.__name__}' is not an AntaTest subclass")
+                        logger.critical("'%s.%s' is not an AntaTest subclass", test.__module__, test.__name__)
                         sys.exit(1)
                     # Test inputs can be either None or a dictionary
                     if inputs is None or isinstance(inputs, dict):
                         tests.append((test, inputs))
                     else:
-                        logger.critical(f"'{test.__module__}.{test.__name__}' inputs must be a dictionary")
+                        logger.critical("'%s.%s' inputs must be a dictionary", test.__module__, test.__name__)
                         sys.exit(1)
         if isinstance(value, dict):
             # This is an inner Python module

@@ -7,8 +7,6 @@
 from __future__ import annotations
 
 import re
-
-# Need to keep Dict and List for pydantic in python 3.8
 from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel, conint
@@ -17,8 +15,14 @@ from anta.decorators import skip_on_platforms
 from anta.models import AntaCommand, AntaTemplate, AntaTest
 from anta.tools.get_value import get_value
 
+# Need to keep Dict and List for pydantic in python 3.8
+
 if TYPE_CHECKING:
     from anta.custom_types import Interface
+
+# TODO - make these variables configurable with default
+# Some tests use "magic variables" for the thresholds
+# ruff: noqa: PLR2004
 
 
 class VerifyInterfaceUtilization(AntaTest):
@@ -232,7 +236,7 @@ class VerifyIllegalLACP(AntaTest):
         if not po_with_illegal_lacp:
             self.result.is_success()
         else:
-            self.result.is_failure("The following port-channels have recieved illegal lacp packets on the " f"following ports: {po_with_illegal_lacp}")
+            self.result.is_failure("The following port-channels have recieved illegal lacp packets on the following ports: {po_with_illegal_lacp}")
 
 
 class VerifyLoopbackCount(AntaTest):
@@ -244,7 +248,7 @@ class VerifyLoopbackCount(AntaTest):
     commands = [AntaCommand(command="show ip interface brief")]
 
     class Input(AntaTest.Input):  # pylint: disable=missing-class-docstring
-        number: conint(ge=0)  # type: ignore
+        number: conint(ge=0)  # type: ignore[valid-type]
         """Number of loopback interfaces expected to be present"""
 
     @AntaTest.anta_test

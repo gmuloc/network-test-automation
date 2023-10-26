@@ -10,11 +10,11 @@ NOTE: 'show logging' does not support json output yet
 from __future__ import annotations
 
 import re
-
-# Need to keep List for pydantic in python 3.8
 from typing import TYPE_CHECKING
 
 from anta.models import AntaCommand, AntaTest
+
+# Need to keep List for pydantic in python 3.8
 
 if TYPE_CHECKING:
     import logging
@@ -22,15 +22,15 @@ if TYPE_CHECKING:
 
 
 def _get_logging_states(logger: logging.Logger, command_output: str) -> str:
-    """Parse "show logging" output and gets operational logging states used
-    in the tests in this module.
+    """Parse "show logging" output and gets operational logging states used in the tests in this module.
 
     Args:
     ----
-        command_output: The 'show logging' output
+    logger: the logger to use
+    command_output: The 'show logging' output
     """
     log_states = command_output.partition("\n\nExternal configuration:")[0]
-    logger.debug(f"Device logging states:\n{log_states}")
+    logger.debug("Device logging states:\n%s", log_states)
     return log_states
 
 

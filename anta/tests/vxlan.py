@@ -4,15 +4,14 @@
 """Test functions related to VXLAN."""
 # Mypy does not understand AntaTest.Input typing
 # mypy: disable-error-code=attr-defined
-
 from ipaddress import IPv4Address
-
-# Need to keep List and Dict for pydantic in python 3.8
 from typing import Dict, List
 
 from anta.custom_types import Vlan, Vni
 from anta.models import AntaCommand, AntaTest
 from anta.tools.get_value import get_value
+
+# Need to keep List and Dict for pydantic in python 3.8
 
 
 class VerifyVxlan1Interface(AntaTest):
@@ -109,8 +108,8 @@ class VerifyVxlanVniBinding(AntaTest):
             self.result.is_skipped("Vxlan1 interface is not configured")
             return
 
-        for vni, vlan in self.inputs.bindings.items():
-            vni = str(vni)
+        for _vni, vlan in self.inputs.bindings.items():
+            vni = str(_vni)
             if vni in vxlan1["vniBindings"]:
                 retrieved_vlan = vxlan1["vniBindings"][vni]["vlan"]
             elif vni in vxlan1["vniBindingsToVrf"]:

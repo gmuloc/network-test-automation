@@ -80,6 +80,5 @@ class VerifyOSPFNeighborCount(AntaTest):
         if neighbor_count != self.inputs.number:
             self.result.is_failure(f"device has {neighbor_count} neighbors (expected {self.inputs.number})")
         not_full_neighbors = _get_not_full_ospf_neighbors(command_output)
-        print(not_full_neighbors)
         if not_full_neighbors:
             self.result.is_failure(f"Some neighbors are not correctly configured: {not_full_neighbors}.")

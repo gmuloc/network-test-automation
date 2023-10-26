@@ -43,38 +43,39 @@ class TestResult(BaseModel):
     custom_field: str | None = None
 
     def is_success(self, message: str | None = None) -> None:
-        """Helper to set status to success.
+        """Set status to success.
 
         Args:
         ----
-            message: Optional message related to the test
+        message: Optional message related to the test
         """
         self._set_status("success", message)
 
     def is_failure(self, message: str | None = None) -> None:
-        """Helper to set status to failure.
+        """Set status to failure.
 
         Args:
         ----
-            message: Optional message related to the test
+        message: Optional message related to the test
         """
         self._set_status("failure", message)
 
     def is_skipped(self, message: str | None = None) -> None:
-        """Helper to set status to skipped.
+        """Set status to skipped.
 
         Args:
         ----
-            message: Optional message related to the test
+        message: Optional message related to the test
         """
         self._set_status("skipped", message)
 
     def is_error(self, message: str | None = None, exception: Exception | None = None) -> None:
-        """Helper to set status to error.
+        """Set status to error.
 
         Args:
         ----
-            exception: Optional Exception objet related to the error
+        message: Optional message related to the test
+        exception: Optional Exception objet related to the error
         """
         self._set_status("error", message)
         self.error = exception
@@ -84,20 +85,20 @@ class TestResult(BaseModel):
 
         Args:
         ----
-            status: status of the test
-            message: optional message
+        status: status of the test
+        message: optional message
         """
         self.result = status
         if message is not None:
             self.messages.append(message)
 
     def __str__(self) -> str:
-        """Returns a human readable string of this TestResult."""
+        """Return a human readable string of this TestResult."""
         return f"Test {self.test} on device {self.name} has result {self.result}"
 
 
 class ListResult(RootModel[List[TestResult]]):
-    """list result for all tests on all devices.
+    """List result for all tests on all devices.
 
     Attributes
     ----------
@@ -114,7 +115,7 @@ class ListResult(RootModel[List[TestResult]]):
         """Add support for append method."""
         self.root.append(value)
 
-    def __iter__(self) -> Iterator[TestResult]:  # type: ignore
+    def __iter__(self) -> Iterator[TestResult]:  # type: ignore[override]
         """Use custom iter method."""
         # TODO - mypy is not happy because we overwrite BaseModel.__iter__
         # return type and are breaking Liskov Substitution Principle.

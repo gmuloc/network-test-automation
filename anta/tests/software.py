@@ -69,8 +69,8 @@ class VerifyEOSExtensions(AntaTest):
         installed_extensions = [
             extension for extension, extension_data in show_extensions_command_output["extensions"].items() if extension_data["status"] == "installed"
         ]
-        for extension in show_boot_extensions_command_output["extensions"]:
-            extension = extension.strip("\n")
+        for _extension in show_boot_extensions_command_output["extensions"]:
+            extension = _extension.strip("\n")
             if extension != "":
                 boot_extensions.append(extension)
         installed_extensions.sort()

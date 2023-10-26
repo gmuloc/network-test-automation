@@ -30,6 +30,7 @@ logger = logging.getLogger(__name__)
 
 class AntaDevice(ABC):
     """Abstract class representing a device in ANTA.
+
     An implementation of this class must override the abstract coroutines `_collect()` and
     `refresh()`.
 
@@ -45,13 +46,13 @@ class AntaDevice(ABC):
     """
 
     def __init__(self, name: str, tags: list[str] | None = None, disable_cache: bool = False) -> None:
-        """Constructor of AntaDevice.
+        """Return an instance of AntaDevice.
 
         Args:
         ----
-            name: Device name
-            tags: List of tags for this device
-            disable_cache: Disable caching for all commands for this device. Defaults to False.
+        name: Device name
+        tags: List of tags for this device
+        disable_cache: Disable caching for all commands for this device. Defaults to False.
         """
         self.name: str = name
         self.hw_model: str | None = None
@@ -72,7 +73,7 @@ class AntaDevice(ABC):
 
     @property
     def cache_statistics(self) -> dict[str, Any] | None:
-        """Returns the device cache statistics for logging purposes."""
+        """Return the device cache statistics for logging purposes."""
         # Need to ignore pylint no-member as Cache is a proxy class and pylint is not smart enough
         # https://github.com/pylint-dev/pylint/issues/7258
         if self.cache is not None:
@@ -81,7 +82,8 @@ class AntaDevice(ABC):
         return None
 
     def __rich_repr__(self) -> Iterator[tuple[str, Any]]:
-        """Implements Rich Repr Protocol
+        """Implement Rich Repr Protocol.
+
         https://rich.readthedocs.io/en/stable/pretty.html#rich-repr-protocol.
         """
         yield "name", self.name
@@ -98,6 +100,7 @@ class AntaDevice(ABC):
     @abstractmethod
     async def _collect(self, command: AntaCommand) -> None:
         """Collect device command output.
+
         This abstract coroutine can be used to implement any command collection method
         for a device in ANTA.
 
@@ -110,11 +113,11 @@ class AntaDevice(ABC):
 
         Args:
         ----
-            command: the command to collect
+        command: the command to collect
         """
 
     async def collect(self, command: AntaCommand) -> None:
-        """Collects the output for a specified command.
+        """Collect the output for a specified command.
 
         When caching is activated on both the device and the command,
         this method prioritizes retrieving the output from the cache. In cases where the output isn't cached yet,
@@ -126,7 +129,7 @@ class AntaDevice(ABC):
 
         Args:
         ----
-            command (AntaCommand): The command to process.
+        command (AntaCommand): The command to process.
         """
         # Need to ignore pylint no-member as Cache is a proxy class and pylint is not smart enough
         # https://github.com/pylint-dev/pylint/issues/7258
@@ -135,7 +138,7 @@ class AntaDevice(ABC):
                 cached_output = await self.cache.get(command.uid)  # pylint: disable=no-member
 
                 if cached_output is not None:
-                    logger.debug(f"Cache hit for {command.command} on {self.name}")
+                    logger.debug("Cache hit for %s on %s", command.command, self.name)
                     command.output = cached_output
                 else:
                     await self._collect(command=command)
@@ -148,7 +151,7 @@ class AntaDevice(ABC):
 
         Args:
         ----
-            commands: the commands to collect
+        commands: the commands to collect
         """
         await asyncio.gather(*(self.collect(command=command) for command in commands))
 
@@ -164,14 +167,17 @@ class AntaDevice(ABC):
 
     async def copy(self, sources: list[Path], destination: Path, direction: Literal["to", "from"] = "from") -> None:
         """Copy files to and from the device, usually through SCP.
+
         It is not mandatory to implement this for a valid AntaDevice subclass.
 
         Args:
         ----
-            sources: List of files to copy to or from the device.
-            destination: Local or remote destination when copying the files. Can be a folder.
-            direction: Defines if this coroutine copies files to or from the device.
+        sources: List of files to copy to or from the device.
+        destination: Local or remote destination when copying the files. Can be a folder.
+        direction: Defines if this coroutine copies files to or from the device.
         """
+        # pylint: disable=unused-argument
+        # ruff: noqa: ARG002
         msg = f"copy() method has not been implemented in {self.__class__.__name__} definition"
         raise NotImplementedError(msg)
 
@@ -181,14 +187,14 @@ class AsyncEOSDevice(AntaDevice):
 
     Attributes
     ----------
-        name: Device name
-        is_online: True if the device IP is reachable and a port can be open
-        established: True if remote command execution succeeds
-        hw_model: Hardware model of the device
-        tags: List of tags for this device
+    name: Device name
+    is_online: True if the device IP is reachable and a port can be open
+    established: True if remote command execution succeeds
+    hw_model: Hardware model of the device
+    tags: List of tags for this device
     """
 
-    def __init__(  # pylint: disable=R0913
+    def __init__(
         self,
         host: str,
         username: str,
@@ -204,61 +210,61 @@ class AsyncEOSDevice(AntaDevice):
         proto: Literal["http", "https"] = "https",
         disable_cache: bool = False,
     ) -> None:
-        """Constructor of AsyncEOSDevice.
+        """Return an instance of AsyncEOSDevice.
 
         Args:
         ----
-            host: Device FQDN or IP
-            username: Username to connect to eAPI and SSH
-            password: Password to connect to eAPI and SSH
-            name: Device name
-            enable: Device needs privileged access
-            enable_password: Password used to gain privileged access on EOS
-            port: eAPI port. Defaults to 80 is proto is 'http' or 443 if proto is 'https'.
-            ssh_port: SSH port
-            tags: List of tags for this device
-            timeout: Timeout value in seconds for outgoing connections. Default to 10 secs.
-            insecure: Disable SSH Host Key validation
-            proto: eAPI protocol. Value can be 'http' or 'https'
-            disable_cache: Disable caching for all commands for this device. Defaults to False.
+        host: Device FQDN or IP
+        username: Username to connect to eAPI and SSH
+        password: Password to connect to eAPI and SSH
+        name: Device name
+        enable: Device needs privileged access
+        enable_password: Password used to gain privileged access on EOS
+        port: eAPI port. Defaults to 80 is proto is 'http' or 443 if proto is 'https'.
+        ssh_port: SSH port
+        tags: List of tags for this device
+        timeout: Timeout value in seconds for outgoing connections. Default to 10 secs.
+        insecure: Disable SSH Host Key validation
+        proto: eAPI protocol. Value can be 'http' or 'https'
+        disable_cache: Disable caching for all commands for this device. Defaults to False.
         """
+        # pylint: disable=too-many-arguments
+        # ruff: noqa: PLR0913
         if name is None:
             name = f"{host}{f':{port}' if port else ''}"
         super().__init__(name, tags, disable_cache)
         self.enable = enable
         self._enable_password = enable_password
         self._session: Device = Device(host=host, port=port, username=username, password=password, proto=proto, timeout=timeout)
+
         ssh_params: dict[str, Any] = {}
         if insecure:
-            ssh_params.update({"known_hosts": None})
+            ssh_params["known_hosts"] = None
         self._ssh_opts: SSHClientConnectionOptions = SSHClientConnectionOptions(host=host, port=ssh_port, username=username, password=password, **ssh_params)
 
     def __rich_repr__(self) -> Iterator[tuple[str, Any]]:
-        """Implements Rich Repr Protocol
+        """Implement Rich Repr Protocol.
+
         https://rich.readthedocs.io/en/stable/pretty.html#rich-repr-protocol.
         """
-        PASSWORD_VALUE = "<removed>"
-
         yield from super().__rich_repr__()
-        yield "host", self._session.host
-        yield "eapi_port", self._session.port
-        yield "username", self._ssh_opts.username
-        yield "enable", self.enable
-        yield "insecure", self._ssh_opts.known_hosts is None
+        yield ("host", self._session.host)
+        yield ("eapi_port", self._session.port)
+        yield ("username", self._ssh_opts.username)
+        yield ("enable", self.enable)
+        yield ("insecure", self._ssh_opts.known_hosts is None)
         if __DEBUG__:
             _ssh_opts = vars(self._ssh_opts).copy()
-            _ssh_opts["password"] = PASSWORD_VALUE
-            _ssh_opts["kwargs"]["password"] = PASSWORD_VALUE
-            yield "_session", vars(self._session)
-            yield "_ssh_opts", _ssh_opts
+            _ssh_opts["password"] = _ssh_opts["kwargs"]["password"] = "<removed>"
+            yield ("_session", vars(self._session))
+            yield ("_ssh_opts", _ssh_opts)
 
     def __eq__(self, other: object) -> bool:
         """Two AsyncEOSDevice objects are equal if the hostname and the port are the same.
+
         This covers the use case of port forwarding when the host is localhost and the devices have different ports.
         """
-        if not isinstance(other, AsyncEOSDevice):
-            return False
-        return self._session.host == other._session.host and self._session.port == other._session.port
+        return self._session.host == other._session.host and self._session.port == other._session.port if isinstance(other, AsyncEOSDevice) else False
 
     async def _collect(self, command: AntaCommand) -> None:
         """Collect device command output from EOS using aio-eapi.
@@ -269,7 +275,7 @@ class AsyncEOSDevice(AntaDevice):
 
         Args:
         ----
-            command: the command to collect
+        command: the command to collect
         """
         try:
             commands = []
@@ -298,7 +304,7 @@ class AsyncEOSDevice(AntaDevice):
                 # selecting only our command output
                 response = response[-1]
             command.output = response
-            logger.debug(f"{self.name}: {command}")
+            logger.debug("%s: %s", self.name, command)
 
         except EapiCommandError as e:
             message = f"Command '{command.command}' failed on {self.name}"
@@ -322,26 +328,28 @@ class AsyncEOSDevice(AntaDevice):
         - established: When a command execution succeeds
         - hw_model: The hardware model of the device
         """
-        # Refresh command
-        COMMAND: str = "show version"
-        # Hardware model definition in show version
-        HW_MODEL_KEY: str = "modelName"
-        logger.debug(f"Refreshing device {self.name}")
+        logger.debug("Refreshing device %s", self.name)
         self.is_online = await self._session.check_connection()
         if self.is_online:
+            command: str = "show version"
+            hw_mode_key: str = "modelName"
             try:
-                response = await self._session.cli(command=COMMAND)
+                response = await self._session.cli(command=command)
             except EapiCommandError as e:
-                logger.warning(f"Cannot get hardware information from device {self.name}: {e.errmsg}")
+                logger.warning("Cannot get hardware information from device %s: %s", self.name, e.errmsg)
+
             except (HTTPError, ConnectError) as e:
-                logger.warning(f"Cannot get hardware information from device {self.name}: {exc_to_str(e)}")
+                logger.warning("Cannot get hardware information from device %s: %s", self.name, exc_to_str(e))
+
             else:
-                if HW_MODEL_KEY in response:
-                    self.hw_model = response[HW_MODEL_KEY]
+                if hw_mode_key in response:
+                    self.hw_model = response[hw_mode_key]
                 else:
-                    logger.warning(f"Cannot get hardware information from device {self.name}: cannot parse '{COMMAND}'")
+                    logger.warning("Cannot get hardware information from device %s: cannot parse '%s'", self.name, command)
+
         else:
-            logger.warning(f"Could not connect to device {self.name}: cannot open eAPI port")
+            logger.warning("Could not connect to device %s: cannot open eAPI port", self.name)
+
         self.established = bool(self.is_online and self.hw_model)
 
     async def copy(self, sources: list[Path], destination: Path, direction: Literal["to", "from"] = "from") -> None:
@@ -349,9 +357,9 @@ class AsyncEOSDevice(AntaDevice):
 
         Args:
         ----
-            sources: List of files to copy to or from the device.
-            destination: Local or remote destination when copying the files. Can be a folder.
-            direction: Defines if this coroutine copies files to or from the device.
+        sources: List of files to copy to or from the device.
+        destination: Local or remote destination when copying the files. Can be a folder.
+        direction: Defines if this coroutine copies files to or from the device.
         """
         async with asyncssh.connect(
             host=self._ssh_opts.host,
@@ -367,13 +375,13 @@ class AsyncEOSDevice(AntaDevice):
                 src = [(conn, file) for file in sources]
                 dst = destination
                 for file in sources:
-                    logger.info(f"Copying '{file}' from device {self.name} to '{destination}' locally")
+                    logger.info("Copying '%s' from device %s to '%s' locally", file, self.name, destination)
             elif direction == "to":
                 src = sources
                 dst = (conn, destination)
                 for file in sources:
-                    logger.info(f"Copying '{file}' to device {self.name} to '{destination}' remotely")
+                    logger.info("Copying '%s' to device %s to '%s' remotely", file, self.name, destination)
             else:
-                logger.critical(f"'direction' argument to copy() fonction is invalid: {direction}")
+                logger.critical("'direction' argument to copy() fonction is invalid: %s", direction)
                 return
             await asyncssh.scp(src, dst)

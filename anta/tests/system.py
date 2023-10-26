@@ -14,6 +14,10 @@ from anta.models import AntaCommand, AntaTest
 if TYPE_CHECKING:
     from pydantic import conint
 
+# TODO - make these variables configurable with default
+# Some tests use "magic variables" for the thresholds
+# ruff: noqa: PLR2004
+
 
 class VerifyUptime(AntaTest):
     """This test verifies if the device uptime is higher than the provided minimum uptime value.
@@ -29,7 +33,7 @@ class VerifyUptime(AntaTest):
     commands = [AntaCommand(command="show uptime")]
 
     class Input(AntaTest.Input):  # pylint: disable=missing-class-docstring
-        minimum: conint(ge=0)  # type: ignore
+        minimum: conint(ge=0)  # type: ignore[valid-type]
         """Minimum uptime in seconds"""
 
     @AntaTest.anta_test
