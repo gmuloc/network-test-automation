@@ -205,4 +205,7 @@ cat nrfu-tpl-report.txt
 
 It is possible to run `anta nrfu --dry-run` to execute ANTA up to the point where it should communicate with the network to execute the tests. When using `--dry-run`, all inventory devices are assumed to be online. This can be useful to check how many tests would be run using the catalog and inventory.
 
-[![anta nrfu dry_run](../imgs/anta_nrfu___dry_run.svg){ loading=lazy width="1600" }](../imgs/anta_nrfu___dry_run.svg)
+![anta nrfu dry_run](../imgs/anta_nrfu___dry_run.svg){ loading=lazy width="1600" }
+<object data="../../imgs/anta_nrfu___dry_run.svg" type="image/svg+xml" style="color-scheme: light">
+<img src="../../imgs/anta_nrfu___dry_run.svg">
+</object>
