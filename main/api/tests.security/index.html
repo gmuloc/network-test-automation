@@ -1630,8 +1630,8 @@
 
     <!-- Table of contents list -->
     
-  </li>
-          
+      <nav class="md-nav" aria-label="IPv4ACL">
+        <ul class="md-nav__list">
           
           
             <!-- Courtesy of https://github.com/squidfunk/mkdocs-material/issues/4827#issuecomment-1869812019 -->
@@ -1643,6 +1643,12 @@
     </a>
 
     <!-- Table of contents list -->
+    
+  </li>
+          
+          
+        </ul>
+      </nav>
     
   </li>
           
@@ -1772,8 +1778,8 @@
 
     <!-- Table of contents list -->
     
-  </li>
-          
+      <nav class="md-nav" aria-label="IPSecPeers">
+        <ul class="md-nav__list">
           
           
             <!-- Courtesy of https://github.com/squidfunk/mkdocs-material/issues/4827#issuecomment-1869812019 -->
@@ -1785,6 +1791,12 @@
     </a>
 
     <!-- Table of contents list -->
+    
+  </li>
+          
+          
+        </ul>
+      </nav>
     
   </li>
           
@@ -2769,8 +2781,8 @@
 
     <!-- Table of contents list -->
     
-  </li>
-          
+      <nav class="md-nav" aria-label="IPv4ACL">
+        <ul class="md-nav__list">
           
           
             <!-- Courtesy of https://github.com/squidfunk/mkdocs-material/issues/4827#issuecomment-1869812019 -->
@@ -2782,6 +2794,12 @@
     </a>
 
     <!-- Table of contents list -->
+    
+  </li>
+          
+          
+        </ul>
+      </nav>
     
   </li>
           
@@ -2911,8 +2929,8 @@
 
     <!-- Table of contents list -->
     
-  </li>
-          
+      <nav class="md-nav" aria-label="IPSecPeers">
+        <ul class="md-nav__list">
           
           
             <!-- Courtesy of https://github.com/squidfunk/mkdocs-material/issues/4827#issuecomment-1869812019 -->
@@ -2924,6 +2942,12 @@
     </a>
 
     <!-- Table of contents list -->
+    
+  </li>
+          
+          
+        </ul>
+      </nav>
     
   </li>
           
@@ -2986,10 +3010,10 @@
 
 
 
-  <div class="doc doc-contents first">
+    <div class="doc doc-contents first">
   
 
-  
+
 
   <div class="doc doc-children">
 
@@ -2998,23 +3022,26 @@
 
 
 
+  
 
+  
 
 <div class="doc doc-object doc-class">
 
 
 
 <h2 id="anta.tests.security.VerifyAPIHttpStatus" class="doc doc-heading">
-          <span class="doc doc-object-name doc-class-name">VerifyAPIHttpStatus</span>
+            <span class="doc doc-object-name doc-class-name">VerifyAPIHttpStatus</span>
 
 
 <a href="#anta.tests.security.VerifyAPIHttpStatus" class="headerlink" title="Permanent link">&para;</a></h2>
 
 
-  <div class="doc doc-contents ">
+    <div class="doc doc-contents ">
 
   
         <p>Verifies if eAPI HTTP server is disabled globally.</p>
+
 
 <details class="expected-results" open>
   <summary>Expected Results</summary>
@@ -3108,26 +3135,28 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">is_failure</span><span class="p">(</span><span class="s2">&quot;eAPI HTTP server is enabled globally&quot;</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
   </details>
-  </div>
+    </div>
 
+</div>  
 
-</div>
+  
 
 <div class="doc doc-object doc-class">
 
 
 
 <h2 id="anta.tests.security.VerifyAPIHttpsSSL" class="doc doc-heading">
-          <span class="doc doc-object-name doc-class-name">VerifyAPIHttpsSSL</span>
+            <span class="doc doc-object-name doc-class-name">VerifyAPIHttpsSSL</span>
 
 
 <a href="#anta.tests.security.VerifyAPIHttpsSSL" class="headerlink" title="Permanent link">&para;</a></h2>
 
 
-  <div class="doc doc-contents ">
+    <div class="doc doc-contents ">
 
   
         <p>Verifies if eAPI HTTPS server SSL profile is configured and valid.</p>
+
 
 <details class="expected-results" open>
   <summary>Expected Results</summary>
@@ -3274,26 +3303,28 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">is_failure</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;eAPI HTTPS server SSL profile (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">inputs</span><span class="o">.</span><span class="n">profile</span><span class="si">}</span><span class="s2">) is not configured&quot;</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
   </details>
-  </div>
+    </div>
 
+</div>  
 
-</div>
+  
 
 <div class="doc doc-object doc-class">
 
 
 
 <h2 id="anta.tests.security.VerifyAPIIPv4Acl" class="doc doc-heading">
-          <span class="doc doc-object-name doc-class-name">VerifyAPIIPv4Acl</span>
+            <span class="doc doc-object-name doc-class-name">VerifyAPIIPv4Acl</span>
 
 
 <a href="#anta.tests.security.VerifyAPIIPv4Acl" class="headerlink" title="Permanent link">&para;</a></h2>
 
 
-  <div class="doc doc-contents ">
+    <div class="doc doc-contents ">
 
   
         <p>Verifies if eAPI has the right number IPv4 ACL(s) configured for a specified VRF.</p>
+
 
 <details class="expected-results" open>
   <summary>Expected Results</summary>
@@ -3469,26 +3500,28 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">is_success</span><span class="p">()</span>
 </code></pre></div></td></tr></table></div>
   </details>
-  </div>
+    </div>
 
+</div>  
 
-</div>
+  
 
 <div class="doc doc-object doc-class">
 
 
 
 <h2 id="anta.tests.security.VerifyAPIIPv6Acl" class="doc doc-heading">
-          <span class="doc doc-object-name doc-class-name">VerifyAPIIPv6Acl</span>
+            <span class="doc doc-object-name doc-class-name">VerifyAPIIPv6Acl</span>
 
 
 <a href="#anta.tests.security.VerifyAPIIPv6Acl" class="headerlink" title="Permanent link">&para;</a></h2>
 
 
-  <div class="doc doc-contents ">
+    <div class="doc doc-contents ">
 
   
         <p>Verifies if eAPI has the right number IPv6 ACL(s) configured for a specified VRF.</p>
+
 
 <details class="expected-results" open>
   <summary>Expected Results</summary>
@@ -3667,26 +3700,28 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">is_success</span><span class="p">()</span>
 </code></pre></div></td></tr></table></div>
   </details>
-  </div>
+    </div>
 
+</div>  
 
-</div>
+  
 
 <div class="doc doc-object doc-class">
 
 
 
 <h2 id="anta.tests.security.VerifyAPISSLCertificate" class="doc doc-heading">
-          <span class="doc doc-object-name doc-class-name">VerifyAPISSLCertificate</span>
+            <span class="doc doc-object-name doc-class-name">VerifyAPISSLCertificate</span>
 
 
 <a href="#anta.tests.security.VerifyAPISSLCertificate" class="headerlink" title="Permanent link">&para;</a></h2>
 
 
-  <div class="doc doc-contents ">
+    <div class="doc doc-contents ">
 
   
         <p>Verifies the eAPI SSL certificate expiry, common subject name, encryption algorithm and key size.</p>
+
 
 <details class="expected-results" open>
   <summary>Expected Results</summary>
@@ -4087,26 +4122,28 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">is_failure</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">failed_log</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
   </details>
-  </div>
+    </div>
 
+</div>  
 
-</div>
+  
 
 <div class="doc doc-object doc-class">
 
 
 
 <h2 id="anta.tests.security.VerifyBannerLogin" class="doc doc-heading">
-          <span class="doc doc-object-name doc-class-name">VerifyBannerLogin</span>
+            <span class="doc doc-object-name doc-class-name">VerifyBannerLogin</span>
 
 
 <a href="#anta.tests.security.VerifyBannerLogin" class="headerlink" title="Permanent link">&para;</a></h2>
 
 
-  <div class="doc doc-contents ">
+    <div class="doc doc-contents ">
 
   
         <p>Verifies the login banner of a device.</p>
+
 
 <details class="expected-results" open>
   <summary>Expected Results</summary>
@@ -4260,26 +4297,28 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">is_success</span><span class="p">()</span>
 </code></pre></div></td></tr></table></div>
   </details>
-  </div>
+    </div>
 
+</div>  
 
-</div>
+  
 
 <div class="doc doc-object doc-class">
 
 
 
 <h2 id="anta.tests.security.VerifyBannerMotd" class="doc doc-heading">
-          <span class="doc doc-object-name doc-class-name">VerifyBannerMotd</span>
+            <span class="doc doc-object-name doc-class-name">VerifyBannerMotd</span>
 
 
 <a href="#anta.tests.security.VerifyBannerMotd" class="headerlink" title="Permanent link">&para;</a></h2>
 
 
-  <div class="doc doc-contents ">
+    <div class="doc doc-contents ">
 
   
         <p>Verifies the motd banner of a device.</p>
+
 
 <details class="expected-results" open>
   <summary>Expected Results</summary>
@@ -4433,26 +4472,28 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">is_success</span><span class="p">()</span>
 </code></pre></div></td></tr></table></div>
   </details>
-  </div>
+    </div>
 
+</div>  
 
-</div>
+  
 
 <div class="doc doc-object doc-class">
 
 
 
 <h2 id="anta.tests.security.VerifyIPSecConnHealth" class="doc doc-heading">
-          <span class="doc doc-object-name doc-class-name">VerifyIPSecConnHealth</span>
+            <span class="doc doc-object-name doc-class-name">VerifyIPSecConnHealth</span>
 
 
 <a href="#anta.tests.security.VerifyIPSecConnHealth" class="headerlink" title="Permanent link">&para;</a></h2>
 
 
-  <div class="doc doc-contents ">
+    <div class="doc doc-contents ">
 
   
         <p>Verifies all IPv4 security connections.</p>
+
 
 <details class="expected-results" open>
   <summary>Expected Results</summary>
@@ -4578,26 +4619,28 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">is_failure</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The following IPv4 security connections are not established:</span><span class="se">\n</span><span class="si">{</span><span class="n">failure_msg</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
   </details>
-  </div>
+    </div>
 
+</div>  
 
-</div>
+  
 
 <div class="doc doc-object doc-class">
 
 
 
 <h2 id="anta.tests.security.VerifyIPv4ACL" class="doc doc-heading">
-          <span class="doc doc-object-name doc-class-name">VerifyIPv4ACL</span>
+            <span class="doc doc-object-name doc-class-name">VerifyIPv4ACL</span>
 
 
 <a href="#anta.tests.security.VerifyIPv4ACL" class="headerlink" title="Permanent link">&para;</a></h2>
 
 
-  <div class="doc doc-contents ">
+    <div class="doc doc-contents ">
 
   
         <p>Verifies the configuration of IPv4 ACLs.</p>
+
 
 <details class="expected-results" open>
   <summary>Expected Results</summary>
@@ -4956,26 +4999,28 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">is_failure</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">failed_log</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
   </details>
-  </div>
+    </div>
 
+</div>  
 
-</div>
+  
 
 <div class="doc doc-object doc-class">
 
 
 
 <h2 id="anta.tests.security.VerifySSHIPv4Acl" class="doc doc-heading">
-          <span class="doc doc-object-name doc-class-name">VerifySSHIPv4Acl</span>
+            <span class="doc doc-object-name doc-class-name">VerifySSHIPv4Acl</span>
 
 
 <a href="#anta.tests.security.VerifySSHIPv4Acl" class="headerlink" title="Permanent link">&para;</a></h2>
 
 
-  <div class="doc doc-contents ">
+    <div class="doc doc-contents ">
 
   
         <p>Verifies if the SSHD agent has the right number IPv4 ACL(s) configured for a specified VRF.</p>
+
 
 <details class="expected-results" open>
   <summary>Expected Results</summary>
@@ -5151,26 +5196,28 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">is_success</span><span class="p">()</span>
 </code></pre></div></td></tr></table></div>
   </details>
-  </div>
+    </div>
 
+</div>  
 
-</div>
+  
 
 <div class="doc doc-object doc-class">
 
 
 
 <h2 id="anta.tests.security.VerifySSHIPv6Acl" class="doc doc-heading">
-          <span class="doc doc-object-name doc-class-name">VerifySSHIPv6Acl</span>
+            <span class="doc doc-object-name doc-class-name">VerifySSHIPv6Acl</span>
 
 
 <a href="#anta.tests.security.VerifySSHIPv6Acl" class="headerlink" title="Permanent link">&para;</a></h2>
 
 
-  <div class="doc doc-contents ">
+    <div class="doc doc-contents ">
 
   
         <p>Verifies if the SSHD agent has the right number IPv6 ACL(s) configured for a specified VRF.</p>
+
 
 <details class="expected-results" open>
   <summary>Expected Results</summary>
@@ -5346,26 +5393,28 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">is_success</span><span class="p">()</span>
 </code></pre></div></td></tr></table></div>
   </details>
-  </div>
+    </div>
 
+</div>  
 
-</div>
+  
 
 <div class="doc doc-object doc-class">
 
 
 
 <h2 id="anta.tests.security.VerifySSHStatus" class="doc doc-heading">
-          <span class="doc doc-object-name doc-class-name">VerifySSHStatus</span>
+            <span class="doc doc-object-name doc-class-name">VerifySSHStatus</span>
 
 
 <a href="#anta.tests.security.VerifySSHStatus" class="headerlink" title="Permanent link">&para;</a></h2>
 
 
-  <div class="doc doc-contents ">
+    <div class="doc doc-contents ">
 
   
         <p>Verifies if the SSHD agent is disabled in the default VRF.</p>
+
 
 <details class="expected-results" open>
   <summary>Expected Results</summary>
@@ -5475,28 +5524,30 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">is_failure</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
   </details>
-  </div>
+    </div>
 
+</div>  
 
-</div>
+  
 
 <div class="doc doc-object doc-class">
 
 
 
 <h2 id="anta.tests.security.VerifySpecificIPSecConn" class="doc doc-heading">
-          <span class="doc doc-object-name doc-class-name">VerifySpecificIPSecConn</span>
+            <span class="doc doc-object-name doc-class-name">VerifySpecificIPSecConn</span>
 
 
 <a href="#anta.tests.security.VerifySpecificIPSecConn" class="headerlink" title="Permanent link">&para;</a></h2>
 
 
-  <div class="doc doc-contents ">
+    <div class="doc doc-contents ">
 
   
         <p>Verifies the state of IPv4 security connections for a specified peer.</p>
 <p>It optionally allows for the verification of a specific path for a peer by providing source and destination addresses.
 If these addresses are not provided, it will verify all paths for the specified peer.</p>
+
 
 <details class="expected-results" open>
   <summary>Expected Results</summary>
@@ -5903,26 +5954,28 @@ If these addresses are not provided, it will verify all paths for the specified 
                     <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
   </details>
-  </div>
+    </div>
 
+</div>  
 
-</div>
+  
 
 <div class="doc doc-object doc-class">
 
 
 
 <h2 id="anta.tests.security.VerifyTelnetStatus" class="doc doc-heading">
-          <span class="doc doc-object-name doc-class-name">VerifyTelnetStatus</span>
+            <span class="doc doc-object-name doc-class-name">VerifyTelnetStatus</span>
 
 
 <a href="#anta.tests.security.VerifyTelnetStatus" class="headerlink" title="Permanent link">&para;</a></h2>
 
 
-  <div class="doc doc-contents ">
+    <div class="doc doc-contents ">
 
   
         <p>Verifies if Telnet is disabled in the default VRF.</p>
+
 
 <details class="expected-results" open>
   <summary>Expected Results</summary>
@@ -6016,8 +6069,7 @@ If these addresses are not provided, it will verify all paths for the specified 
             <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">is_failure</span><span class="p">(</span><span class="s2">&quot;Telnet status for Default VRF is enabled&quot;</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
   </details>
-  </div>
-
+    </div>
 
 </div>
 
@@ -6026,7 +6078,7 @@ If these addresses are not provided, it will verify all paths for the specified 
 
   </div>
 
-  </div>
+    </div>
 
 </div>
 

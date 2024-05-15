@@ -2186,10 +2186,10 @@
 
 
 
-  <div class="doc doc-contents first">
+    <div class="doc doc-contents first">
   
 
-  
+
 
   <div class="doc doc-children">
 
@@ -2198,23 +2198,26 @@
 
 
 
+  
 
+  
 
 <div class="doc doc-object doc-class">
 
 
 
 <h2 id="anta.tests.configuration.VerifyRunningConfigDiffs" class="doc doc-heading">
-          <span class="doc doc-object-name doc-class-name">VerifyRunningConfigDiffs</span>
+            <span class="doc doc-object-name doc-class-name">VerifyRunningConfigDiffs</span>
 
 
 <a href="#anta.tests.configuration.VerifyRunningConfigDiffs" class="headerlink" title="Permanent link">&para;</a></h2>
 
 
-  <div class="doc doc-contents ">
+    <div class="doc doc-contents ">
 
   
         <p>Verifies there is no difference between the running-config and the startup-config.</p>
+
 
 <details class="expected-results" open>
   <summary>Expected Results</summary>
@@ -2308,23 +2311,24 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">is_failure</span><span class="p">(</span><span class="n">command_output</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
   </details>
-  </div>
+    </div>
 
+</div>  
 
-</div>
+  
 
 <div class="doc doc-object doc-class">
 
 
 
 <h2 id="anta.tests.configuration.VerifyRunningConfigLines" class="doc doc-heading">
-          <span class="doc doc-object-name doc-class-name">VerifyRunningConfigLines</span>
+            <span class="doc doc-object-name doc-class-name">VerifyRunningConfigLines</span>
 
 
 <a href="#anta.tests.configuration.VerifyRunningConfigLines" class="headerlink" title="Permanent link">&para;</a></h2>
 
 
-  <div class="doc doc-contents ">
+    <div class="doc doc-contents ">
 
   
         <p>Verifies the given regular expression patterns are present in the running-config.</p>
@@ -2334,6 +2338,7 @@
 drastically impact performance and should only be used if no other test is available.</p>
 <p>If possible, try using another ANTA test that is more specific.</p>
 </div>
+
 
 <details class="expected-results" open>
   <summary>Expected Results</summary>
@@ -2506,26 +2511,28 @@ drastically impact performance and should only be used if no other test is avail
             <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">is_failure</span><span class="p">(</span><span class="s2">&quot;Following patterns were not found: &quot;</span> <span class="o">+</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">failure_msgs</span><span class="p">))</span>
 </code></pre></div></td></tr></table></div>
   </details>
-  </div>
+    </div>
 
+</div>  
 
-</div>
+  
 
 <div class="doc doc-object doc-class">
 
 
 
 <h2 id="anta.tests.configuration.VerifyZeroTouch" class="doc doc-heading">
-          <span class="doc doc-object-name doc-class-name">VerifyZeroTouch</span>
+            <span class="doc doc-object-name doc-class-name">VerifyZeroTouch</span>
 
 
 <a href="#anta.tests.configuration.VerifyZeroTouch" class="headerlink" title="Permanent link">&para;</a></h2>
 
 
-  <div class="doc doc-contents ">
+    <div class="doc doc-contents ">
 
   
         <p>Verifies ZeroTouch is disabled.</p>
+
 
 <details class="expected-results" open>
   <summary>Expected Results</summary>
@@ -2619,8 +2626,7 @@ drastically impact performance and should only be used if no other test is avail
             <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">is_failure</span><span class="p">(</span><span class="s2">&quot;ZTP is NOT disabled&quot;</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
   </details>
-  </div>
-
+    </div>
 
 </div>
 
@@ -2629,7 +2635,7 @@ drastically impact performance and should only be used if no other test is avail
 
   </div>
 
-  </div>
+    </div>
 
 </div>
 
