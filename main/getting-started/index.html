@@ -20,7 +20,7 @@
       
       
       <link rel="icon" href="../imgs/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.28">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.29">
     
     
       
@@ -28,7 +28,7 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.6543a935.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.76a95c52.min.css">
       
         
         <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
@@ -975,6 +975,8 @@
       
         
       
+        
+      
     
     
     
@@ -1141,6 +1143,27 @@
   
   <span class="md-ellipsis">
     Field Notices
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/test.flow_tracking.md" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Flow Tracking
   </span>
   
 
@@ -1384,10 +1407,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7_18" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7_19" >
         
           
-          <label class="md-nav__link" for="__nav_7_18" id="__nav_7_18_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_7_19" id="__nav_7_19_label" tabindex="0">
             
   
   <span class="md-ellipsis">
@@ -1398,8 +1421,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_7_18_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_7_18">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_7_19_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7_19">
             <span class="md-nav__icon md-icon"></span>
             Routing
           </label>
@@ -2507,8 +2530,10 @@ Options:
 <span class="w">                                  </span>ANTA_INVENTORY<span class="p">;</span><span class="w"> </span>required<span class="o">]</span>
 <span class="w">  </span>--tags<span class="w"> </span>TEXT<span class="w">                     </span>List<span class="w"> </span>of<span class="w"> </span>tags<span class="w"> </span>using<span class="w"> </span>comma<span class="w"> </span>as<span class="w"> </span>separator:
 <span class="w">                                  </span>tag1,tag2,tag3.<span class="w">  </span><span class="o">[</span>env<span class="w"> </span>var:<span class="w"> </span>ANTA_TAGS<span class="o">]</span>
-<span class="w">  </span>-c,<span class="w"> </span>--catalog<span class="w"> </span>FILE<span class="w">              </span>Path<span class="w"> </span>to<span class="w"> </span>the<span class="w"> </span><span class="nb">test</span><span class="w"> </span>catalog<span class="w"> </span>YAML<span class="w"> </span>file<span class="w">  </span><span class="o">[</span>env
-<span class="w">                                  </span>var:<span class="w"> </span>ANTA_CATALOG<span class="p">;</span><span class="w"> </span>required<span class="o">]</span>
+<span class="w">  </span>-c,<span class="w"> </span>--catalog<span class="w"> </span>FILE<span class="w">              </span>Path<span class="w"> </span>to<span class="w"> </span>the<span class="w"> </span><span class="nb">test</span><span class="w"> </span>catalog<span class="w"> </span>file<span class="w">  </span><span class="o">[</span>env<span class="w"> </span>var:
+<span class="w">                                  </span>ANTA_CATALOG<span class="p">;</span><span class="w"> </span>required<span class="o">]</span>
+<span class="w">  </span>--catalog-format<span class="w"> </span><span class="o">[</span>yaml<span class="p">|</span>json<span class="o">]</span><span class="w">    </span>Format<span class="w"> </span>of<span class="w"> </span>the<span class="w"> </span>catalog<span class="w"> </span>file,<span class="w"> </span>either<span class="w"> </span><span class="s1">&#39;yaml&#39;</span><span class="w"> </span>or
+<span class="w">                                  </span><span class="s1">&#39;json&#39;</span><span class="w">  </span><span class="o">[</span>env<span class="w"> </span>var:<span class="w"> </span>ANTA_CATALOG_FORMAT<span class="o">]</span>
 <span class="w">  </span>-d,<span class="w"> </span>--device<span class="w"> </span>TEXT<span class="w">               </span>Run<span class="w"> </span>tests<span class="w"> </span>on<span class="w"> </span>a<span class="w"> </span>specific<span class="w"> </span>device.<span class="w"> </span>Can<span class="w"> </span>be
 <span class="w">                                  </span>provided<span class="w"> </span>multiple<span class="w"> </span>times.
 <span class="w">  </span>-t,<span class="w"> </span>--test<span class="w"> </span>TEXT<span class="w">                 </span>Run<span class="w"> </span>a<span class="w"> </span>specific<span class="w"> </span>test.<span class="w"> </span>Can<span class="w"> </span>be<span class="w"> </span>provided
@@ -2519,7 +2544,8 @@ Options:
 <span class="w">                                  </span>or<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="k">if</span><span class="w"> </span>any<span class="w"> </span><span class="nb">test</span><span class="w"> </span>failed.<span class="w">  </span><span class="o">[</span>env<span class="w"> </span>var:
 <span class="w">                                  </span>ANTA_NRFU_IGNORE_ERROR<span class="o">]</span>
 <span class="w">  </span>--hide<span class="w"> </span><span class="o">[</span>success<span class="p">|</span>failure<span class="p">|</span>error<span class="p">|</span>skipped<span class="o">]</span>
-<span class="w">                                  </span>Group<span class="w"> </span>result<span class="w"> </span>by<span class="w"> </span><span class="nb">test</span><span class="w"> </span>or<span class="w"> </span>device.
+<span class="w">                                  </span>Hide<span class="w"> </span>results<span class="w"> </span>by<span class="w"> </span>type:<span class="w"> </span>success<span class="w"> </span>/<span class="w"> </span>failure<span class="w"> </span>/
+<span class="w">                                  </span>error<span class="w"> </span>/<span class="w"> </span>skipped<span class="err">&#39;</span>.
 <span class="w">  </span>--dry-run<span class="w">                       </span>Run<span class="w"> </span>anta<span class="w"> </span>nrfu<span class="w"> </span><span class="nb">command</span><span class="w"> </span>but<span class="w"> </span>stop<span class="w"> </span>before
 <span class="w">                                  </span>starting<span class="w"> </span>to<span class="w"> </span>execute<span class="w"> </span>the<span class="w"> </span>tests.<span class="w"> </span>Considers<span class="w"> </span>all
 <span class="w">                                  </span>devices<span class="w"> </span>as<span class="w"> </span>connected.<span class="w">  </span><span class="o">[</span>env<span class="w"> </span>var:
@@ -2527,6 +2553,7 @@ Options:
 <span class="w">  </span>--help<span class="w">                          </span>Show<span class="w"> </span>this<span class="w"> </span>message<span class="w"> </span>and<span class="w"> </span>exit.
 
 Commands:
+<span class="w">  </span>csv<span class="w">         </span>ANTA<span class="w"> </span><span class="nb">command</span><span class="w"> </span>to<span class="w"> </span>check<span class="w"> </span>network<span class="w"> </span>state<span class="w"> </span>with<span class="w"> </span>CSV<span class="w"> </span>report.
 <span class="w">  </span>json<span class="w">        </span>ANTA<span class="w"> </span><span class="nb">command</span><span class="w"> </span>to<span class="w"> </span>check<span class="w"> </span>network<span class="w"> </span>state<span class="w"> </span>with<span class="w"> </span>JSON<span class="w"> </span>result.
 <span class="w">  </span>table<span class="w">       </span>ANTA<span class="w"> </span><span class="nb">command</span><span class="w"> </span>to<span class="w"> </span>check<span class="w"> </span>network<span class="w"> </span>states<span class="w"> </span>with<span class="w"> </span>table<span class="w"> </span>result.
 <span class="w">  </span>text<span class="w">        </span>ANTA<span class="w"> </span><span class="nb">command</span><span class="w"> </span>to<span class="w"> </span>check<span class="w"> </span>network<span class="w"> </span>states<span class="w"> </span>with<span class="w"> </span>text<span class="w"> </span>result.
