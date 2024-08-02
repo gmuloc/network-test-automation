@@ -41,6 +41,9 @@ def test_runner(caplog: pytest.LogCaptureFixture, test_inventory: AntaInventory,
     """
     logger.setup_logging(logger.Log.INFO)
     caplog.set_level(logging.INFO)
+    import time  # pylint: disable=C0415
+
+    time.sleep(2)
     manager = ResultManager()
     aio_benchmark(main, manager, test_inventory, test_catalog)
 
