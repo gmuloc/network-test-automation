@@ -6,21 +6,20 @@
 from __future__ import annotations
 
 import logging
-import resource
 from pathlib import Path
 from typing import TYPE_CHECKING
-from unittest.mock import patch
 
 import pytest
 
 from anta import logger
-from anta.catalog import AntaCatalog
-from anta.inventory import AntaInventory
 from anta.result_manager import ResultManager
-from anta.runner import adjust_rlimit_nofile, main, prepare_tests
+from anta.runner import main
 
 if TYPE_CHECKING:
     from typing import Any, Callable
+
+    from anta.catalog import AntaCatalog
+    from anta.inventory import AntaInventory
 
 DATA_DIR: Path = Path(__file__).parent.parent.resolve() / "data"
 
