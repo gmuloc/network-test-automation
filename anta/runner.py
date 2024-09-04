@@ -220,7 +220,7 @@ async def main(  # noqa: PLR0913
     # Adjust the maximum number of open file descriptors for the ANTA process
     limits = adjust_rlimit_nofile()
 
-    time.sleep(2)
+    time.sleep(2)  # noqa: ASYNC251
 
     if not catalog.tests:
         logger.info("The list of tests is empty, exiting")
