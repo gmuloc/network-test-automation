@@ -130,12 +130,12 @@ jobs:
         with:
           python-version: "3.12"
       - name: Install dependencies
-        run: pip install tox tox-gh-actions
+        run: pip install .[dev]
       - name: Run benchmarks
         uses: CodSpeedHQ/action@v3
         with:
           token: ${{ secrets.CODSPEED_SECRET }}
-          run: tox -e codspeed
+          run: pytest --codspeed tests/integrations
   test-documentation:
     name: Build offline documentation for testing
     runs-on: ubuntu-20.04
