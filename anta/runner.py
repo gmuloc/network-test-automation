@@ -9,6 +9,7 @@ import asyncio
 import logging
 import os
 import resource
+import time
 from collections import defaultdict
 from typing import TYPE_CHECKING, Any
 
@@ -218,6 +219,8 @@ async def main(  # noqa: PLR0913
     """
     # Adjust the maximum number of open file descriptors for the ANTA process
     limits = adjust_rlimit_nofile()
+
+    time.sleep(2)
 
     if not catalog.tests:
         logger.info("The list of tests is empty, exiting")
