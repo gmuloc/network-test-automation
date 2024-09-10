@@ -172,6 +172,10 @@ class AntaCommand(BaseModel):
         # Ignoring S324 probable use of insecure hash function - sha1 is enough for our needs.
         return hashlib.sha1(uid_str.encode()).hexdigest()  # noqa: S324
 
+    def __hash__(self) -> int:
+        """Use the uid as hash."""
+        return int(self.uid, 16)
+
     @property
     def json_output(self) -> dict[str, Any]:
         """Get the command output as JSON."""

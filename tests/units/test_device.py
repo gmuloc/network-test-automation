@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 import asyncio
+from functools import _make_key
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 from unittest.mock import patch
@@ -613,7 +614,7 @@ CACHE_STATS_DATA: list[ParameterSet] = [
 class TestAntaDevice:
     """Test for anta.device.AntaDevice Abstract class."""
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     @pytest.mark.parametrize(
         ("device", "command_data", "expected_data"),
         ((d["device"], d["command"], d["expected"]) for d in COLLECT_DATA),
@@ -626,23 +627,27 @@ class TestAntaDevice:
 
         # Dummy output for cache hit
         cached_output = "cached_value"
+        key = _make_key((), {"command": command}, False)
 
-        if device.cache is not None and expected_data["cache_hit"] is True:
-            await device.cache.set(command.uid, cached_output)
+        if device.cache is True and expected_data["cache_hit"] is True:
+            device._collect._LRUCacheWrapper__cache[key] = cached_output
 
         await device.collect(command)
 
-        if device.cache is not None:  # device_cache is enabled
-            current_cached_data = await device.cache.get(command.uid)
+        if device.cache is True:
+            print(device._collect._LRUCacheWrapper__cache[key])
+
+        if device.cache:  # device_cache is enabled
+            current_cached_data = device._collect._LRUCacheWrapper__cache.get[key]
             if command.use_cache is True:  # command is allowed to use cache
                 if expected_data["cache_hit"] is True:
                     assert command.output == cached_output
                     assert current_cached_data == cached_output
-                    assert device.cache.hit_miss_ratio["hits"] == 2
+                    assert device._collect.cache_info["hits"] == 2
                 else:
                     assert command.output == COMMAND_OUTPUT
                     assert current_cached_data == COMMAND_OUTPUT
-                    assert device.cache.hit_miss_ratio["hits"] == 1
+                    assert device._collect.cache_info["hits"] == 1
             else:  # command is not allowed to use cache
                 device._collect.assert_called_once_with(command=command, collection_id=None)  # type: ignore[attr-defined]  # pylint: disable=protected-access
                 assert command.output == COMMAND_OUTPUT
@@ -650,8 +655,8 @@ class TestAntaDevice:
                     assert current_cached_data == cached_output
                 else:
                     assert current_cached_data is None
-        else:  # device is disabled
-            assert device.cache is None
+        else:  # device cache is disabled
+            assert device.cache is False
             device._collect.assert_called_once_with(command=command, collection_id=None)  # type: ignore[attr-defined]  # pylint: disable=protected-access
 
     @pytest.mark.parametrize(("device", "expected"), CACHE_STATS_DATA, indirect=["device"])
@@ -673,11 +678,9 @@ class TestAsyncEOSDevice:
 
         assert device.name == data["expected"]["name"]
         if data["device"].get("disable_cache") is True:
-            assert device.cache is None
-            assert device.cache_locks is None
+            assert device.cache is False
         else:  # False or None
-            assert device.cache is not None
-            assert device.cache_locks is not None
+            assert device.cache is True
         hash(device)
 
         with patch("anta.device.__DEBUG__", new=True):

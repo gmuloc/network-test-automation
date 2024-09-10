@@ -63,11 +63,11 @@ MOCK_CLI_TEXT: dict[str, asynceapi.EapiCommandError | str] = {
 }
 
 
-@pytest.fixture
+@pytest.fixture()
 def device(request: pytest.FixtureRequest) -> Iterator[AntaDevice]:
     """Return an AntaDevice instance with mocked abstract method."""
 
-    def _collect(command: AntaCommand, *args: Any, **kwargs: Any) -> None:  # noqa: ARG001, ANN401 #pylint: disable=unused-argument
+    async def _collect(command: AntaCommand, *args: Any, **kwargs: Any) -> None:  # noqa: ARG001, ANN401 #pylint: disable=unused-argument
         command.output = COMMAND_OUTPUT
 
     kwargs = {"name": DEVICE_NAME, "hw_model": DEVICE_HW_MODEL}
@@ -83,7 +83,7 @@ def device(request: pytest.FixtureRequest) -> Iterator[AntaDevice]:
         yield dev
 
 
-@pytest.fixture
+@pytest.fixture()
 def test_inventory() -> AntaInventory:
     """Return the test_inventory."""
     env = default_anta_env()
@@ -98,7 +98,7 @@ def test_inventory() -> AntaInventory:
 
 
 # tests.unit.test_device.py fixture
-@pytest.fixture
+@pytest.fixture()
 def async_device(request: pytest.FixtureRequest) -> AsyncEOSDevice:
     """Return an AsyncEOSDevice instance."""
     kwargs = {
@@ -115,7 +115,7 @@ def async_device(request: pytest.FixtureRequest) -> AsyncEOSDevice:
 
 
 # tests.units.result_manager fixtures
-@pytest.fixture
+@pytest.fixture()
 def test_result_factory(device: AntaDevice) -> Callable[[int], TestResult]:
     """Return a anta.result_manager.models.TestResult object."""
     # pylint: disable=redefined-outer-name

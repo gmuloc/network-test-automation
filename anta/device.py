@@ -8,13 +8,11 @@ from __future__ import annotations
 import asyncio
 import logging
 from abc import ABC, abstractmethod
-from collections import defaultdict
 from typing import TYPE_CHECKING, Any, Literal
 
 import asyncssh
 import httpcore
-from aiocache import Cache
-from aiocache.plugins import HitMissRatioPlugin
+from async_lru import alru_cache
 from asyncssh import SSHClientConnection, SSHClientConnectionOptions
 from httpx import ConnectError, HTTPError, TimeoutException
 
@@ -58,7 +56,7 @@ class AntaDevice(ABC):
         Parameters
         ----------
             name: Device name.
-            tags: Tags for this device.
+            ags: Tags for this device.
             disable_cache: Disable caching for all commands for this device.
 
         """
@@ -69,12 +67,9 @@ class AntaDevice(ABC):
         self.tags.add(self.name)
         self.is_online: bool = False
         self.established: bool = False
-        self.cache: Cache | None = None
-        self.cache_locks: defaultdict[str, asyncio.Lock] | None = None
 
         # Initialize cache if not disabled
-        if not disable_cache:
-            self._init_cache()
+        self.cache = not disable_cache
 
     @property
     @abstractmethod
@@ -89,19 +84,16 @@ class AntaDevice(ABC):
         """Implement hashing for AntaDevice objects."""
         return hash(self._keys)
 
-    def _init_cache(self) -> None:
-        """Initialize cache for the device, can be overridden by subclasses to manipulate how it works."""
-        self.cache = Cache(cache_class=Cache.MEMORY, ttl=60, namespace=self.name, plugins=[HitMissRatioPlugin()])
-        self.cache_locks = defaultdict(asyncio.Lock)
-
     @property
     def cache_statistics(self) -> dict[str, Any] | None:
         """Returns the device cache statistics for logging purposes."""
         # Need to ignore pylint no-member as Cache is a proxy class and pylint is not smart enough
         # https://github.com/pylint-dev/pylint/issues/7258
-        if self.cache is not None:
-            stats = getattr(self.cache, "hit_miss_ratio", {"total": 0, "hits": 0, "hit_ratio": 0})
-            return {"total_commands_sent": stats["total"], "cache_hits": stats["hits"], "cache_hit_ratio": f"{stats['hit_ratio'] * 100:.2f}%"}
+        if self.cache:
+            stats = self._collect.cache_info()
+            total = stats.miss + stats.hits
+            hit_ratio = stats.hits / total if total != 0 else 0
+            return {"total_commands_sent": total, "cache_hits": stats.hits, "cache_hit_ratio": f"{hit_ratio * 100:.2f}%"}
         return None
 
     def __rich_repr__(self) -> Iterator[tuple[str, Any]]:
@@ -114,9 +106,10 @@ class AntaDevice(ABC):
         yield "hw_model", self.hw_model
         yield "is_online", self.is_online
         yield "established", self.established
-        yield "disable_cache", self.cache is None
+        yield "disable_cache", not self.cache
 
     @abstractmethod
+    @alru_cache(ttl=60)
     async def _collect(self, command: AntaCommand, *, collection_id: str | None = None) -> None:
         """Collect device command output.
 
@@ -152,20 +145,11 @@ class AntaDevice(ABC):
             command: The command to collect.
             collection_id: An identifier used to build the eAPI request ID.
         """
-        # Need to ignore pylint no-member as Cache is a proxy class and pylint is not smart enough
-        # https://github.com/pylint-dev/pylint/issues/7258
-        if self.cache is not None and self.cache_locks is not None and command.use_cache:
-            async with self.cache_locks[command.uid]:
-                cached_output = await self.cache.get(command.uid)  # pylint: disable=no-member
-
-                if cached_output is not None:
-                    logger.debug("Cache hit for %s on %s", command.command, self.name)
-                    command.output = cached_output
-                else:
-                    await self._collect(command=command, collection_id=collection_id)
-                    await self.cache.set(command.uid, command.output)  # pylint: disable=no-member
-        else:
+        # https://stackoverflow.com/questions/56544334/disable-functools-lru-cache-from-inside-function
+        if self.cache:
             await self._collect(command=command, collection_id=collection_id)
+        else:
+            await self._collect.__wrapped__(command=command, collection_id=collection_id)
 
     async def collect_commands(self, commands: list[AntaCommand], *, collection_id: str | None = None) -> None:
         """Collect multiple commands.
