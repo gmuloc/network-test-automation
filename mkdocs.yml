@@ -39,16 +39,12 @@ theme:
     # Light mode
     - media: "(prefers-color-scheme: light)"
       scheme: default
-      primary: white
-      accent: blue
       toggle:
         icon: material/weather-night
         name: Switch to dark mode
     # Dark mode
     - media: "(prefers-color-scheme: dark)"
       scheme: slate
-      primary: black
-      accent: blue
       toggle:
         icon: material/weather-sunny
         name: Switch to light mode
