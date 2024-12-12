@@ -140,10 +140,14 @@ def tags(inventory: AntaInventory, **kwargs: Any) -> None:
 @click.option("--test", help="Filter by specific test name. If module is specified, searches only within that module.", type=str)
 @click.option("--short", help="Display test names without their inputs.", is_flag=True, default=False)
 @click.option("--count", help="Print only the number of tests found.", is_flag=True, default=False)
-def tests(ctx: click.Context, module: str, test: str | None, *, short: bool, count: bool) -> None:
-    """Show all builtin ANTA tests with an example output retrieved from each test documentation."""
+@click.option("--commands", help="Print the commands for each test.", is_flag=True, default=False)
+def tests(ctx: click.Context, module: str, test: str | None, *, short: bool, count: bool, commands: bool) -> None:
+    """Show all builtin ANTA tests with an example output retrieved from each test documentation.
+
+    if commands is set, print the commands for each test instead.
+    """
     try:
-        tests_found = explore_package(module, test_name=test, short=short, count=count)
+        tests_found = explore_package(module, test_name=test, short=short, count=count, commands=commands)
         if tests_found == 0:
             console.print(f"""No test {f"'{test}' " if test else ""}found in '{module}'.""")
         elif count:

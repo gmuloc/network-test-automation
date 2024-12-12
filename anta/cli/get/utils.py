@@ -27,7 +27,7 @@ from anta.cli.console import console
 from anta.cli.utils import ExitCode
 from anta.inventory import AntaInventory
 from anta.inventory.models import AntaInventoryHost, AntaInventoryInput
-from anta.models import AntaTest
+from anta.models import AntaCommand, AntaTemplate, AntaTest
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -214,7 +214,7 @@ def create_inventory_from_ansible(inventory: Path, output: Path, ansible_group: 
     write_inventory_to_file(ansible_hosts, output)
 
 
-def explore_package(module_name: str, test_name: str | None = None, *, short: bool = False, count: bool = False) -> int:
+def explore_package(module_name: str, test_name: str | None = None, *, short: bool = False, count: bool = False, commands: bool = False) -> int:
     """Parse ANTA test submodules recursively and print AntaTest examples.
 
     Parameters
@@ -227,6 +227,8 @@ def explore_package(module_name: str, test_name: str | None = None, *, short: bo
         If True, only print test names without their inputs.
     count
         If True, only count the tests.
+    commands
+        If True, print test commands instead.
 
     Returns
     -------
@@ -260,17 +262,17 @@ def explore_package(module_name: str, test_name: str | None = None, *, short: bo
         for _, sub_module_name, ispkg in pkgutil.walk_packages(module_spec.submodule_search_locations):
             qname = f"{module_name}.{sub_module_name}"
             if ispkg:
-                tests_found += explore_package(qname, test_name=test_name, short=short, count=count)
+                tests_found += explore_package(qname, test_name=test_name, short=short, count=count, commands=commands)
                 continue
-            tests_found += find_tests_examples(qname, test_name, short=short, count=count)
+            tests_found += find_tests_examples(qname, test_name, short=short, count=count, commands=commands)
 
     else:
-        tests_found += find_tests_examples(module_spec.name, test_name, short=short, count=count)
+        tests_found += find_tests_examples(module_spec.name, test_name, short=short, count=count, commands=commands)
 
     return tests_found
 
 
-def find_tests_examples(qname: str, test_name: str | None, *, short: bool = False, count: bool = False) -> int:
+def find_tests_examples(qname: str, test_name: str | None, *, short: bool = False, count: bool = False, commands: bool = False) -> int:
     """Print tests from `qname`, filtered by `test_name` if provided.
 
     Parameters
@@ -283,6 +285,8 @@ def find_tests_examples(qname: str, test_name: str | None, *, short: bool = Fals
         If True, only print test names without their inputs.
     count
         If True, only count the tests.
+    commands
+        If True, print test commands instead.
 
     Returns
     -------
@@ -311,12 +315,12 @@ def find_tests_examples(qname: str, test_name: str | None, *, short: bool = Fals
         tests_found += 1
         if count:
             continue
-        print_test(obj, short=short)
+        print_test(obj, short=short, commands=commands)
 
     return tests_found
 
 
-def print_test(test: type[AntaTest], *, short: bool = False) -> None:
+def print_test(test: type[AntaTest], *, short: bool = False, commands: bool = False) -> None:
     """Print a single test.
 
     Parameters
@@ -325,6 +329,8 @@ def print_test(test: type[AntaTest], *, short: bool = False) -> None:
         the representation of the AntaTest as returned by inspect.getmembers
     short
         If True, only print test names without their inputs.
+    commands
+        If True, print test commands instead.
     """
     if not test.__doc__ or (example := extract_examples(test.__doc__)) is None:
         msg = f"Test {test.name} in module {test.__module__} is missing an Example"
@@ -342,6 +348,14 @@ def print_test(test: type[AntaTest], *, short: bool = False) -> None:
     console.print(f"  {inputs[test_name_line].strip()}")
     # Injecting the description
     console.print(f"      # {test.description}", soft_wrap=True)
+    if commands:
+        console.print("      commands:")
+        for command in test.commands:
+            if isinstance(command, AntaTemplate):
+                console.print(f"        - {command.template}")
+            elif isinstance(command, AntaCommand):
+                console.print(f"        - {command.command}")
+        return
     if not short and len(inputs) > test_name_line + 2:  # There are params
         console.print(textwrap.indent(textwrap.dedent("\n".join(inputs[test_name_line + 1 : -1])), " " * 6))
 
