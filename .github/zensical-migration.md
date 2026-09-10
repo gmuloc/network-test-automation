@@ -6,20 +6,25 @@
 
 # Zensical Migration Notes
 
-**Branch:** `main`
+**Branch:** `docs/zensical-toml`
 **Last reviewed:** September 10, 2026
 
 This note documents the decisions, temporary workarounds, and validation steps for migrating ANTA documentation from MkDocs Material to Zensical.
 
 ## Current State
 
-ANTA builds documentation with `zensical 0.0.59`.
+ANTA builds documentation with `zensical 0.0.59` and uses its native `zensical.toml` configuration format.
+
+The migration targets `0.0.59` rather than stopping at `0.0.58`. Version `0.0.58` introduced Zensical's Rust plugin and scheduler architecture; `0.0.59` is the latest verified release and carries its follow-up fixes for navigation-title precedence, Windows custom theme directories, meta-plugin activation, and minified SVG icons. Starting on the follow-up release avoids knowingly adopting first-release defects in the new architecture, including two areas ANTA relies on directly: ordered navigation and `docs/overrides`.
 
 The documentation dependency group installs:
 
 - `zensical==0.0.59`
 - the Zensical-compatible `mike` fork pinned to commit `2d4ad799442f4592db8ad53b179bfb33db8c69ac`
 - `anta-zensical-extensions`, a local documentation-only package under `tools/zensical_extensions/`
+- `mkdocs` and `mkdocs-autorefs`, which remain runtime requirements of `mkdocstrings`
+
+`mkdocs-material` and `mkdocs-material-extensions` are no longer installed directly. Zensical provides the site theme and emoji helpers, while the remaining MkDocs packages are retained only because `mkdocstrings` imports them.
 
 CI and release workflows install the docs dependencies with:
 
@@ -36,13 +41,23 @@ mike deploy --push main
 mike deploy --update-alias --push "$REF_NAME" stable
 ```
 
+## Native Configuration
+
+`zensical.toml` is the sole documentation configuration. Keeping one configuration avoids drift between native Zensical settings and the legacy MkDocs YAML compatibility layer.
+
+The theme is named `zensical`, which selects the same built-in theme that the former `material` compatibility alias selected without requiring the Material package. Markdown callables that YAML represented with `!!python/name` tags are import strings in TOML, as supported by Zensical. The deeply nested navigation remains an ordered array of single-key tables so labels, paths, and menu order stay unchanged.
+
+Markdown extension names containing dots are quoted literal TOML keys. This preserves the extension order from `mkdocs.yml`; leaving them unquoted would make TOML interpret each dot as a nested table, which Zensical can flatten but only after reordering extension groups. Extension order can affect Python-Markdown processing, so the literal representation is the safer behavior-preserving choice. Search keeps `lang = "en"` explicitly rather than relying on the theme language to imply the search tokenizer language.
+
+Legacy theme settings that Zensical does not implement (`highlightjs`, `hljs_languages`, `include_search_page`, and `search_index_only`) were removed instead of carrying ignored configuration forward. Code highlighting remains configured through Python-Markdown and Pygments.
+
 ## Versioned Documentation
 
 Zensical does not have native versioning yet. It currently documents versioning through a Zensical-compatible `mike` fork.
 
 ANTA keeps the existing versioning model:
 
-- `extra.version.provider: mike`
+- `project.extra.version.provider = "mike"`
 - `main` for the main-branch documentation
 - `stable` as the release alias
 - existing deployed versions left untouched
@@ -51,15 +66,15 @@ Do not switch back to plain PyPI `mike==2.2.0`: it builds with `mkdocs build --c
 
 The `mike` fork is pinned to an immutable commit SHA in `pyproject.toml` so documentation builds do not drift when the fork's default branch changes.
 
-The `mike` plugin config in `mkdocs.yml` is explicit because the Zensical-compatible fork expects these keys during deploy:
+The supported Mike settings remain explicit in `zensical.toml`:
 
-```yaml
-- mike:
-    alias_type: symlink
-    redirect_template: null
-    deploy_prefix: ""
-    canonical_version: null
+```toml
+[project.plugins.mike]
+alias_type = "symlink"
+deploy_prefix = ""
 ```
+
+`redirect_template` and `canonical_version` are omitted because TOML has no null value; the Mike fork and Zensical both supply the same null defaults.
 
 ## Temporary Workarounds
 
@@ -77,7 +92,7 @@ The extension is outside `docs/` because Zensical copies non-page support files 
 
 This helper is a Python-Markdown extension, not a MkDocs plugin.
 
-Zensical 0.0.59 accepts a `plugins:` key for supported compatibility shims and configuration, but it does not load arbitrary MkDocs plugin classes or call MkDocs lifecycle hooks. The `macros` shim can load custom Python modules, but it registers variables, macros, and filters for page rendering; it is not a global per-page metadata hook for this footer use case.
+Zensical 0.0.59 accepts native plugin configuration for its supported replacements, but it does not load arbitrary MkDocs plugin classes or call MkDocs lifecycle hooks. The `macros` shim can load custom Python modules, but it registers variables, macros, and filters for page rendering; it is not a global per-page metadata hook for this footer use case.
 
 ### Admonitions
 
@@ -89,12 +104,18 @@ Zensical does not load the old `gh-admonitions` MkDocs plugin. ANTA also avoids 
 
 ANTA uses Zensical's native `zensical.extensions.glightbox` Markdown extension instead of the external `mkdocs-glightbox` plugin.
 
-The old MkDocs plugin accepted additional options such as `slide_effect`, `background`, `shadow`, `touchNavigation`, `loop`, and `effect`. Zensical's documented native extension does not support those options. ANTA keeps only the supported width setting:
+The old MkDocs plugin accepted additional options such as `slide_effect`, `background`, `shadow`, `touchNavigation`, `loop`, and `effect`. Zensical's native extension does not implement all of those options, so ANTA uses its defaults:
 
-```yaml
-- zensical.extensions.glightbox:
-    width: 90vw
+```toml
+[project.markdown_extensions]
+"zensical.extensions.glightbox" = {}
 ```
+
+The former width setting is intentionally not carried forward. Zensical turns configured dimensions into fixed GLightbox media-box dimensions, and GLightbox v3 applies `object-fit: cover`; together those settings crop tall terminal captures. Targeted rules in `extra.zensical.css` instead give the initial image a transparent `90vw` by `90vh` viewport and use `object-fit: contain`, preserving the image aspect ratio, using the available browser area, and keeping every edge visible.
+
+The same rules preserve click-to-zoom with a consistent two-times viewport size for every image format. Using intrinsic dimensions is unreliable here: generated terminal SVGs only define a `viewBox`, while some raster screenshots are smaller than their fitted lightbox rendering.
+
+GLightbox only attaches its zoom handler when an image's natural width exceeds its rendered width. That test skips viewBox-only SVGs and raster images enlarged by the initial fit. `glightbox-zoom.js` observes newly opened slides and adds equivalent click-to-zoom and drag-to-pan handling only when GLightbox did not attach its native `zoomable` class. Images accepted by GLightbox continue to use its native handler.
 
 Re-test GLightbox behavior after Zensical upgrades before reintroducing any removed `mkdocs-glightbox` behavior.
 
@@ -166,7 +187,7 @@ git show zensical-preview:index.html
 
 Preview checks used during the original migration review:
 
-- `/main/` is generated by `zensical-0.0.50`
+- `/main/` is generated by `zensical-0.0.59`
 - the page footer shows "Last update"
 - `/main/snippets/api_tests_overview/` returns 404
 - `/main/snippets/api_tests_overview.txt` is available as a raw snippet asset

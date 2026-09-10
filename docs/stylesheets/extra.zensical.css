@@ -573,6 +573,42 @@ h5.doc-heading {
   max-width: none;
 }
 
+/* GLightbox uses object-fit: cover by default, which crops tall screenshots. */
+.glightbox-container .gslide.current .gslide-image img {
+  background: transparent !important;
+  height: 90vh !important;
+  max-height: 90vh !important;
+  max-width: 90vw !important;
+  object-fit: contain !important;
+  width: 90vw !important;
+}
+
+.glightbox-container .gslide.current .gslide-media {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+/* Use one predictable two-times zoom level for every image format. */
+.glightbox-container .gslide.current.zoomed .gslide-image img {
+  height: 180vh !important;
+  max-height: none !important;
+  max-width: none !important;
+  object-fit: contain !important;
+  width: 180vw !important;
+}
+
+.glightbox-container .gslide-image img.anta-zoomable {
+  cursor: zoom-in;
+}
+
+.glightbox-container .gslide.zoomed .gslide-image img.anta-zoomable {
+  cursor: grab;
+}
+
+.glightbox-container .gslide.zoomed .gslide-image img.anta-zoomable.anta-dragging {
+  cursor: grabbing;
+}
+
 /* Zensical header: keep the same footer-blue treatment in light and dark modes. */
 .md-header,
 .md-tabs {
